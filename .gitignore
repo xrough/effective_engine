@@ -1,0 +1,29 @@
+# CMake 构建目录
+build/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# 编译产物
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+market_maker
+
+# IDE / 编辑器
+.vscode/
+.idea/
+*.user
+*.xcodeproj/
+*.xcworkspace/
+.DS_Store
+
+# Claude Code 会话目录（本地专用，不提交）
+.claude/
+
+# 编译命令数据库（由 CMake 生成，本地专用）
+compile_commands.json
