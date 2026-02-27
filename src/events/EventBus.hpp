@@ -35,8 +35,8 @@ public:
     // 模式：观察者 — 观察者调用此方法将自身注册为 T 类型事件的接收方。
     //
     // 参数：
-    //   handler — 可调用对象，接受 const T& 类型的事件实参
-    //
+    //   handler — 可调用对象，接受 const T& 类型的事件实参 
+    //   handler即观测到事件后执行的函数
     // 实现细节：
     //   将 handler 包裹在一个捕获了类型信息的 lambda 中，
     //   lambda 接受 const std::any&，内部调用 std::any_cast<const T&>
@@ -44,13 +44,14 @@ public:
     //   这样内部存储只需要 std::function<void(const std::any&)>，
     //   无需感知具体事件类型 T。
     // ----------------------------------------------------------
-    template<typename T>
+    template<typename T> 
+    // template是不预定输入类型的函数模板，T是占位符，调用时会被具体类型替换
     void subscribe(std::function<void(const T&)> handler) {
         auto key = std::type_index(typeid(T));
         // 将类型化处理器包装为类型擦除的 lambda，统一存储
         handlers_[key].emplace_back(
             [h = std::move(handler)](const std::any& event) {
-                h(std::any_cast<const T&>(event));
+                h(std::any_cast<const T&>(event)); //类型擦除的 lambda
             }
         );
     }
@@ -76,8 +77,8 @@ public:
             return;
         }
         // 将事件包装为 std::any，避免多次拷贝
-        std::any wrapped(event);
-        for (auto& handler_wrapper : it->second) {
+        std::any wrapped(event); //直接初始化为event
+        for (auto& handler_wrapper : it->second) { //second指向value，即处理器列表
             handler_wrapper(wrapped);
         }
     }

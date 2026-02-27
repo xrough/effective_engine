@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include <unordered_map>
+#include <unordered_map> // HashMap 用于存储合约 ID 到 Delta 的映射
 #include <string>
 #include "../events/EventBus.hpp"
 #include "../events/Events.hpp"
@@ -37,7 +37,7 @@ public:
     DeltaHedger(
         std::shared_ptr<events::EventBus>            bus,
         std::shared_ptr<domain::PositionManager>     position_manager,
-        std::shared_ptr<domain::IPricingEngine>      pricing_engine,
+        std::shared_ptr<domain::IPricingEngine>      pricing_engine, //计算Delta需要用到定价引擎
         std::vector<std::shared_ptr<domain::Option>> options,
         const std::string&                           underlying_id,
         double delta_threshold = 0.5  // MVP 低阈值，确保仿真中快速触发对冲
@@ -45,6 +45,7 @@ public:
 
     // 向 EventBus 注册 TradeExecutedEvent 处理器，应在 main.cpp 连线阶段调用
     void register_handlers();
+    //初始化，在其中subscribe事件处理器
 
     // 更新当前标的资产市场价格（供 DeltaHedger 计算 Delta 时使用）
     // 通过订阅 MarketDataEvent 的 lambda 调用
@@ -54,10 +55,11 @@ private:
     // TradeExecutedEvent 的处理函数
     void on_trade_executed(const events::TradeExecutedEvent& event);
 
-    // 构建各合约的 Delta 映射表（用于传入 PositionManager::compute_portfolio_delta）
+    // 构建各合约的 Delta 映射表（用于传入 PositionManager::compute_portfolio_delta)
+    // snapshot of current deltas for all instruments
     std::unordered_map<std::string, double> compute_delta_map(
         double current_price
-    ) const;
+    ) const; //const成员函数，承诺不修改对象状态
 
     std::shared_ptr<events::EventBus>            bus_;             // 事件总线
     std::shared_ptr<domain::PositionManager>     position_manager_; // 持仓管理（注入）

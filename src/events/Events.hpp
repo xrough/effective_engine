@@ -12,6 +12,45 @@
 //   - 所有事件均为纯数据载体，不持有任何 I/O 或业务逻辑。
 // ============================================================
 
+// ============================================================
+// Event 场景简要说明（Program Remark）
+//
+// 每个 event 表示系统中某个阶段已经发生的业务事实：
+//
+// 1. MarketDataEvent
+//    → 市场行情更新（价格变化）
+//    → 触发重新报价、风险计算
+//
+// 2. QuoteGeneratedEvent
+//    → 做市商生成 bid / ask 报价
+//    → 等待客户成交或记录日志
+//
+// 3. TradeExecutedEvent
+//    → 客户成交发生
+//    → 更新持仓、计算 PnL、触发对冲
+//
+// 4. OrderSubmittedEvent
+//    → 系统提交对冲订单请求
+//    → 订单路由执行或记录审计
+//
+// ------------------------------------------------------------
+// 典型流程：
+//
+// MarketDataEvent
+//      ↓
+// QuoteGeneratedEvent
+//      ↓
+// TradeExecutedEvent
+//      ↓
+// OrderSubmittedEvent
+//
+// ------------------------------------------------------------
+// 目的：
+//   - 用“已发生的事实”在模块间通信
+//   - 解耦系统组件
+//   - 支持回放、测试、日志与扩展
+// ============================================================
+
 namespace omm::events {
 
 // 时间戳类型别名，统一使用系统时钟
@@ -22,7 +61,7 @@ using Timestamp = std::chrono::system_clock::time_point;
 //    发布者：MarketDataAdapter（行情适配器）
 //    订阅者：QuoteEngine（报价引擎）、DeltaHedger（Delta 对冲器）
 // ============================================================
-struct MarketDataEvent {
+struct MarketDataEvent { //struct:结构体，默认成员访问权限为public，适合表示纯数据载体
     Timestamp timestamp;        // 行情时间戳
     double    underlying_price; // 标的资产当前价格（如 AAPL 的股价）
 };

@@ -42,6 +42,7 @@ public:
     // ----------------------------------------------------------
     void run();
 
+//CSV -> RawTick -> MarketDataEvent
 private:
     // 原始 tick 数据结构（适配者格式）
     struct RawTick {
@@ -49,8 +50,9 @@ private:
         double      price;         // 标的资产价格
     };
 
-    // 从 CSV 文件加载原始 tick 数据
-    std::vector<RawTick> load_from_csv(const std::string& path) const;
+    // 从 CSV 文件加载原始 tick 数据，返回 RawTick 列表
+    std::vector<RawTick> load_from_csv(const std::string& path) const; 
+    //最后的的const表示这个函数不会修改成员变量
 
     // 回退方案：硬编码的 tick 数据（不依赖文件 I/O，确保仿真始终可运行）
     std::vector<RawTick> hardcoded_ticks() const;
@@ -58,7 +60,7 @@ private:
     // 将时间戳字符串转换为 Timestamp 类型（MVP 简化实现）
     events::Timestamp parse_timestamp(const std::string& ts_str) const;
 
-    std::shared_ptr<events::EventBus> bus_;      // 事件总线（注入）
+    std::shared_ptr<events::EventBus> bus_;      // 事件总线（注入），后置下划线表示成员变量
     std::string                       csv_path_; // CSV 文件路径
 };
 

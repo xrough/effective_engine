@@ -33,7 +33,9 @@ enum class OptionType {
 class Instrument {
 public:
     explicit Instrument(std::string id);
-    virtual ~Instrument() = default;
+    virtual ~Instrument() = default; 
+    //析构函数（destructor），virtual表示允许子类重写，= default表示使用编译器生成的默认实现
+    //目的是当对象销毁时正确清理派生类资源，避免内存泄漏
 
     // 返回工具的唯一标识符（只读）
     const std::string& id() const;

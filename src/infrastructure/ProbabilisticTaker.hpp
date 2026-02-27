@@ -29,7 +29,7 @@ public:
     //   bus              — 事件总线（注入）
     //   trade_probability — 每条报价触发成交的概率（默认 10%）
     //   seed             — 随机数种子（固定种子确保仿真结果可重现）
-    explicit ProbabilisticTaker(
+    explicit ProbabilisticTaker( //explicit:禁止隐式类型转换，构造函数只能通过显式调用来创建对象
         std::shared_ptr<events::EventBus> bus,
         double       trade_probability = 0.10,
         unsigned int seed              = 42
