@@ -56,3 +56,4 @@ Implement these as strict data classes (e.g., Python `@dataclass` or Pydantic) a
 3. **Build the Black-Scholes `PricingEngine`.**
 4. **Implement the Strategies and Adapters.**
 5. **Create a `main.py` entry point:** Wire the publishers and subscribers together, load a dummy array of market data, and run the simulation loop, printing logs to the console to prove the flow works.
+

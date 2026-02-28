@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <chrono>
+#include <unordered_map>
 
 // ============================================================
 // 文件：Events.hpp
@@ -119,6 +120,56 @@ struct OrderSubmittedEvent {
     Side        side;          // 订单方向（Buy / Sell）
     int         quantity;      // 订单数量
     OrderType   order_type;    // 订单类型（Market / Limit）
+};
+
+// ============================================================
+// 5. RiskControlEvent — 风控指令事件（RealtimeRiskApp 发出）
+//    发布者：RealtimeRiskApp（实时风控应用）
+//    订阅者：OrderRouter（可阻断新订单）、日志处理器
+//
+//    RiskAction 枚举说明：
+//      BlockOrders  — 冻结账户，禁止提交新订单
+//      CancelOrders — 撤销所有未成交订单
+//      ReduceOnly   — 仅允许减仓方向的订单
+// ============================================================
+enum class RiskAction {
+    BlockOrders,  // 冻结账户下单权限
+    CancelOrders, // 批量撤单
+    ReduceOnly    // 限制为减仓模式
+};
+
+struct RiskControlEvent {
+    std::string account_id; // 受影响账户 ID
+    RiskAction  action;     // 风控动作
+    std::string reason;     // 触发原因描述（供日志记录）
+};
+
+// ============================================================
+// 6. RiskAlertEvent — 风险预警事件
+//    发布者：RealtimeRiskApp（实时风控应用）
+//    订阅者：日志处理器、监控系统
+//
+//    用于记录风险指标接近限额但尚未触发强制动作的情形。
+// ============================================================
+struct RiskAlertEvent {
+    std::string account_id;   // 告警账户 ID
+    std::string metric_name;  // 触发告警的指标名称（如 "delta"）
+    double      value;        // 当前指标值
+    double      limit;        // 对应风险限额
+};
+
+// ============================================================
+// 7. ParamUpdateEvent — 模型参数更新事件
+//    发布者：BacktestCalibrationApp（回测校准应用）
+//    订阅者：ParameterStore（参数仓库）
+//
+//    校准引擎完成优化后，通过此事件将新参数广播到系统，
+//    实现"校准 → 参数更新 → 实时定价"闭环。
+// ============================================================
+struct ParamUpdateEvent {
+    std::string model_id;                                  // 模型标识符（如 "bs_model"）
+    std::unordered_map<std::string, double> params;        // 参数键值对（如 {"vol": 0.22}）
+    Timestamp   updated_at;                                // 参数更新时间戳
 };
 
 } // namespace omm::events

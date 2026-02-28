@@ -76,4 +76,45 @@ public:
     ) const override;
 };
 
+// ============================================================
+// BlackScholesPricingEngine — 标准 Black-Scholes 定价引擎
+//
+// 实现欧式香草期权的完整 Black-Scholes 公式：
+//   d₁ = [ln(S/K) + (r + σ²/2)·T] / (σ·√T)
+//   d₂ = d₁ - σ·√T
+//   Call 价格 = S·N(d₁) - K·e^(-rT)·N(d₂)
+//   Put  价格 = K·e^(-rT)·N(-d₂) - S·N(-d₁)
+//   Call Delta = N(d₁)
+//   Put  Delta = N(d₁) - 1
+//
+// 其中 N(x) 为标准正态累积分布函数（CDF），通过 std::erf 近似计算。
+//
+// 可调参数：
+//   vol — 隐含波动率（年化，如 0.20 = 20%），用于回测校准
+//   r   — 无风险利率（年化，默认 0.05 = 5%）
+//
+// 模式：策略模式 — 与 SimplePricingEngine 共享 IPricingEngine 接口，
+//       可在 main.cpp 中无缝替换，其他组件零改动。
+// ============================================================
+class BlackScholesPricingEngine final : public IPricingEngine {
+public:
+    // 构造函数：指定初始隐含波动率和无风险利率
+    explicit BlackScholesPricingEngine(double vol = 0.20, double r = 0.05);
+
+    // set_vol() — 运行时更新波动率（供 ParameterStore 注入校准结果）
+    void set_vol(double vol);
+
+    // get_vol() — 查询当前波动率（供日志/报告使用）
+    double get_vol() const;
+
+    PriceResult price(
+        const Option& option,
+        double        underlying_price
+    ) const override;
+
+private:
+    double vol_; // 隐含波动率（年化）
+    double r_;   // 无风险利率（年化）
+};
+
 } // namespace omm::domain

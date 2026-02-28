@@ -1,5 +1,7 @@
 #include "PricingEngine.hpp"
 #include <algorithm> // std::max
+#include <cmath>     // std::log, std::sqrt, std::exp, std::erf
+#include <chrono>    // 用于计算到期年份 T
 
 // 模式：策略模式（Strategy Pattern）
 // SimplePricingEngine 是 IPricingEngine 的一个具体策略实现。
@@ -29,6 +31,66 @@ PriceResult SimplePricingEngine::price(
         delta = -0.5;
     }
 
+    return PriceResult{theo, delta};
+}
+
+// ============================================================
+// BlackScholesPricingEngine 实现
+// ============================================================
+
+// N(x) — 标准正态累积分布函数（CDF），使用 std::erf 近似计算
+// 公式：N(x) = 0.5 * (1 + erf(x / sqrt(2)))
+static double norm_cdf(double x) {
+    return 0.5 * (1.0 + std::erf(x / std::sqrt(2.0)));
+}
+
+BlackScholesPricingEngine::BlackScholesPricingEngine(double vol, double r)
+    : vol_(vol), r_(r) {}
+
+void BlackScholesPricingEngine::set_vol(double vol) {
+    vol_ = vol;  // 运行时更新波动率（由 ParameterStore 注入校准结果）
+}
+
+double BlackScholesPricingEngine::get_vol() const {
+    return vol_;
+}
+
+PriceResult BlackScholesPricingEngine::price(
+    const Option& option,
+    double underlying_price) const {
+
+    const double S = underlying_price;        // 标的资产当前价格
+    const double K = option.strike();          // 行权价
+    const double sigma = vol_;                 // 年化波动率
+
+    // 计算到期年限 T（从当前时刻到期权到期日）
+    auto now = std::chrono::system_clock::now();
+    auto time_to_expiry = option.expiry() - now;
+    double T = std::chrono::duration<double>(time_to_expiry).count()
+               / (365.0 * 24.0 * 3600.0); // 转换为年
+    T = std::max(T, 1e-6); // 防止 T=0 导致除零
+
+    // 计算 d₁ 和 d₂（Black-Scholes 核心公式）
+    double d1 = (std::log(S / K) + (r_ + 0.5 * sigma * sigma) * T)
+                / (sigma * std::sqrt(T));
+    double d2 = d1 - sigma * std::sqrt(T);
+
+    double theo  = 0.0;
+    double delta = 0.0;
+
+    if (option.option_type() == OptionType::Call) {
+        // 看涨期权定价：Call = S·N(d₁) - K·e^(-rT)·N(d₂)
+        theo  = S * norm_cdf(d1) - K * std::exp(-r_ * T) * norm_cdf(d2);
+        // 看涨期权 Delta = N(d₁)（[0, 1] 范围内）
+        delta = norm_cdf(d1);
+    } else {
+        // 看跌期权定价：Put = K·e^(-rT)·N(-d₂) - S·N(-d₁)
+        theo  = K * std::exp(-r_ * T) * norm_cdf(-d2) - S * norm_cdf(-d1);
+        // 看跌期权 Delta = N(d₁) - 1（[-1, 0] 范围内）
+        delta = norm_cdf(d1) - 1.0;
+    }
+
+    theo = std::max(0.0, theo); // 期权理论价格不得为负
     return PriceResult{theo, delta};
 }
 
