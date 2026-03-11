@@ -27,3 +27,13 @@ market_maker
 
 # 编译命令数据库（由 CMake 生成，本地专用）
 compile_commands.json
+
+# Python
+python/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/

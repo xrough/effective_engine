@@ -29,7 +29,7 @@ public:
     // 返回：
     //   std::shared_ptr<Underlying>（共享所有权，供多个组件持有）
     // ----------------------------------------------------------
-    static std::shared_ptr<Underlying> make_underlying(
+    static std::shared_ptr<Underlying> make_underlying( //静态函数 不需要实例化工厂类
         const std::string& id
     );
 
