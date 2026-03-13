@@ -268,3 +268,61 @@ PHASE 2 — BACKTEST & CALIBRATION  (isolated backtest_bus + main_bus)
   Command    │ OrderSubmittedEvent (intent encapsulated as data)
   Aggregate  │ PortfolioAggregate (consistency boundary per account)
 ```
+
+---
+
+## Real Data & Multi-Model Calibration Pipeline
+
+```
+MVP/python/
+├── data/
+│   └── yfinance_fetcher.py      # Download spot + options (yfinance)
+├── calibration/
+│   └── model_calibrator.py      # BSCalibrator | GBMCalibrator | HestonCalibrator
+├── experiments/
+│   └── real_data_experiment.py  # Entry point: fetch → simulate → calibrate → plot
+└── roughvol/                    # MC pricing domain (models, instruments, engine)
+    ├── models/  GBMModel · HestonModel
+    ├── instruments/  VanillaOption · AsianArithmeticOption
+    ├── engines/  MonteCarloEngine
+    └── analytics/  bs_price · implied_vol
+```
+
+### How to run
+
+```bash
+cd MVP/python
+pip install yfinance scipy pandas matplotlib
+python3 experiments/real_data_experiment.py --ticker AAPL --start 2024-01-01 --end 2024-06-30
+```
+
+Pass `--skip-heston` to skip the slow 5D optimisation (useful for a quick smoke test).
+
+### What it does
+
+The experiment script fetches real AAPL spot history and live options chain data from Yahoo Finance, runs the existing event-driven simulation on real spot prices (Phase 1), then benchmarks three calibration models against real options prices (Phase 2): the closed-form Black-Scholes implied vol calibrator (~0 ms), a 1-parameter GBM Monte Carlo calibrator (~10–30 s), and a 5-parameter Heston Monte Carlo calibrator (~60–300 s). The C++ hot path and the heritage DDD event loop are untouched; the calibration layer is batch-only and never called per tick.
+
+### Output
+
+| Plot file | Content |
+|---|---|
+| `data/plots/spot_<TICKER>.png` | Daily closing price over the fetched date range |
+| `data/plots/vol_smile_<TICKER>.png` | BS implied vol vs moneyness (K/S), one line per expiry |
+| `data/plots/calib_mse_<TICKER>.png` | Horizontal bar chart comparing MSE: BS / GBM-MC / Heston |
+| `data/plots/price_fit_<TICKER>.png` | Scatter of model price vs market price for all three models; y = x line shows perfect fit |
+
+A calibration comparison table is also printed to stdout:
+
+```
+══════════════ Calibration Results ══════════════
+  Ticker : AAPL
+  Spot   : $182.34
+  Options: 12 contracts (2 expiries)
+
+Model    │ Parameters                              │ MSE        │ Time (s)
+─────────┼─────────────────────────────────────────┼────────────┼─────────
+BS       │ σ_ATM=0.2347                            │ 2.31e-04   │ 0.001
+GBM MC   │ σ=0.2341                                │ 2.89e-04   │ 18.4
+Heston   │ κ=2.10  θ=0.055  ξ=0.31  ρ=-0.68  v0=0.049 │ 8.12e-05 │ 124.7
+═════════════════════════════════════════════════
+```

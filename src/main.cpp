@@ -63,7 +63,7 @@
 
 int main() {
     std::cout << "╔══════════════════════════════════════════════════════════╗\n"
-              << "║     期权做市商 MVP — 事件驱动仿真系统（完整版）         ║\n"
+              << "║     Options Market Maker MVP — Event-Driven Simulation   ║\n"
               << "╚══════════════════════════════════════════════════════════╝\n\n";
 
     // ────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ int main() {
         call_150, call_145, put_155
     };
 
-    std::cout << "[初始化] 工厂模式创建合约:\n";
+    std::cout << "[Init] Factory: created instruments:\n";
     std::cout << "  " << underlying->id() << " (" << underlying->type_name() << ")\n";
     for (const auto& opt : options) {
         std::cout << "  " << opt->id() << " (" << opt->type_name() << ")\n";
@@ -99,23 +99,23 @@ int main() {
     // ────────────────────────────────────────────────────────
     auto param_store = std::make_shared<omm::infrastructure::ParameterStore>(main_bus);
     param_store->subscribe_handlers();
-    std::cout << "[初始化] ParameterStore 已注册（订阅 ParamUpdateEvent）\n\n";
+    std::cout << "[Init] ParameterStore registered (subscribing to ParamUpdateEvent)\n\n";
 
     // ════════════════════════════════════════════════════════
     // ██ 第一阶段：实时仿真 + 实时风控 ██
     // ════════════════════════════════════════════════════════
     std::cout << "┌──────────────────────────────────────────────────────────┐\n"
-              << "│  第一阶段：实时做市仿真 + 实时风控监控                  │\n"
+              << "│  Phase 1: Live Market-Making Simulation + Risk Monitoring│\n"
               << "└──────────────────────────────────────────────────────────┘\n\n";
 
     // 第一阶段独立事件总线
     auto live_bus = std::make_shared<omm::events::EventBus>();
-    std::cout << "[初始化] 第一阶段 EventBus 已创建（实时仿真专用）\n";
+    std::cout << "[Init] Phase 1 EventBus created (live simulation)\n";
 
     // ── 定价策略：简化内在价值定价（与原 MVP 保持一致）──────
     auto pricing_engine = std::make_shared<omm::domain::SimplePricingEngine>();
     auto position_mgr   = std::make_shared<omm::domain::PositionManager>();
-    std::cout << "[初始化] 定价策略: SimplePricingEngine（内在价值定价）\n";
+    std::cout << "[Init] Pricing strategy: SimplePricingEngine (intrinsic-value pricing)\n";
 
     // ── QuoteEngine — 固定价差报价策略 ──────────────────────
     auto quote_engine = std::make_shared<omm::application::QuoteEngine>(
@@ -123,7 +123,7 @@ int main() {
         0.05  // half_spread = $0.05
     );
     quote_engine->register_handlers();
-    std::cout << "[初始化] QuoteEngine 已注册（策略：固定价差 ±$0.05）\n";
+    std::cout << "[Init] QuoteEngine registered (strategy: fixed spread ±$0.05)\n";
 
     // ── DeltaHedger — Delta 对冲策略 ─────────────────────────
     auto delta_hedger = std::make_shared<omm::application::DeltaHedger>(
@@ -137,7 +137,7 @@ int main() {
             dh.update_market_price(evt.underlying_price);
         }
     );
-    std::cout << "[初始化] DeltaHedger 已注册（阈值: ±0.5 Delta）\n";
+    std::cout << "[Init] DeltaHedger registered (threshold: ±0.5 delta)\n";
 
     // ── RealtimeRiskApp — 实时风险监控（新增） ───────────────
     // 策略模式：SimpleRiskPolicy 定义风险限额规则，可替换
@@ -156,29 +156,29 @@ int main() {
         risk_policy
     );
     risk_app->register_handlers(); // 订阅 TradeExecutedEvent + MarketDataEvent
-    std::cout << "[初始化] RealtimeRiskApp 已注册（账户: DESK_A，风控策略: SimpleRiskPolicy）\n";
+    std::cout << "[Init] RealtimeRiskApp registered (account: DESK_A, policy: SimpleRiskPolicy)\n";
 
     // ── 风控事件处理器（日志存根）────────────────────────────
     live_bus->subscribe<omm::events::RiskControlEvent>(
         [](const omm::events::RiskControlEvent& evt) {
-            std::cout << "[风控日志] 📋 风控指令已记录: 账户=" << evt.account_id
-                      << "  动作=";
+            std::cout << "[Risk Log] action recorded: account=" << evt.account_id
+                      << "  action=";
             switch (evt.action) {
                 case omm::events::RiskAction::BlockOrders:  std::cout << "BlockOrders"; break;
                 case omm::events::RiskAction::CancelOrders: std::cout << "CancelOrders"; break;
                 case omm::events::RiskAction::ReduceOnly:   std::cout << "ReduceOnly"; break;
             }
-            std::cout << "  原因: " << evt.reason << "\n";
+            std::cout << "  reason: " << evt.reason << "\n";
         }
     );
 
     live_bus->subscribe<omm::events::RiskAlertEvent>(
         [](const omm::events::RiskAlertEvent& evt) {
             if (evt.value > 1.0) { // 仅打印有意义的预警（跳过 0 值噪音）
-                std::cout << "[风险预警] 📊 " << evt.account_id
-                          << "  指标: " << evt.metric_name
-                          << "  值: $" << std::fixed << std::setprecision(2) << evt.value
-                          << "  限额: $" << evt.limit << "\n";
+                std::cout << "[Risk Alert] " << evt.account_id
+                          << "  metric: " << evt.metric_name
+                          << "  value: $" << std::fixed << std::setprecision(2) << evt.value
+                          << "  limit: $" << evt.limit << "\n";
             }
         }
     );
@@ -186,11 +186,11 @@ int main() {
     // ── OrderSubmittedEvent 处理器（命令模式）────────────────
     live_bus->subscribe<omm::events::OrderSubmittedEvent>(
         [](const omm::events::OrderSubmittedEvent& evt) {
-            std::cout << "[订单路由] ★ 收到对冲命令（命令模式）: "
-                      << (evt.side == omm::events::Side::Buy ? "买入" : "卖出")
-                      << " " << evt.quantity << " 股 " << evt.instrument_id
+            std::cout << "[Order Router] hedge order (Command pattern): "
+                      << (evt.side == omm::events::Side::Buy ? "BUY" : "SELL")
+                      << " " << evt.quantity << " shares " << evt.instrument_id
                       << " [" << (evt.order_type == omm::events::OrderType::Market
-                                  ? "市价单" : "限价单") << "]\n";
+                                  ? "Market" : "Limit") << "]\n";
         }
     );
 
@@ -199,20 +199,20 @@ int main() {
         live_bus, 0.30, 42
     );
     taker->register_handlers();
-    std::cout << "[初始化] ProbabilisticTaker 已注册（成交概率: 30%，种子: 42）\n";
+    std::cout << "[Init] ProbabilisticTaker registered (fill probability: 30%, seed: 42)\n";
 
-    std::cout << "\n┌──────────────── 第一阶段事件订阅关系 ────────────────┐\n"
-              << "│ MarketDataEvent     → QuoteEngine（报价）            │\n"
-              << "│                    → DeltaHedger（价格更新）         │\n"
-              << "│                    → RealtimeRiskApp（重新估值）     │\n"
-              << "│ QuoteGeneratedEvent → ProbabilisticTaker（模拟成交） │\n"
-              << "│ TradeExecutedEvent  → DeltaHedger（对冲检查）        │\n"
-              << "│                    → RealtimeRiskApp（风险检查）     │\n"
-              << "│ RiskControlEvent    → 风控日志存根                   │\n"
-              << "│ OrderSubmittedEvent → 订单路由存根                   │\n"
-              << "└───────────────────────────────────────────────────────┘\n\n";
+    std::cout << "\n┌──────────────── Phase 1 Event Subscriptions ─────────────────┐\n"
+              << "│ MarketDataEvent     → QuoteEngine (quote)                     │\n"
+              << "│                     → DeltaHedger (price update)              │\n"
+              << "│                     → RealtimeRiskApp (re-valuation)          │\n"
+              << "│ QuoteGeneratedEvent → ProbabilisticTaker (simulated fill)     │\n"
+              << "│ TradeExecutedEvent  → DeltaHedger (hedge check)               │\n"
+              << "│                     → RealtimeRiskApp (risk check)            │\n"
+              << "│ RiskControlEvent    → risk log stub                           │\n"
+              << "│ OrderSubmittedEvent → order router stub                       │\n"
+              << "└───────────────────────────────────────────────────────────────┘\n\n";
 
-    std::cout << "══════════════ 第一阶段仿真开始 ══════════════\n\n";
+    std::cout << "══════════════ Phase 1 Simulation Start ══════════════\n\n";
 
     omm::infrastructure::MarketDataAdapter adapter(
         live_bus,
@@ -220,20 +220,20 @@ int main() {
     );
     adapter.run();
 
-    std::cout << "\n══════════════ 第一阶段仿真结束 ══════════════\n\n";
+    std::cout << "\n══════════════ Phase 1 Simulation End ══════════════\n\n";
     position_mgr->print_positions();
 
     // ════════════════════════════════════════════════════════
     // ██ 第二阶段：回测与参数校准 ██
     // ════════════════════════════════════════════════════════
     std::cout << "\n┌──────────────────────────────────────────────────────────┐\n"
-              << "│  第二阶段：历史回测 + 模型参数校准                      │\n"
-              << "│  目标：拟合 Black-Scholes 波动率 σ（真实值: 0.25）      │\n"
+              << "│  Phase 2: Historical Backtest + Model Calibration        │\n"
+              << "│  Goal: fit Black-Scholes volatility σ (true value: 0.25) │\n"
               << "└──────────────────────────────────────────────────────────┘\n\n";
 
     // 第二阶段独立事件总线（与第一阶段完全隔离，无共享可变状态）
     auto backtest_bus = std::make_shared<omm::events::EventBus>();
-    std::cout << "[回测初始化] 独立回测 EventBus 已创建（状态隔离）\n";
+    std::cout << "[Backtest Init] isolated backtest EventBus created (state isolation)\n";
 
     // ── "市场"定价引擎：代表真实市场（vol=0.25，为"地面真值"）──
     auto market_engine = std::make_shared<omm::domain::BlackScholesPricingEngine>(
@@ -260,11 +260,11 @@ int main() {
     );
     backtest_app->register_handlers();
 
-    std::cout << "[回测初始化] BlackScholesPricingEngine 已就绪\n"
-              << "             市场引擎: vol=0.25（真实市场波动率）\n"
-              << "             模型引擎: vol=0.15（初始估计，待校准）\n\n";
+    std::cout << "[Backtest Init] BlackScholesPricingEngine ready\n"
+              << "               market engine: vol=0.25 (true market vol)\n"
+              << "               model engine:  vol=0.15 (initial estimate, to be calibrated)\n\n";
 
-    std::cout << "══════════════ 第二阶段回测开始 ══════════════\n\n";
+    std::cout << "══════════════ Phase 2 Backtest Start ══════════════\n\n";
 
     // 在回测总线上重放相同的历史行情（数据来源相同，总线完全隔离）
     omm::infrastructure::MarketDataAdapter backtest_adapter(
@@ -273,12 +273,12 @@ int main() {
     );
     backtest_adapter.run();
 
-    std::cout << "\n══════════════ 历史重放完成，开始校准 ══════════════\n";
+    std::cout << "\n══════════════ Historical replay complete — calibrating ══════════════\n";
 
     // 运行黄金分割搜索，将校准结果发布到主总线
     backtest_app->finalize();
 
-    std::cout << "\n══════════════ 第二阶段校准完成 ══════════════\n";
+    std::cout << "\n══════════════ Phase 2 Calibration Complete ══════════════\n";
 
     // ════════════════════════════════════════════════════════
     // 汇报：参数仓库中的校准结果
@@ -289,18 +289,19 @@ int main() {
     auto updated_params = param_store->get_params("bs_model");
     if (!updated_params.empty()) {
         double new_vol = updated_params.at("vol");
-        std::cout << "\n[参数反馈] 将校准波动率 " << std::fixed << std::setprecision(4)
-                  << new_vol << " 注入实时定价引擎（BlackScholesPricingEngine）\n"
-                  << "[参数反馈] 模型定价精度提升：初始 vol=0.15 → 校准 vol="
-                  << new_vol << " → 真实 vol=0.25\n";
+        std::cout << "\n[Param Feedback] injecting calibrated vol " << std::fixed << std::setprecision(4)
+                  << new_vol << " into live pricing engine (BlackScholesPricingEngine)\n"
+                  << "[Param Feedback] model accuracy improved: initial vol=0.15 → calibrated vol="
+                  << new_vol << " → true vol=0.25\n";
     }
 
     std::cout << "\n╔══════════════════════════════════════════════════════════╗\n"
-              << "║  仿真完成！已演示：                                      ║\n"
-              << "║  ① 事件驱动做市仿真（Phase 1）                          ║\n"
-              << "║  ② 实时风险监控与限额执行（RealtimeRiskApp）            ║\n"
-              << "║  ③ 历史回测与模型参数校准（BacktestCalibrationApp）     ║\n"
-              << "║  ④ 参数反馈闭环（ParamUpdateEvent → ParameterStore）    ║\n"
+              << "║  Simulation complete! Demonstrated:                      ║\n"
+              << "║  1. Event-driven market-making simulation  (Phase 1)     ║\n"
+              << "║  2. Live risk monitoring + limit enforcement              ║\n"
+              << "║  3. Historical backtest + model calibration               ║\n"
+              << "║  4. Parameter feedback loop                               ║\n"
+              << "║     (ParamUpdateEvent → ParameterStore)                  ║\n"
               << "╚══════════════════════════════════════════════════════════╝\n";
 
     return 0;
