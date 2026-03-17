@@ -271,47 +271,84 @@ PHASE 2 — BACKTEST & CALIBRATION  (isolated backtest_bus + main_bus)
 
 ---
 
-## Real Data & Multi-Model Calibration Pipeline
+## Project Layout
 
 ```
-MVP/python/
-├── data/
-│   └── yfinance_fetcher.py      # Download spot + options (yfinance)
-├── calibration/
-│   └── model_calibrator.py      # BSCalibrator | GBMCalibrator | HestonCalibrator
-├── experiments/
-│   └── real_data_experiment.py  # Entry point: fetch → simulate → calibrate → plot
-└── roughvol/                    # MC pricing domain (models, instruments, engine)
-    ├── models/  GBMModel · HestonModel
-    ├── instruments/  VanillaOption · AsianArithmeticOption
-    ├── engines/  MonteCarloEngine
-    └── analytics/  bs_price · implied_vol
+MVP/
+├── src/                         # C++ platform (sole entry point)
+│   ├── main.cpp
+│   ├── events/                  EventBus · domain events
+│   ├── domain/                  Instrument · PricingEngine · CalibrationEngine · RiskPolicy · PortfolioAggregate
+│   ├── application/             QuoteEngine · DeltaHedger · RealtimeRiskApp · BacktestCalibrationApp
+│   └── infrastructure/          MarketDataAdapter · ProbabilisticTaker · ParameterStore
+│                                ModelServiceClient (gRPC, compiled only with BUILD_GRPC_CLIENT=ON)
+│
+├── lab/                         # Python research experiments (no platform logic)
+│   ├── experiments/
+│   │   └── real_data_experiment.py   fetch → calibrate → visualize
+│   ├── grpc_client/
+│   │   └── rough_pricing_client.py   gRPC client for RoughPricingService
+│   └── data/
+│       └── yfinance_fetcher.py        Yahoo Finance adapter
+│
+├── proto/
+│   └── rough_pricing.proto      gRPC service contract (single source of truth)
+├── generated/python/            Python stubs (grpcio-tools output, re-generate with `make proto-python`)
+├── CMakeLists.txt
+└── Makefile                     proto-cpp · proto-python · build · build-grpc
 ```
 
-### How to run
+## Build & Run
+
+### Platform (C++)
 
 ```bash
-cd MVP/python
-pip install yfinance scipy pandas matplotlib
-python3 experiments/real_data_experiment.py --ticker AAPL --start 2024-01-01 --end 2024-06-30
+# Configure and build
+cmake -S . -B build && cmake --build build --parallel
+
+# Run the simulation (converges to vol = 0.2500)
+./build/market_maker
 ```
 
-Pass `--skip-heston` to skip the slow 5D optimisation (useful for a quick smoke test).
+### Lab Experiments (Python)
 
-### What it does
+The experiment scripts call the Rough-Pricing gRPC service
+for model calibration (BS, GBM-MC, Heston, and future rough-vol models).
 
-The experiment script fetches real AAPL spot history and live options chain data from Yahoo Finance, runs the existing event-driven simulation on real spot prices (Phase 1), then benchmarks three calibration models against real options prices (Phase 2): the closed-form Black-Scholes implied vol calibrator (~0 ms), a 1-parameter GBM Monte Carlo calibrator (~10–30 s), and a 5-parameter Heston Monte Carlo calibrator (~60–300 s). The C++ hot path and the heritage DDD event loop are untouched; the calibration layer is batch-only and never called per tick.
+```bash
+# Terminal 1 — start the model service
+cd ~/rough_pricing_env/Rough-Pricing
+python3 -m roughvol.service.server
 
-### Output
+# Terminal 2 — run the experiment
+cd MVP/lab
+pip install yfinance scipy pandas matplotlib grpcio
+MODEL_SERVICE_ADDR=localhost:50051 \
+  python3 experiments/real_data_experiment.py --ticker AAPL --start 2024-01-01 --end 2024-06-30
+```
 
-| Plot file | Content |
-|---|---|
+Pass `--skip-heston` to skip the slow 5D optimisation (quick smoke test).
+
+### What the experiment does
+
+Fetches real spot history and live options chain from Yahoo Finance, then benchmarks three calibration models against real option prices:
+
+| Phase | Description |
+|-------|-------------|
+| **Phase 0** | Download spot history + options chain (yfinance → CSV) |
+| **Phase 1** | Calibrate BS (closed-form, ~0 ms), GBM-MC (1D, ~10–30 s), Heston (5D, ~60–300 s) via gRPC |
+| **Phase 2** | Save four diagnostic plots to `data/plots/` |
+
+### Output plots
+
+| File | Content |
+|------|---------|
 | `data/plots/spot_<TICKER>.png` | Daily closing price over the fetched date range |
 | `data/plots/vol_smile_<TICKER>.png` | BS implied vol vs moneyness (K/S), one line per expiry |
 | `data/plots/calib_mse_<TICKER>.png` | Horizontal bar chart comparing MSE: BS / GBM-MC / Heston |
-| `data/plots/price_fit_<TICKER>.png` | Scatter of model price vs market price for all three models; y = x line shows perfect fit |
+| `data/plots/price_fit_<TICKER>.png` | Scatter of model price vs market price; y = x line = perfect fit |
 
-A calibration comparison table is also printed to stdout:
+Calibration summary printed to stdout:
 
 ```
 ══════════════ Calibration Results ══════════════

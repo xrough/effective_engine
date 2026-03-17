@@ -12,7 +12,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 endif()
 
 # 自动收集 src/ 下所有 .cpp 文件
+# ModelServiceClient.cpp requires gRPC headers — excluded from default build;
+# included only when BUILD_GRPC_CLIENT=ON (see below).
 file(GLOB_RECURSE SOURCES "src/*.cpp")
+list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/infrastructure/ModelServiceClient.cpp")
 
 add_executable(market_maker ${SOURCES})
 
@@ -29,31 +32,42 @@ target_include_directories(market_maker PRIVATE src)
 #   cmake -S . -B build -DBUILD_PYTHON_BINDINGS=ON
 #   cmake --build build --target omm_core
 # ════════════════════════════════════════════════════════════
-option(BUILD_PYTHON_BINDINGS "构建 Python pybind11 扩展模块 omm_core" OFF)
+# ════════════════════════════════════════════════════════════
+# gRPC Client Library (ModelServiceClient) — optional
+#
+# Requires: brew install grpc protobuf
+# Requires: make proto-cpp  (generates generated/cpp/ stubs)
+#
+# Build:
+#   cmake -S . -B build -DBUILD_GRPC_CLIENT=ON
+#   cmake --build build --target model_service_client
+# ════════════════════════════════════════════════════════════
+option(BUILD_GRPC_CLIENT "Build C++ gRPC client for RoughPricingService" OFF)
 
-if(BUILD_PYTHON_BINDINGS)
-    # 明确指定使用 Python 3.13（pybind11 所在的解释器），避免多版本冲突
-    set(Python3_EXECUTABLE "/opt/homebrew/opt/python@3.13/Frameworks/Python.framework/Versions/3.13/bin/python3.13"
-        CACHE FILEPATH "Python3 interpreter for pybind11 bindings")
+if(BUILD_GRPC_CLIENT)
+    find_package(Protobuf REQUIRED)
+    find_package(gRPC REQUIRED)
 
-    # 从 Python 3.13 包获取 pybind11 CMake 配置路径
-    execute_process(
-        COMMAND "${Python3_EXECUTABLE}" -m pybind11 --cmakedir
-        OUTPUT_VARIABLE pybind11_DIR
-        OUTPUT_STRIP_TRAILING_WHITESPACE
+    # Generated protobuf/gRPC stubs — run `make proto-cpp` to produce these
+    set(GRPC_GEN_SOURCES
+        generated/cpp/rough_pricing.pb.cc
+        generated/cpp/rough_pricing.grpc.pb.cc
     )
 
-    set(PYBIND11_FINDPYTHON ON)   # 使用现代 FindPython3 机制
-    find_package(pybind11 CONFIG REQUIRED)
-
-    # 收集除 main.cpp 之外的所有源文件（.so 中不能有 main()）
-    file(GLOB_RECURSE LIB_SOURCES "src/*.cpp")
-    list(REMOVE_ITEM LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
-
-    # 构建 Python 扩展模块
-    pybind11_add_module(omm_core
-        src/bindings/omm_bindings.cpp
-        ${LIB_SOURCES}
+    add_library(model_service_client STATIC
+        src/infrastructure/ModelServiceClient.cpp
+        ${GRPC_GEN_SOURCES}
     )
-    target_include_directories(omm_core PRIVATE src)
+    target_include_directories(model_service_client PUBLIC
+        src
+        generated/cpp
+    )
+    target_link_libraries(model_service_client PUBLIC
+        gRPC::grpc++
+        protobuf::libprotobuf
+    )
+
+    # Link into market_maker when gRPC client is enabled
+    target_link_libraries(market_maker PRIVATE model_service_client)
 endif()
+

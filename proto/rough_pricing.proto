@@ -1,0 +1,148 @@
+syntax = "proto3";
+
+package roughvol;
+
+// ── Instrument messages ────────────────────────────────────────────────────
+
+message VanillaInstrument {
+  double strike   = 1;
+  double maturity = 2;
+  bool   is_call  = 3;
+}
+
+message AsianInstrument {
+  double maturity         = 1;
+  double strike           = 2;
+  string callput          = 3;          // "call" or "put"
+  repeated double obs_times = 4;        // empty → use model grid
+  bool   include_t0       = 5;
+  string interp           = 6;          // "linear" or "ladder"
+}
+
+// ── Model parameter messages ───────────────────────────────────────────────
+
+message GBMParams {
+  double sigma = 1;
+}
+
+message HestonParams {
+  double kappa = 1;
+  double theta = 2;
+  double xi    = 3;
+  double rho   = 4;
+  double v0    = 5;
+}
+
+// ── Market data message ────────────────────────────────────────────────────
+
+message MarketData {
+  double spot      = 1;
+  double rate      = 2;
+  double div_yield = 3;
+}
+
+// ── Monte Carlo pricing ────────────────────────────────────────────────────
+
+message MCPriceRequest {
+  oneof model {
+    GBMParams    gbm    = 1;
+    HestonParams heston = 2;
+  }
+  oneof instrument {
+    VanillaInstrument vanilla = 3;
+    AsianInstrument   asian   = 4;
+  }
+  MarketData market   = 5;
+  int32  n_paths      = 6;   // 0 → server default (20_000)
+  int32  n_steps      = 7;   // 0 → server default (50)
+  int32  seed         = 8;   // -1 → server default (42)
+  bool   antithetic   = 9;
+}
+
+message MCPriceResponse {
+  double price   = 1;
+  double stderr  = 2;
+  double ci95_lo = 3;
+  double ci95_hi = 4;
+  int32  n_paths = 5;
+  int32  n_steps = 6;
+}
+
+// ── Black-Scholes closed-form ──────────────────────────────────────────────
+
+message BSPriceRequest {
+  double spot     = 1;
+  double strike   = 2;
+  double maturity = 3;
+  double rate     = 4;
+  double div      = 5;
+  double vol      = 6;
+  bool   is_call  = 7;
+}
+
+message BSPriceResponse {
+  double price = 1;
+}
+
+// ── Implied volatility ─────────────────────────────────────────────────────
+
+message ImpliedVolRequest {
+  double price    = 1;
+  double spot     = 2;
+  double strike   = 3;
+  double maturity = 4;
+  double rate     = 5;
+  double div      = 6;
+  bool   is_call  = 7;
+}
+
+message ImpliedVolResponse {
+  double vol = 1;
+}
+
+// ── Calibration ────────────────────────────────────────────────────────────
+
+message OptionQuote {
+  double strike           = 1;
+  double maturity_years   = 2;
+  bool   is_call          = 3;
+  double market_price     = 4;
+}
+
+enum ModelType {
+  BS      = 0;
+  GBM_MC  = 1;
+  HESTON  = 2;
+}
+
+message CalibrateRequest {
+  ModelType            model_type  = 1;
+  double               spot        = 2;
+  repeated OptionQuote quotes      = 3;
+  double               rate        = 4;
+  double               div         = 5;
+  // optional warm-start: first element is x0_sigma for GBM; full 5-vec for Heston
+  repeated double      x0          = 6;
+  // MC engine config (0 → server defaults)
+  int32  n_paths      = 7;
+  int32  n_steps      = 8;
+  int32  seed         = 9;
+  bool   antithetic   = 10;
+}
+
+message CalibrateResponse {
+  string               model_name        = 1;
+  map<string, double>  params            = 2;
+  double               mse               = 3;
+  double               elapsed_s         = 4;
+  repeated double      per_option_ivols  = 5;  // BS only
+}
+
+// ── Service ────────────────────────────────────────────────────────────────
+
+service RoughPricingService {
+  rpc MCPrice    (MCPriceRequest)    returns (MCPriceResponse);
+  rpc BSPrice    (BSPriceRequest)    returns (BSPriceResponse);
+  rpc ImpliedVol (ImpliedVolRequest) returns (ImpliedVolResponse);
+  rpc Calibrate  (CalibrateRequest)  returns (CalibrateResponse);
+}
