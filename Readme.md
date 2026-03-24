@@ -2,7 +2,7 @@
 
 A C++ simulation of an options market-making desk using a layered DDD architecture and event-driven design. A Python lab connects to an external gRPC pricing service for real-data calibration experiments.
 
-## What it does
+## Goals
 
 - Quotes bid/ask spreads on options using Black-Scholes or a simple intrinsic model
 - Simulates a probabilistic counterparty (30% hit rate) generating trades
