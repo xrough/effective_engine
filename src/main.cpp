@@ -39,27 +39,32 @@
 #include <iomanip>
 
 // 事件层
-#include "events/EventBus.hpp"
-#include "events/Events.hpp"
+#include "core/events/EventBus.hpp"
+#include "core/events/Events.hpp"
 
-// 领域层
-#include "domain/Instrument.hpp"
-#include "domain/InstrumentFactory.hpp"
-#include "domain/PositionManager.hpp"
-#include "domain/PricingEngine.hpp"
-#include "domain/RiskPolicy.hpp"
-#include "domain/CalibrationEngine.hpp"
+// 领域层（core/domain — 纯 DDD 实体）
+#include "core/domain/Instrument.hpp"
+#include "core/domain/InstrumentFactory.hpp"
+#include "core/domain/PositionManager.hpp"
 
-// 基础设施层
-#include "infrastructure/MarketDataAdapter.hpp"
-#include "infrastructure/ProbabilisticTaker.hpp"
-#include "infrastructure/ParameterStore.hpp"
+// 分析层（core/analytics — 定价/风控/校准服务）
+#include "core/analytics/PricingEngine.hpp"
+#include "core/analytics/RiskPolicy.hpp"
+#include "core/analytics/CalibrationEngine.hpp"
 
-// 应用层
-#include "application/QuoteEngine.hpp"
-#include "application/DeltaHedger.hpp"
-#include "application/RealtimeRiskApp.hpp"
-#include "application/BacktestCalibrationApp.hpp"
+// 基础设施层（core/infrastructure — I/O 适配器）
+#include "core/infrastructure/MarketDataAdapter.hpp"
+#include "core/infrastructure/ParameterStore.hpp"
+
+// 共享应用层（core/application）
+#include "core/application/PortfolioService.hpp"
+
+// 卖方模块（modules/seller）
+#include "modules/seller/QuoteEngine.hpp"
+#include "modules/seller/DeltaHedger.hpp"
+#include "modules/seller/SellerRiskApp.hpp"
+#include "modules/seller/ProbabilisticTaker.hpp"
+#include "modules/seller/BacktestCalibrationApp.hpp"
 
 int main() {
     std::cout << "╔══════════════════════════════════════════════════════════╗\n"
@@ -114,8 +119,19 @@ int main() {
 
     // ── 定价策略：简化内在价值定价（与原 MVP 保持一致）──────
     auto pricing_engine = std::make_shared<omm::domain::SimplePricingEngine>();
-    auto position_mgr   = std::make_shared<omm::domain::PositionManager>();
     std::cout << "[Init] Pricing strategy: SimplePricingEngine (intrinsic-value pricing)\n";
+
+    // ── PortfolioService — 模式无关的持仓追踪与估值 ─────────
+    // Phase 2：从 SellerRiskApp 中提取，统一由 PortfolioService 管理持仓
+    // 订阅 FillEvent + MarketDataEvent → 发布 PortfolioUpdateEvent
+    auto portfolio_svc = std::make_shared<omm::application::PortfolioService>(
+        live_bus, pricing_engine, options, underlying->id(), "DESK_A"
+    );
+    portfolio_svc->register_handlers();
+    std::cout << "[Init] PortfolioService registered (account: DESK_A)\n";
+
+    // ── DeltaHedger 独立持仓管理器（用于对冲 Delta 计算）───
+    auto position_mgr = std::make_shared<omm::domain::PositionManager>();
 
     // ── QuoteEngine — 固定价差报价策略 ──────────────────────
     auto quote_engine = std::make_shared<omm::application::QuoteEngine>(
@@ -139,24 +155,22 @@ int main() {
     );
     std::cout << "[Init] DeltaHedger registered (threshold: ±0.5 delta)\n";
 
-    // ── RealtimeRiskApp — 实时风险监控（新增） ───────────────
+    // ── SellerRiskApp — 实时风险监控（Phase 2 简化版）─────────
+    // Phase 2：只订阅 PortfolioUpdateEvent，不再管理持仓状态
     // 策略模式：SimpleRiskPolicy 定义风险限额规则，可替换
     auto risk_policy = std::make_shared<omm::domain::SimpleRiskPolicy>(
-        1e6,    // 止损限额：已实现亏损超 $1,000,000 → BlockOrders
+        1e6,     // 止损限额：已实现亏损超 $1,000,000 → BlockOrders
         10000.0, // Delta 限额：|Δ| > 10,000 → ReduceOnly
         5e5      // 日内回撤预警：> $500,000 → RiskAlertEvent
     );
 
-    auto risk_app = std::make_shared<omm::application::RealtimeRiskApp>(
+    auto risk_app = std::make_shared<omm::application::SellerRiskApp>(
         live_bus,
-        pricing_engine,
-        options,
-        underlying->id(),
         "DESK_A",   // 账户 ID
         risk_policy
     );
-    risk_app->register_handlers(); // 订阅 TradeExecutedEvent + MarketDataEvent
-    std::cout << "[Init] RealtimeRiskApp registered (account: DESK_A, policy: SimpleRiskPolicy)\n";
+    risk_app->register_handlers(); // 订阅 PortfolioUpdateEvent
+    std::cout << "[Init] SellerRiskApp registered (account: DESK_A, policy: SimpleRiskPolicy)\n";
 
     // ── 风控事件处理器（日志存根）────────────────────────────
     live_bus->subscribe<omm::events::RiskControlEvent>(
@@ -202,14 +216,15 @@ int main() {
     std::cout << "[Init] ProbabilisticTaker registered (fill probability: 30%, seed: 42)\n";
 
     std::cout << "\n┌──────────────── Phase 1 Event Subscriptions ─────────────────┐\n"
-              << "│ MarketDataEvent     → QuoteEngine (quote)                     │\n"
-              << "│                     → DeltaHedger (price update)              │\n"
-              << "│                     → RealtimeRiskApp (re-valuation)          │\n"
-              << "│ QuoteGeneratedEvent → ProbabilisticTaker (simulated fill)     │\n"
-              << "│ TradeExecutedEvent  → DeltaHedger (hedge check)               │\n"
-              << "│                     → RealtimeRiskApp (risk check)            │\n"
-              << "│ RiskControlEvent    → risk log stub                           │\n"
-              << "│ OrderSubmittedEvent → order router stub                       │\n"
+              << "│ MarketDataEvent       → QuoteEngine (quote)                   │\n"
+              << "│                       → DeltaHedger (price update)            │\n"
+              << "│                       → PortfolioService (re-valuation)       │\n"
+              << "│ QuoteGeneratedEvent   → ProbabilisticTaker (simulated fill)   │\n"
+              << "│ FillEvent             → PortfolioService (track position)     │\n"
+              << "│                       → DeltaHedger (hedge check)             │\n"
+              << "│ PortfolioUpdateEvent  → SellerRiskApp (risk check)            │\n"
+              << "│ RiskControlEvent      → risk log stub                         │\n"
+              << "│ OrderSubmittedEvent   → order router stub                     │\n"
               << "└───────────────────────────────────────────────────────────────┘\n\n";
 
     std::cout << "══════════════ Phase 1 Simulation Start ══════════════\n\n";

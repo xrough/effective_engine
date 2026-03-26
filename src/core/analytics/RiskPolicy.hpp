@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "RiskMetrics.hpp"
+#include "../domain/RiskMetrics.hpp"
 #include "../events/Events.hpp"
 
 // ============================================================

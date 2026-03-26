@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 #include "RiskMetrics.hpp"
-#include "PricingEngine.hpp"
+#include "../analytics/PricingEngine.hpp"
 #include "../events/Events.hpp"
 
 // ============================================================
@@ -31,10 +31,10 @@ public:
         std::vector<std::shared_ptr<Option>> options
     );
 
-    // applyTrade() — 应用一笔成交事件
+    // applyFill() — 应用一笔成交事件（统一 FillEvent，我方视角）
     //   - 更新对应合约的净持仓（net position）
     //   - 对于减仓操作，计算并累计已实现盈亏（FIFO 成本基础）
-    void applyTrade(const events::TradeExecutedEvent& event);
+    void applyFill(const events::FillEvent& event);
 
     // markToMarket() — 按当前标的价格重新估值
     //   - 更新每个合约的未实现盈亏（按持仓量 × (当前价 - 平均成本)）

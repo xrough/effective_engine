@@ -1,10 +1,10 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "../events/EventBus.hpp"
-#include "../events/Events.hpp"
-#include "../domain/Instrument.hpp"
-#include "../domain/PricingEngine.hpp"
+#include "../../core/events/EventBus.hpp"
+#include "../../core/events/Events.hpp"
+#include "../../core/domain/Instrument.hpp"
+#include "../../core/analytics/PricingEngine.hpp"
 
 // ============================================================
 // 文件：QuoteEngine.hpp

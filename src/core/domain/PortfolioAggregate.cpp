@@ -21,19 +21,19 @@ PortfolioAggregate::PortfolioAggregate(
     : account_id_(std::move(account_id))
     , options_(std::move(options)) {}
 
-void PortfolioAggregate::applyTrade(const events::TradeExecutedEvent& event) {
+void PortfolioAggregate::applyFill(const events::FillEvent& event) {
     const std::string& id = event.instrument_id;
 
-    // 从客户视角转换为做市商视角：
-    //   客户 Buy  → 做市商持仓减少（做市商是卖方）
-    //   客户 Sell → 做市商持仓增加（做市商是买方）
-    int pos_change = (event.side == events::Side::Sell)
-                     ? +event.quantity   // 做市商从客户手中买入
-                     : -event.quantity;  // 做市商向客户卖出
+    // 我方视角（Phase 2 统一语义）：
+    //   Buy  → 我们买入 → 持仓增加
+    //   Sell → 我们卖出 → 持仓减少
+    int pos_change = (event.side == events::Side::Buy)
+                     ? +event.fill_qty   // 我们买入：多头增加
+                     : -event.fill_qty;  // 我们卖出：空头增加
 
     int old_pos  = positions_[id];
     int new_pos  = old_pos + pos_change;
-    double price = event.price;
+    double price = event.fill_price;
 
     if (old_pos == 0 || (old_pos > 0 && pos_change > 0) || (old_pos < 0 && pos_change < 0)) {
         // 同向加仓：加权平均更新成本

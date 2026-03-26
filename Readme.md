@@ -1,6 +1,6 @@
 # Options Market Maker MVP
 
-A C++ simulation of an options market-making desk using a layered DDD architecture and event-driven design. A Python lab connects to an external gRPC pricing service for real-data calibration experiments.
+A C++ simulation MVP of an options market-making desk using a layered DDD architecture and event-driven design. A Python lab connects to an external gRPC pricing service for real-data calibration experiments. The project is completed with the assitance of Claude Code while I am slowly learning C++.
 
 ## Goals
 

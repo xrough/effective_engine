@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
 #include <random>
-#include "../events/EventBus.hpp"
-#include "../events/Events.hpp"
+#include "../../core/events/EventBus.hpp"
+#include "../../core/events/Events.hpp"
 
 // ============================================================
 // 文件：ProbabilisticTaker.hpp

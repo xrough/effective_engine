@@ -3,11 +3,11 @@
 #include <vector>
 #include <unordered_map> // HashMap 用于存储合约 ID 到 Delta 的映射
 #include <string>
-#include "../events/EventBus.hpp"
-#include "../events/Events.hpp"
-#include "../domain/Instrument.hpp"
-#include "../domain/PositionManager.hpp"
-#include "../domain/PricingEngine.hpp"
+#include "../../core/events/EventBus.hpp"
+#include "../../core/events/Events.hpp"
+#include "../../core/domain/Instrument.hpp"
+#include "../../core/domain/PositionManager.hpp"
+#include "../../core/analytics/PricingEngine.hpp"
 
 // ============================================================
 // 文件：DeltaHedger.hpp
@@ -43,7 +43,7 @@ public:
         double delta_threshold = 0.5  // MVP 低阈值，确保仿真中快速触发对冲
     );
 
-    // 向 EventBus 注册 TradeExecutedEvent 处理器，应在 main.cpp 连线阶段调用
+    // 向 EventBus 注册 FillEvent 处理器，应在 main.cpp 连线阶段调用
     void register_handlers();
     //初始化，在其中subscribe事件处理器
 
@@ -52,8 +52,8 @@ public:
     void update_market_price(double price);
 
 private:
-    // TradeExecutedEvent 的处理函数
-    void on_trade_executed(const events::TradeExecutedEvent& event);
+    // FillEvent 的处理函数（统一成交事件，我方视角）
+    void on_fill(const events::FillEvent& event);
 
     // 构建各合约的 Delta 映射表（用于传入 PositionManager::compute_portfolio_delta)
     // snapshot of current deltas for all instruments

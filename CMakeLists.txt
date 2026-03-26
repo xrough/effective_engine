@@ -15,7 +15,7 @@ endif()
 # ModelServiceClient.cpp requires gRPC headers — excluded from default build;
 # included only when BUILD_GRPC_CLIENT=ON (see below).
 file(GLOB_RECURSE SOURCES "src/*.cpp")
-list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/infrastructure/ModelServiceClient.cpp")
+list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/core/infrastructure/ModelServiceClient.cpp")
 
 add_executable(market_maker ${SOURCES})
 
@@ -55,7 +55,7 @@ if(BUILD_GRPC_CLIENT)
     )
 
     add_library(model_service_client STATIC
-        src/infrastructure/ModelServiceClient.cpp
+        src/core/infrastructure/ModelServiceClient.cpp
         ${GRPC_GEN_SOURCES}
     )
     target_include_directories(model_service_client PUBLIC

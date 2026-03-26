@@ -23,10 +23,10 @@ DeltaHedger::DeltaHedger(
     , last_price_(150.0) {} // 初始价格假设（在第一条行情到达前的备用值）
 
 void DeltaHedger::register_handlers() {
-    // 模式：观察者 — 订阅 TradeExecutedEvent
-    bus_->subscribe<events::TradeExecutedEvent>(
-        [this](const events::TradeExecutedEvent& evt) {
-            this->on_trade_executed(evt);
+    // 模式：观察者 — 订阅 FillEvent（统一成交事件）
+    bus_->subscribe<events::FillEvent>(
+        [this](const events::FillEvent& evt) {
+            this->on_fill(evt);
         }
     );
 }
@@ -37,15 +37,15 @@ void DeltaHedger::update_market_price(double price) {
     last_price_ = price;
 }
 
-void DeltaHedger::on_trade_executed(
-    const events::TradeExecutedEvent& event) {
+void DeltaHedger::on_fill(
+    const events::FillEvent& event) {
 
     // --------------------------------------------------------
     // 第一步：更新持仓
     // 直接调用 PositionManager，而不是重新发布事件，
-    // 避免对冲成交引发新的 TradeExecutedEvent 导致无限递归。
+    // 避免对冲成交引发新的 FillEvent 导致无限递归。
     // --------------------------------------------------------
-    position_manager_->on_trade_executed(event);
+    position_manager_->on_fill(event);
 
     // --------------------------------------------------------
     // 第二步：计算组合总 Delta 敞口
@@ -101,29 +101,21 @@ void DeltaHedger::on_trade_executed(
 
     // --------------------------------------------------------
     // MVP 简化：直接更新持仓（模拟市价单立即成交）
-    // 不经过 EventBus，避免触发新一轮 TradeExecutedEvent → DeltaHedger 的递归调用
+    // 不经过 EventBus，避免触发新一轮 FillEvent → DeltaHedger 的递归调用
     //
-    // 关键：视角转换
-    //   PositionManager 使用"客户视角"：
-    //     Side::Buy  → 客户买入 → 我方卖出 → 我方持仓 -= qty
-    //     Side::Sell → 客户卖出 → 我方买入 → 我方持仓 += qty
-    //
-    //   对冲时我方是主动发起方，视角与期权成交相反：
-    //     我方 Sell（卖出标的）→ 传 Side::Buy  → PM 持仓 -= qty（正确减少）
-    //     我方 Buy（买入标的） → 传 Side::Sell → PM 持仓 += qty（正确增加）
+    // Phase 2 统一语义：FillEvent.side 表示我方方向，无需视角转换。
+    //   hedge_side == Buy  → 我们买入标的 → PM 持仓 += qty（正确增加）
+    //   hedge_side == Sell → 我们卖出标的 → PM 持仓 -= qty（正确减少）
     // --------------------------------------------------------
-    events::Side pm_side = (hedge_side == events::Side::Sell)
-        ? events::Side::Buy   // 我方卖出 AAPL → PM 视角传 Buy → 持仓减少（做空）
-        : events::Side::Sell; // 我方买入 AAPL → PM 视角传 Sell → 持仓增加（做多）
-
-    events::TradeExecutedEvent hedge_fill{
+    events::FillEvent hedge_fill{
         underlying_id_,
-        pm_side,       // 使用转换后的视角，而非原始 hedge_side
+        hedge_side,    // 直接使用我方对冲方向，无需翻转
         last_price_,
         hedge_qty,
+        "hedge_order",
         event.timestamp
     };
-    position_manager_->on_trade_executed(hedge_fill);
+    position_manager_->on_fill(hedge_fill);
 
     std::cout << "[Delta对冲] 对冲成交已直接记账（绕过事件总线，防止递归）\n";
 }

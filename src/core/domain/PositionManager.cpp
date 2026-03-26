@@ -4,15 +4,15 @@
 
 namespace omm::domain {
 
-void PositionManager::on_trade_executed(
-    const events::TradeExecutedEvent& event) {
+void PositionManager::on_fill(
+    const events::FillEvent& event) {
 
-    // 确定持仓变化方向：
-    //   客户 Buy  → 我们做空该合约 → 持仓 -= quantity
-    //   客户 Sell → 我们做多该合约 → 持仓 += quantity
+    // 确定持仓变化方向（我方视角）：
+    //   Buy  → 我们买入 → 持仓 += fill_qty（多头增加）
+    //   Sell → 我们卖出 → 持仓 -= fill_qty（空头增加）
     int delta_qty = (event.side == events::Side::Buy)
-                    ? -event.quantity   // 客户买入：我们被迫卖出，空头增加
-                    : +event.quantity;  // 客户卖出：我们被迫买入，多头增加
+                    ? +event.fill_qty   // 我们买入：多头增加
+                    : -event.fill_qty;  // 我们卖出：空头增加
 
     positions_[event.instrument_id] += delta_qty;
 

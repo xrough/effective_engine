@@ -2,6 +2,7 @@
 #include <string>
 #include <chrono>
 #include <unordered_map>
+#include "../domain/RiskMetrics.hpp"
 
 // ============================================================
 // 文件：Events.hpp
@@ -11,45 +12,23 @@
 //   - 事件是"已发生的事实"，使用结构体表示，无行为方法。
 //   - 事件是值对象（Value Object），可安全复制传递。
 //   - 所有事件均为纯数据载体，不持有任何 I/O 或业务逻辑。
-// ============================================================
-
-// ============================================================
-// Event 场景简要说明（Program Remark）
 //
-// 每个 event 表示系统中某个阶段已经发生的业务事实：
+// 事件流概览：
 //
-// 1. MarketDataEvent
-//    → 市场行情更新（价格变化）
-//    → 触发重新报价、风险计算
+//   MarketDataEvent
+//        ↓
+//   QuoteGeneratedEvent
+//        ↓
+//   FillEvent                    ← 统一成交事件（我方视角）
+//        ↓ (via PortfolioService)
+//   PortfolioUpdateEvent         ← 持仓/风险指标快照
+//        ↓
+//   RiskControlEvent / RiskAlertEvent
 //
-// 2. QuoteGeneratedEvent
-//    → 做市商生成 bid / ask 报价
-//    → 等待客户成交或记录日志
-//
-// 3. TradeExecutedEvent
-//    → 客户成交发生
-//    → 更新持仓、计算 PnL、触发对冲
-//
-// 4. OrderSubmittedEvent
-//    → 系统提交对冲订单请求
-//    → 订单路由执行或记录审计
-//
-// ------------------------------------------------------------
-// 典型流程：
-//
-// MarketDataEvent
-//      ↓
-// QuoteGeneratedEvent
-//      ↓
-// TradeExecutedEvent
-//      ↓
-// OrderSubmittedEvent
-//
-// ------------------------------------------------------------
-// 目的：
-//   - 用“已发生的事实”在模块间通信
-//   - 解耦系统组件
-//   - 支持回放、测试、日志与扩展
+// Side 语义统一约定（Phase 2 起）：
+//   所有 FillEvent 的 side 字段表示"我方方向"：
+//     Side::Buy  = 我们买入（持仓增加）
+//     Side::Sell = 我们卖出（持仓减少）
 // ============================================================
 
 namespace omm::events {
@@ -60,9 +39,9 @@ using Timestamp = std::chrono::system_clock::time_point;
 // ============================================================
 // 1. MarketDataEvent — 行情数据事件
 //    发布者：MarketDataAdapter（行情适配器）
-//    订阅者：QuoteEngine（报价引擎）、DeltaHedger（Delta 对冲器）
+//    订阅者：QuoteEngine（报价引擎）、PortfolioService（持仓服务）
 // ============================================================
-struct MarketDataEvent { //struct:结构体，默认成员访问权限为public，适合表示纯数据载体
+struct MarketDataEvent {
     Timestamp timestamp;        // 行情时间戳
     double    underlying_price; // 标的资产当前价格（如 AAPL 的股价）
 };
@@ -80,24 +59,27 @@ struct QuoteGeneratedEvent {
 };
 
 // ============================================================
-// 3. TradeExecutedEvent — 成交事件
-//    发布者：ProbabilisticTaker（概率成交模拟器）
-//    订阅者：PositionManager（持仓管理器）、DeltaHedger（Delta 对冲器）
+// 3. FillEvent — 统一成交事件（替代 TradeExecutedEvent）
+//    发布者：ProbabilisticTaker（"customer_taker"）
+//             BrokerAdapter（"broker"，买方模式）
+//             DeltaHedger 内部对冲（"hedge_order"）
+//    订阅者：PortfolioService（更新持仓）、DeltaHedger（对冲检查）
 //
-//    注意：Side 表示"客户方向"（客户的买/卖），而非做市商方向。
-//    客户 Buy  → 客户买入期权，做市商持仓减少（做空）
-//    客户 Sell → 客户卖出期权，做市商持仓增加（做多）
+//    Side 语义（我方视角）：
+//      Buy  = 我们买入该合约（持仓增加，如 +1 手看涨期权）
+//      Sell = 我们卖出该合约（持仓减少，如 -1 手看涨期权）
 // ============================================================
 enum class Side {
-    Buy,   // 客户买入（lift ask）
-    Sell   // 客户卖出（hit bid）
+    Buy,  // 我们买入
+    Sell  // 我们卖出
 };
 
-struct TradeExecutedEvent {
+struct FillEvent {
     std::string instrument_id; // 成交合约标识符
-    Side        side;          // 客户方向（Buy / Sell）
-    double      price;         // 成交价格
-    int         quantity;      // 成交数量（手数）
+    Side        side;          // 我方方向（Buy = 我们买入；Sell = 我们卖出）
+    double      fill_price;    // 成交价格
+    int         fill_qty;      // 成交数量（手）
+    std::string producer;      // 填单方标识（"customer_taker"、"broker"、"hedge_order"）
     Timestamp   timestamp;     // 成交时间戳
 };
 
@@ -105,10 +87,6 @@ struct TradeExecutedEvent {
 // 4. OrderSubmittedEvent — 订单提交事件（Command 模式）
 //    发布者：DeltaHedger（Delta 对冲器）
 //    订阅者：OrderRouter（订单路由存根）、日志处理器
-//
-//    模式：Command — 该事件将"提交订单"的意图封装为数据对象，
-//    发布者无需知道谁来执行，也无需等待执行结果。
-//    这使得订单可被记录、重放或审计，而不依赖具体执行方。
 // ============================================================
 enum class OrderType {
     Market, // 市价单：立即以市场最优价成交
@@ -117,20 +95,30 @@ enum class OrderType {
 
 struct OrderSubmittedEvent {
     std::string instrument_id; // 订单标的合约（通常为标的资产，如 "AAPL"）
-    Side        side;          // 订单方向（Buy / Sell）
+    Side        side;          // 订单方向（我方视角：Buy = 我们买入）
     int         quantity;      // 订单数量
     OrderType   order_type;    // 订单类型（Market / Limit）
 };
 
 // ============================================================
-// 5. RiskControlEvent — 风控指令事件（RealtimeRiskApp 发出）
-//    发布者：RealtimeRiskApp（实时风控应用）
-//    订阅者：OrderRouter（可阻断新订单）、日志处理器
+// 5. PortfolioUpdateEvent — 持仓指标快照事件
+//    发布者：PortfolioService（持仓服务，订阅 FillEvent + MarketDataEvent 后生成）
+//    订阅者：SellerRiskApp / BuyerRiskApp（仅做策略评估，不再管理持仓）
 //
-//    RiskAction 枚举说明：
-//      BlockOrders  — 冻结账户，禁止提交新订单
-//      CancelOrders — 撤销所有未成交订单
-//      ReduceOnly   — 仅允许减仓方向的订单
+//    设计：将"持仓追踪"与"风险策略评估"解耦。
+//    PortfolioService 负责维护 PortfolioAggregate；
+//    RiskApp 只订阅此快照事件，应用 IRiskPolicy，发布风控指令。
+// ============================================================
+struct PortfolioUpdateEvent {
+    std::string         account_id; // 账户标识符
+    domain::RiskMetrics metrics;    // 当前风险指标快照
+    Timestamp           timestamp;  // 快照生成时间
+};
+
+// ============================================================
+// 6. RiskControlEvent — 风控指令事件
+//    发布者：SellerRiskApp / BuyerRiskApp
+//    订阅者：OrderRouter（可阻断新订单）、日志处理器
 // ============================================================
 enum class RiskAction {
     BlockOrders,  // 冻结账户下单权限
@@ -145,31 +133,26 @@ struct RiskControlEvent {
 };
 
 // ============================================================
-// 6. RiskAlertEvent — 风险预警事件
-//    发布者：RealtimeRiskApp（实时风控应用）
+// 7. RiskAlertEvent — 风险预警事件
+//    发布者：SellerRiskApp / BuyerRiskApp
 //    订阅者：日志处理器、监控系统
-//
-//    用于记录风险指标接近限额但尚未触发强制动作的情形。
 // ============================================================
 struct RiskAlertEvent {
     std::string account_id;   // 告警账户 ID
-    std::string metric_name;  // 触发告警的指标名称（如 "delta"）
+    std::string metric_name;  // 触发告警的指标名称（如 "intraday_drawdown"）
     double      value;        // 当前指标值
     double      limit;        // 对应风险限额
 };
 
 // ============================================================
-// 7. ParamUpdateEvent — 模型参数更新事件
+// 8. ParamUpdateEvent — 模型参数更新事件
 //    发布者：BacktestCalibrationApp（回测校准应用）
 //    订阅者：ParameterStore（参数仓库）
-//
-//    校准引擎完成优化后，通过此事件将新参数广播到系统，
-//    实现"校准 → 参数更新 → 实时定价"闭环。
 // ============================================================
 struct ParamUpdateEvent {
-    std::string model_id;                                  // 模型标识符（如 "bs_model"）
-    std::unordered_map<std::string, double> params;        // 参数键值对（如 {"vol": 0.22}）
-    Timestamp   updated_at;                                // 参数更新时间戳
+    std::string model_id;                             // 模型标识符（如 "bs_model"）
+    std::unordered_map<std::string, double> params;   // 参数键值对（如 {"vol": 0.22}）
+    Timestamp   updated_at;                           // 参数更新时间戳
 };
 
 } // namespace omm::events
