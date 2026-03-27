@@ -30,30 +30,27 @@ public:
         double r = 0.05 // interest rate (annualized)
     );
 
-    // price() — 粗糙波动率偏斜修正定价（实现 IPricingEngine 接口）
+    // price() — realizing IPricingEngine interface
     PriceResult price(
         const Option& option,
         double underlying_price
     ) const override;
 
-    // update_params() — 热注入校准结果（Phase 2 完成后调用）
-    // 线程安全：内部使用 mutex
+    // update_params() — hot injection of calibration
     void update_params(const RoughVolParams& params);
-
-    // 查询当前参数（供日志/报告使用）
+    // get_params() — query current parameters for logging/monitoring
     RoughVolParams get_params() const;
 
 private:
-    // bs_price_and_delta() — 标准 BS 公式（复用 PricingEngine 逻辑）
-    //   sigma — 偏斜调整后的波动率 σ_K
+    // bs_price_and_delta() — standard BS formula
     PriceResult bs_price_and_delta(
         double S, double K, double T, double sigma, bool is_call
     ) const;
 
-    // compute_skew_adjusted_vol() — 计算偏斜修正波动率 σ_K
+    // compute_skew_adjusted_vol() — adjust vol
     double compute_skew_adjusted_vol(double K, double S, double T) const;
 
-    mutable std::mutex params_mutex_; 
+    mutable std::mutex params_mutex_;  // mutual exclusion for params access
     RoughVolParams     params_;       
     double             r_;            
 };
