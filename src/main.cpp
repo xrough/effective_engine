@@ -60,6 +60,7 @@
 // 基础设施层（core/infrastructure — I/O 适配器）
 #include "core/infrastructure/MarketDataAdapter.hpp"
 #include "core/infrastructure/ParameterStore.hpp"
+#include "core/infrastructure/OrderRouter.hpp"
 
 // 共享应用层（core/application）
 #include "core/application/PortfolioService.hpp"
@@ -207,16 +208,12 @@ int main() {
         }
     );
 
-    // ── OrderSubmittedEvent 处理器（命令模式）────────────────
-    live_bus->subscribe<omm::events::OrderSubmittedEvent>(
-        [](const omm::events::OrderSubmittedEvent& evt) {
-            std::cout << "[Order Router] hedge order (Command pattern): "
-                      << (evt.side == omm::events::Side::Buy ? "BUY" : "SELL")
-                      << " " << evt.quantity << " shares " << evt.instrument_id
-                      << " [" << (evt.order_type == omm::events::OrderType::Market
-                                  ? "Market" : "Limit") << "]\n";
-        }
-    );
+    // ── OrderRouter — 基础设施层执行边界（骨架实现）─────────
+    // 当前：订阅 OrderSubmittedEvent，记录并调用 send_to_exchange() 存根
+    // 未来：实现 FIX/WebSocket 协议，填单后发布 FillEvent 回总线
+    auto order_router = std::make_shared<omm::infrastructure::OrderRouter>(live_bus);
+    order_router->register_handlers();
+    std::cout << "[Init] OrderRouter registered (skeleton — stub send_to_exchange)\n";
 
     // ── ProbabilisticTaker — 概率成交模拟器 ──────────────────
     auto taker = std::make_shared<omm::infrastructure::ProbabilisticTaker>(

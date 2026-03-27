@@ -9,20 +9,19 @@
 #include "../analytics/PricingEngine.hpp"
 
 // ============================================================
-// 文件：PortfolioService.hpp
-// 职责：模式无关的持仓追踪与估值服务。
+// File: PortfolioService.hpp
 //
-// 设计：将"持仓追踪"从风控应用中抽离，使 SellerRiskApp / BuyerRiskApp
-//       只需关注策略评估逻辑，不再管理持仓状态。
+// Design: Isolate "position tracking" from risk management applications, allowing SellerRiskApp / BuyerRiskApp
+//       to focus solely on strategy evaluation logic without managing position states.
 //
-// 事件订阅：
-//   FillEvent       → 更新持仓（applyFill），触发重新估值
-//   MarketDataEvent → 更新标的价格，触发重新估值
+// Event Subscription:
+//   FillEvent       → Update positions (applyFill), trigger revaluation
+//   MarketDataEvent → Update underlying prices, trigger revaluation    
 //
-// 事件发布：
-//   PortfolioUpdateEvent → 含最新 RiskMetrics 快照，供风控应用消费
+// Event Publishing:
+//   PortfolioUpdateEvent → Contains latest RiskMetrics snapshot for risk management applications to consume
 //
-// 生命周期：由 SellerModule / BuyerModule 的 install() 创建并连线。
+// Lifecycle: Created and connected by SellerModule / BuyerModule's install() method.
 // ============================================================
 
 namespace omm::application {
@@ -37,17 +36,16 @@ public:
         std::string                                  account_id
     );
 
-    // 向 EventBus 注册 FillEvent / MarketDataEvent 处理器
     void register_handlers();
 
 private:
-    // 成交后：更新持仓 → 重新估值 → 发布快照
+    // deal is filled, update position and revalue
     void on_fill(const events::FillEvent& event);
 
-    // 行情更新后：刷新价格 → 重新估值 → 发布快照（有持仓时）
+    // market data updated: refresh price → revalue → publish snapshot (if holding positions)
     void on_market(const events::MarketDataEvent& event);
 
-    // 估值并发布 PortfolioUpdateEvent
+    // value portfolio and publish PortfolioUpdateEvent
     void publish_snapshot();
 
     std::shared_ptr<events::EventBus>       bus_;
@@ -55,7 +53,7 @@ private:
     std::string                             underlying_id_;
     std::string                             account_id_;
 
-    domain::PortfolioAggregate portfolio_; // 账户持仓聚合（核心状态）
+    domain::PortfolioAggregate portfolio_;
     double                     last_price_; // 最近一次标的价格
 };
 
