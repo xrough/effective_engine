@@ -93,7 +93,7 @@ PriceResult RoughVolPricingEngine::price(
     T = std::max(T, 1e-6);
 
     // ajusted vol for strike K
-    double sigma_atm = std::sqrt(params_.xi0);  // 仅用于日志，无锁读取近似值
+    double sigma_atm = std::sqrt(params_.xi0);  // ATM vol for logging
     double sigma_k   = compute_skew_adjusted_vol(K, S, T);
 
     // adjustment for logging
