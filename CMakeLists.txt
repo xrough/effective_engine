@@ -69,5 +69,7 @@ if(BUILD_GRPC_CLIENT)
 
     # Link into market_maker when gRPC client is enabled
     target_link_libraries(market_maker PRIVATE model_service_client)
+    # 传递预处理器宏，使 C++ 源文件可以通过 #ifdef 感知 gRPC 是否启用
+    target_compile_definitions(market_maker PRIVATE BUILD_GRPC_CLIENT)
 endif()
 

@@ -49,8 +49,13 @@
 
 // 分析层（core/analytics — 定价/风控/校准服务）
 #include "core/analytics/PricingEngine.hpp"
+#include "core/analytics/RoughVolPricingEngine.hpp"
 #include "core/analytics/RiskPolicy.hpp"
 #include "core/analytics/CalibrationEngine.hpp"
+
+#ifdef BUILD_GRPC_CLIENT
+#include "core/infrastructure/ModelServiceClient.hpp"
+#endif
 
 // 基础设施层（core/infrastructure — I/O 适配器）
 #include "core/infrastructure/MarketDataAdapter.hpp"
@@ -117,9 +122,14 @@ int main() {
     auto live_bus = std::make_shared<omm::events::EventBus>();
     std::cout << "[Init] Phase 1 EventBus created (live simulation)\n";
 
-    // ── 定价策略：简化内在价值定价（与原 MVP 保持一致）──────
-    auto pricing_engine = std::make_shared<omm::domain::SimplePricingEngine>();
-    std::cout << "[Init] Pricing strategy: SimplePricingEngine (intrinsic-value pricing)\n";
+    // ── 定价策略：粗糙波动率偏斜修正定价（Bergomi-Guyon 渐近展开）──
+    // 默认参数：H=0.1, η=1.5, ρ=-0.7, ξ₀=0.0625（基于实证标定的短期权益典型值）
+    // Phase 2 校准完成后通过 rough_engine->update_params() 热注入优化结果
+    omm::domain::RoughVolParams rough_params{};  // 使用默认值
+    auto rough_engine = std::make_shared<omm::domain::RoughVolPricingEngine>(rough_params, 0.05);
+    // 以接口形式共享，供 PortfolioService / QuoteEngine / DeltaHedger 使用
+    std::shared_ptr<omm::domain::IPricingEngine> pricing_engine = rough_engine;
+    std::cout << "[Init] Pricing strategy: RoughVolPricingEngine (Bergomi-Guyon skew, H=0.1)\n";
 
     // ── PortfolioService — 模式无关的持仓追踪与估值 ─────────
     // Phase 2：从 SellerRiskApp 中提取，统一由 PortfolioService 管理持仓
@@ -264,6 +274,13 @@ int main() {
 
     auto calibrator = std::make_shared<omm::domain::CalibrationEngine>();
 
+#ifdef BUILD_GRPC_CLIENT
+    // ── gRPC 客户端（可选）：仅在 BUILD_GRPC_CLIENT=ON 时构建 ──
+    // 校准服务需提前启动：cd ~/rough_pricing_env/Rough-Pricing && python3 -m roughvol.service.server
+    auto grpc_client = std::make_shared<omm::infrastructure::ModelServiceClient>("localhost:50051");
+    std::cout << "[Backtest Init] gRPC ModelServiceClient created (target: localhost:50051)\n";
+#endif
+
     auto backtest_app = std::make_shared<omm::application::BacktestCalibrationApp>(
         backtest_bus,
         main_bus,     // 校准结果发布到主总线 → ParameterStore
@@ -272,6 +289,9 @@ int main() {
         options,
         calibrator,
         "bs_model"    // 模型 ID
+#ifdef BUILD_GRPC_CLIENT
+        , grpc_client // 注入 gRPC 客户端 → finalize() 触发 Rough Bergomi 校准
+#endif
     );
     backtest_app->register_handlers();
 
@@ -300,23 +320,55 @@ int main() {
     // ════════════════════════════════════════════════════════
     param_store->print_all();
 
-    // ── 演示：用校准结果更新实时引擎（参数反馈闭环）─────────
+    // ── 演示：用 BS 校准结果更新实时引擎（参数反馈闭环）────────
     auto updated_params = param_store->get_params("bs_model");
     if (!updated_params.empty()) {
         double new_vol = updated_params.at("vol");
-        std::cout << "\n[Param Feedback] injecting calibrated vol " << std::fixed << std::setprecision(4)
-                  << new_vol << " into live pricing engine (BlackScholesPricingEngine)\n"
-                  << "[Param Feedback] model accuracy improved: initial vol=0.15 → calibrated vol="
-                  << new_vol << " → true vol=0.25\n";
+        std::cout << "\n[Param Feedback] BS vol 注入: initial=0.15 → calibrated="
+                  << std::fixed << std::setprecision(4) << new_vol << " → true=0.25\n";
+    }
+
+    // ── 演示：用粗糙 Bergomi 校准结果热注入 RoughVolPricingEngine ──
+    auto rough_calibrated = param_store->get_params("rough_bergomi");
+    if (!rough_calibrated.empty()) {
+        omm::domain::RoughVolParams calibrated{
+            rough_calibrated.at("H"),
+            rough_calibrated.at("eta"),
+            rough_calibrated.at("rho"),
+            rough_calibrated.at("xi0")
+        };
+        rough_engine->update_params(calibrated);
+        std::cout << "\n[粗糙波动率反馈] 校准参数已注入 RoughVolPricingEngine:\n"
+                  << "  H   = " << calibrated.H   << "\n"
+                  << "  eta = " << calibrated.eta  << "\n"
+                  << "  rho = " << calibrated.rho  << "\n"
+                  << "  xi0 = " << calibrated.xi0  << "\n";
+
+        // Delta 对比：BS（默认 vol=0.25）vs 粗糙 Bergomi（校准后）
+        auto bs_compare = std::make_shared<omm::domain::BlackScholesPricingEngine>(0.25, 0.05);
+        double spot_ref = 150.0;  // 参考标的价（AAPL 近似）
+        std::cout << "\n[粗糙波动率反馈] Delta 对比（标的价=$" << spot_ref << "）:\n";
+        std::cout << "  " << std::setw(14) << "合约"
+                  << "  BS Δ(σ=0.25)  RoughVol Δ\n";
+        for (const auto& opt : options) {
+            auto bs_r  = bs_compare->price(*opt, spot_ref);
+            auto rv_r  = rough_engine->price(*opt, spot_ref);
+            std::cout << "  " << std::setw(14) << opt->id()
+                      << "  " << std::showpos << std::fixed << std::setprecision(4)
+                      << bs_r.delta << "      " << rv_r.delta << std::noshowpos << "\n";
+        }
     }
 
     std::cout << "\n╔══════════════════════════════════════════════════════════╗\n"
               << "║  Simulation complete! Demonstrated:                      ║\n"
               << "║  1. Event-driven market-making simulation  (Phase 1)     ║\n"
+              << "║     RoughVolPricingEngine: Bergomi-Guyon skew hedging    ║\n"
               << "║  2. Live risk monitoring + limit enforcement              ║\n"
               << "║  3. Historical backtest + model calibration               ║\n"
+              << "║     BS: golden-section vol search                        ║\n"
+              << "║     Rough Bergomi: gRPC batch calibration (if enabled)   ║\n"
               << "║  4. Parameter feedback loop                               ║\n"
-              << "║     (ParamUpdateEvent → ParameterStore)                  ║\n"
+              << "║     (ParamUpdateEvent → ParameterStore → hot-inject)     ║\n"
               << "╚══════════════════════════════════════════════════════════╝\n";
 
     return 0;

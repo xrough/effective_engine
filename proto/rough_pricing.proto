@@ -110,9 +110,10 @@ message OptionQuote {
 }
 
 enum ModelType {
-  BS      = 0;
-  GBM_MC  = 1;
-  HESTON  = 2;
+  BS             = 0;
+  GBM_MC         = 1;
+  HESTON         = 2;
+  ROUGH_BERGOMI  = 3;
 }
 
 message CalibrateRequest {
@@ -121,7 +122,10 @@ message CalibrateRequest {
   repeated OptionQuote quotes      = 3;
   double               rate        = 4;
   double               div         = 5;
-  // optional warm-start: first element is x0_sigma for GBM; full 5-vec for Heston
+  // optional warm-start:
+  //   GBM: [x0_sigma]
+  //   Heston: [kappa, theta, xi, rho, v0]
+  //   RoughBergomi: [hurst, eta, rho, xi0]
   repeated double      x0          = 6;
   // MC engine config (0 → server defaults)
   int32  n_paths      = 7;

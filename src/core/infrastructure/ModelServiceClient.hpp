@@ -119,6 +119,14 @@ public:
         int n_paths = 20000, int n_steps = 50, int seed = 42
     );
 
+    // x0 = {hurst, eta, rho, xi0} warm-start (optional, uses defaults if empty)
+    CalibResult calibrate_rough_bergomi(
+        double spot,
+        const std::vector<OptionQuote>& quotes,
+        double rate = 0.05, double div = 0.0,
+        int n_paths = 2000, int n_steps = 64, int seed = 42
+    );
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;

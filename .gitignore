@@ -41,3 +41,6 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+
+# 笔记
+notes/

@@ -252,5 +252,24 @@ CalibResult ModelServiceClient::calibrate_heston(
     return unpack_calib(resp);
 }
 
+// ── Calibrate Rough Bergomi ─────────────────────────────────────────────────
+
+CalibResult ModelServiceClient::calibrate_rough_bergomi(
+    double spot,
+    const std::vector<OptionQuote>& quotes,
+    double rate, double div,
+    int n_paths, int n_steps, int seed
+) {
+    // x0 为空向量 — 服务端使用默认初始点 {H=0.1, η=1.5, ρ=-0.7, ξ₀=0.0625}
+    auto req = make_calibrate_request(
+        roughvol::ModelType::ROUGH_BERGOMI, spot, quotes, rate, div,
+        {}, n_paths, n_steps, seed
+    );
+    roughvol::CalibrateResponse resp;
+    grpc::ClientContext ctx;
+    check_status(impl_->stub->Calibrate(&ctx, req, &resp), "Calibrate(RoughBergomi)");
+    return unpack_calib(resp);
+}
+
 } // namespace infrastructure
 } // namespace omm
