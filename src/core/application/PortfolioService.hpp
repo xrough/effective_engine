@@ -54,7 +54,7 @@ private:
     std::string                             account_id_;
 
     domain::PortfolioAggregate portfolio_;
-    double                     last_price_; // 最近一次标的价格
+    double                     last_price_; 
 };
 
 } // namespace omm::application
