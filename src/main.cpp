@@ -1,35 +1,18 @@
 // ============================================================
-// 文件：main.cpp
-// 职责：组合根（Composition Root）— 系统唯一的组件连线点。
-//
-// 这是系统中唯一出现具体类名（而非接口/抽象类）的地方。
-// 所有其他模块通过接口和事件总线相互通信，不持有对彼此的直接引用。
-//
+// File: main.cpp
+// Responsibility: Composition Root — The only point where concrete classes are instantiated.
 // ════════════════════════════════════════════════════════════
-// 运行阶段说明：
+// Design Patterns
 //
-//   第一阶段：实时仿真（Live Simulation）
-//     复现真实做市商的运作方式：
-//       MarketDataEvent → QuoteEngine → ProbabilisticTaker
-//         → TradeExecutedEvent → DeltaHedger + RealtimeRiskApp
-//     RealtimeRiskApp 同步监控账户风险，在限额触发时发出风控指令。
-//
-//   第二阶段：回测与参数校准（Backtest & Calibration）
-//     在独立事件总线上重放相同历史行情：
-//       BacktestCalibrationApp 比对"市场价格"与"模型预测价格"，
-//       通过黄金分割搜索优化波动率 σ，
-//       发布 ParamUpdateEvent → ParameterStore 存储校准结果。
-//
-//   两个阶段使用独立 EventBus，保证状态完全隔离（Risk_Calibration.md §3）。
-//
-// ════════════════════════════════════════════════════════════
-// 设计模式汇总（本文件是所有模式交汇的地方）：
-//
-//   观察者模式（Observer Pattern）   — EventBus 发布/订阅基础设施
-//   策略模式（Strategy Pattern）     — IPricingEngine / IRiskPolicy 可替换注入
-//   适配器模式（Adapter Pattern）    — MarketDataAdapter 翻译 CSV → 领域事件
-//   命令模式（Command Pattern）      — OrderSubmittedEvent 封装对冲指令
-//   工厂模式（Factory Pattern）      — InstrumentFactory 集中创建金融工具
+//   Observer Pattern   — EventBus, e.g. PortfolioService subscribes to MarketDataEvent; DeltaHedger releases QuoteGeneratedEvent etc. 
+
+//   Strategy Pattern   — The abstract interface defines the contract, the concrete class provides the implementation, and main.cpp is the only place that decides which concrete class to use e.g. IPricingEngine and IRiskPolicy interfaces allow dynamic swapping of pricing and risk strategies (RoughVolPricingEngine, SimpleRiskPolicy, etc.)
+
+//   Adapter Pattern    — Adapt from external data sources (MarketDataAdapter) and services (ModelServiceClient) to internal interfaces
+
+//   Command Pattern    — e.g. OrderSubmittedEvent encapsulates order details; OrderRouter executes commands
+
+//   Factory Pattern    — e.g. InstrumentFactory creates domain entities (Underlying, Option) with consistent IDs
 // ============================================================
 
 #include <iostream>
@@ -38,16 +21,13 @@
 #include <chrono>
 #include <iomanip>
 
-// 事件层
 #include "core/events/EventBus.hpp"
 #include "core/events/Events.hpp"
 
-// 领域层（core/domain — 纯 DDD 实体）
 #include "core/domain/Instrument.hpp"
 #include "core/domain/InstrumentFactory.hpp"
 #include "core/domain/PositionManager.hpp"
 
-// 分析层（core/analytics — 定价/风控/校准服务）
 #include "core/analytics/PricingEngine.hpp"
 #include "core/analytics/RoughVolPricingEngine.hpp"
 #include "core/analytics/RiskPolicy.hpp"
@@ -57,15 +37,13 @@
 #include "core/infrastructure/ModelServiceClient.hpp"
 #endif
 
-// 基础设施层（core/infrastructure — I/O 适配器）
 #include "core/infrastructure/MarketDataAdapter.hpp"
 #include "core/infrastructure/ParameterStore.hpp"
 #include "core/infrastructure/OrderRouter.hpp"
 
-// 共享应用层（core/application）
 #include "core/application/PortfolioService.hpp"
 
-// 卖方模块（modules/seller）
+// Seller modules
 #include "modules/seller/QuoteEngine.hpp"
 #include "modules/seller/DeltaHedger.hpp"
 #include "modules/seller/SellerRiskApp.hpp"
@@ -78,7 +56,7 @@ int main() {
               << "╚══════════════════════════════════════════════════════════╝\n\n";
 
     // ────────────────────────────────────────────────────────
-    // 公共资源：两个阶段共享合约定义与工厂（数据不可变，安全共享）
+    // Shared domain entities (instruments) — created once, shared across phases
     // ────────────────────────────────────────────────────────
     auto expiry = std::chrono::system_clock::now()
                   + std::chrono::hours(30 * 24);
@@ -100,13 +78,12 @@ int main() {
     std::cout << "\n";
 
     // ────────────────────────────────────────────────────────
-    // 主事件总线（两个阶段共享；用于接收 ParamUpdateEvent）
+    // main bus - receives events from all components, used for cross-cutting concerns like parameter updates
     // ────────────────────────────────────────────────────────
-    auto main_bus = std::make_shared<omm::events::EventBus>();
+    auto main_bus = std::make_shared<omm::events::EventBus>(); // initialize main event bus as shared pointer pointed at type omm::events::EventBus
 
     // ────────────────────────────────────────────────────────
-    // ParameterStore — 订阅 ParamUpdateEvent，接收校准结果
-    // （在主总线上注册，两阶段均可向其发布参数）
+    // ParameterStore — centralized repository for model parameters, subscribes to ParamUpdateEvent
     // ────────────────────────────────────────────────────────
     auto param_store = std::make_shared<omm::infrastructure::ParameterStore>(main_bus);
     param_store->subscribe_handlers();
