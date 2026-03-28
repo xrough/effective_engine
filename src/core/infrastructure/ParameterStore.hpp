@@ -7,58 +7,54 @@
 #include "../events/Events.hpp"
 
 // ============================================================
-// 文件：ParameterStore.hpp
-// 职责：参数仓库 — 订阅 ParamUpdateEvent，持久化模型参数，
-//       并提供带版本查询接口（按模型 ID 获取最新参数）。
+// File: ParameterStore.hpp
+// Role: Parameter repository — subscribes to ParamUpdateEvent,
+//       persists model parameters, and provides a versioned
+//       query interface (latest params by model ID).
 //
-// 对应 Risk_Calibration.md §2.7（Parameter Feedback）
-//
-// 这是"校准 → 实时定价"反馈闭环中的存储节点：
+// Position in the calibration feedback loop:
 //   BacktestCalibrationApp → ParamUpdateEvent → ParameterStore
 //                                                     ↓
-//                                   实时引擎查询 get_params(model_id)
+//                                   live engine queries get_params(model_id)
 //
-// 接口说明：
-//   subscribe_handlers()           — 向 EventBus 注册 ParamUpdateEvent 处理器
-//   get_params(model_id) → map     — 获取指定模型的最新参数
-//   print_all()                    — 打印所有已存储的参数（供 main 日志输出）
-//
-// 对应 Risk_Calibration.md 中的 IModelParamSource 接口：
-//   virtual ParamMap getParams(ModelId id, Timestamp asOf) = 0;
+// Interface:
+//   subscribe_handlers()        — register ParamUpdateEvent handler on EventBus
+//   get_params(model_id) → map  — retrieve latest params for a given model
+//   print_all()                 — print all stored params (used for end-of-sim logging)
 // ============================================================
 
 namespace omm::infrastructure {
 
-// VersionedParams — 带时间戳的参数版本（支持历史回溯）
+// VersionedParams — a parameter snapshot with a timestamp (supports history)
 struct VersionedParams {
-    std::unordered_map<std::string, double> params;     // 参数键值对
-    events::Timestamp                       updated_at; // 更新时间戳
+    std::unordered_map<std::string, double> params;     // key-value parameter map
+    events::Timestamp                       updated_at; // when this version was stored
 };
 
 class ParameterStore {
 public:
     explicit ParameterStore(std::shared_ptr<events::EventBus> bus);
 
-    // subscribe_handlers() — 注册 ParamUpdateEvent 订阅器
+    // subscribe_handlers() — subscribe to ParamUpdateEvent on the bus
     void subscribe_handlers();
 
-    // get_params() — 获取指定模型的最新参数
-    //   若模型未注册，返回空 map
+    // get_params() — returns the latest parameters for model_id.
+    //   Returns an empty map if the model has not been registered yet.
     std::unordered_map<std::string, double> get_params(
         const std::string& model_id
     ) const;
 
-    // print_all() — 打印所有模型的最新参数（供仿真结束时汇报使用）
+    // print_all() — print the latest params for all registered models
     void print_all() const;
 
 private:
-    // on_param_update() — ParamUpdateEvent 处理器
-    //   追加新版本到历史记录，保留所有历史版本
+    // on_param_update() — handler for ParamUpdateEvent
+    //   Appends a new version to the history; all versions are retained.
     void on_param_update(const events::ParamUpdateEvent& event);
 
     std::shared_ptr<events::EventBus> bus_;
 
-    // 参数历史：model_id → 版本列表（按时间顺序追加）
+    // history: model_id → list of versioned snapshots (chronological order)
     std::unordered_map<std::string, std::vector<VersionedParams>> history_;
 };
 

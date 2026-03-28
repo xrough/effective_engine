@@ -2,11 +2,15 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <iostream>
+#include <iomanip>
 #include "../../core/events/EventBus.hpp"
 #include "../../core/domain/Instrument.hpp"
+#include "../../core/domain/PositionManager.hpp"
 #include "../../core/analytics/PricingEngine.hpp"
 #include "../../core/analytics/RiskPolicy.hpp"
 #include "../../core/application/PortfolioService.hpp"
+#include "../../core/infrastructure/OrderRouter.hpp"
 #include "QuoteEngine.hpp"
 #include "DeltaHedger.hpp"
 #include "SellerRiskApp.hpp"
@@ -39,37 +43,50 @@ struct SellerConfig {
     std::string underlying_id     = "AAPL";
 };
 
+// SellerContext — install() 的返回值
+// 持有所有卖方组件的 shared_ptr，确保其生命周期延续至仿真结束
+struct SellerContext {
+    std::shared_ptr<domain::PositionManager>            position_mgr;  // 对冲持仓（供打印汇总）
+    std::shared_ptr<application::PortfolioService>      portfolio_svc;
+    std::shared_ptr<application::QuoteEngine>           quote_engine;
+    std::shared_ptr<application::DeltaHedger>           hedger;
+    std::shared_ptr<application::SellerRiskApp>         risk_app;
+    std::shared_ptr<infrastructure::OrderRouter>        order_router;
+    std::shared_ptr<infrastructure::ProbabilisticTaker> taker;
+};
+
 class SellerModule {
 public:
-    // install() — 构造并连线所有卖方组件
+    // install() — 构造并连线所有卖方组件，返回 SellerContext
     //
     // 参数：
-    //   bus      — 主事件总线（shared_ptr，生命周期由调用方管理）
+    //   bus      — 事件总线（生命周期由调用方管理）
     //   cfg      — 卖方运行时配置
     //   options  — 待报价的期权合约列表
     //   pricing  — 定价引擎（策略模式，可替换）
-    static void install(
+    static SellerContext install(
         std::shared_ptr<events::EventBus>                    bus,
         const SellerConfig&                                  cfg,
         const std::vector<std::shared_ptr<domain::Option>>& options,
         std::shared_ptr<domain::IPricingEngine>              pricing
     ) {
-        // ── 持仓服务（模式无关，两端共享）───────────────────
-        // PortfolioService 订阅 FillEvent + MarketDataEvent
-        // 发布 PortfolioUpdateEvent 供 SellerRiskApp 消费
+        // ── 持仓服务 ─────────────────────────────────────────
         auto portfolio_svc = std::make_shared<application::PortfolioService>(
             bus, pricing, options, cfg.underlying_id, cfg.account_id
         );
         portfolio_svc->register_handlers();
+        std::cout << "[SellerModule] PortfolioService registered (account: "
+                  << cfg.account_id << ")\n";
 
         // ── 报价引擎 ─────────────────────────────────────────
         auto quote_eng = std::make_shared<application::QuoteEngine>(
             bus, pricing, options, cfg.half_spread
         );
         quote_eng->register_handlers();
+        std::cout << "[SellerModule] QuoteEngine registered (half_spread: $"
+                  << cfg.half_spread << ")\n";
 
         // ── Delta 对冲器 ─────────────────────────────────────
-        // DeltaHedger 维护独立的 PositionManager（用于对冲 Delta 计算）
         auto position_mgr = std::make_shared<domain::PositionManager>();
         auto hedger = std::make_shared<application::DeltaHedger>(
             bus, position_mgr, pricing, options,
@@ -81,9 +98,10 @@ public:
                 hedger->update_market_price(e.underlying_price);
             }
         );
+        std::cout << "[SellerModule] DeltaHedger registered (threshold: ±"
+                  << cfg.delta_threshold << ")\n";
 
-        // ── 实时风控（SellerRiskApp）─────────────────────────
-        // Phase 2：只需 bus + account_id + risk_policy，不再管理持仓
+        // ── 实时风控 ─────────────────────────────────────────
         auto risk_policy = std::make_shared<domain::SimpleRiskPolicy>(
             cfg.loss_limit, cfg.delta_limit, cfg.drawdown_limit
         );
@@ -91,12 +109,53 @@ public:
             bus, cfg.account_id, risk_policy
         );
         risk_app->register_handlers();
+        std::cout << "[SellerModule] SellerRiskApp registered (policy: SimpleRiskPolicy)\n";
+
+        // ── 风控事件日志订阅 ─────────────────────────────────
+        bus->subscribe<events::RiskControlEvent>(
+            [](const events::RiskControlEvent& evt) {
+                std::cout << "[Risk Log] account=" << evt.account_id << "  action=";
+                switch (evt.action) {
+                    case events::RiskAction::BlockOrders:  std::cout << "BlockOrders";  break;
+                    case events::RiskAction::CancelOrders: std::cout << "CancelOrders"; break;
+                    case events::RiskAction::ReduceOnly:   std::cout << "ReduceOnly";   break;
+                }
+                std::cout << "  reason: " << evt.reason << "\n";
+            }
+        );
+        bus->subscribe<events::RiskAlertEvent>(
+            [](const events::RiskAlertEvent& evt) {
+                if (evt.value > 1.0) {
+                    std::cout << "[Risk Alert] " << evt.account_id
+                              << "  metric: " << evt.metric_name
+                              << "  value: $" << std::fixed << std::setprecision(2) << evt.value
+                              << "  limit: $" << evt.limit << "\n";
+                }
+            }
+        );
+
+        // ── 执行边界（OrderRouter）───────────────────────────
+        auto order_router = std::make_shared<infrastructure::OrderRouter>(bus);
+        order_router->register_handlers();
+        std::cout << "[SellerModule] OrderRouter registered (skeleton)\n";
 
         // ── 概率成交模拟器 ───────────────────────────────────
         auto taker = std::make_shared<infrastructure::ProbabilisticTaker>(
             bus, cfg.trade_probability, cfg.rng_seed
         );
         taker->register_handlers();
+        std::cout << "[SellerModule] ProbabilisticTaker registered (p="
+                  << cfg.trade_probability << ", seed=" << cfg.rng_seed << ")\n";
+
+        return SellerContext{
+            position_mgr,
+            portfolio_svc,
+            quote_eng,
+            hedger,
+            risk_app,
+            order_router,
+            taker
+        };
     }
 };
 

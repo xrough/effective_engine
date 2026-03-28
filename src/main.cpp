@@ -39,15 +39,9 @@
 
 #include "core/infrastructure/MarketDataAdapter.hpp"
 #include "core/infrastructure/ParameterStore.hpp"
-#include "core/infrastructure/OrderRouter.hpp"
 
-#include "core/application/PortfolioService.hpp"
-
-// Seller modules
-#include "modules/seller/QuoteEngine.hpp"
-#include "modules/seller/DeltaHedger.hpp"
-#include "modules/seller/SellerRiskApp.hpp"
-#include "modules/seller/ProbabilisticTaker.hpp"
+// Seller module (composition entry point — wires all seller components)
+#include "modules/seller/SellerModule.hpp"
 #include "modules/seller/BacktestCalibrationApp.hpp"
 
 int main() {
@@ -66,31 +60,35 @@ int main() {
     auto call_145   = omm::domain::InstrumentFactory::make_call("AAPL", 145.0, expiry);
     auto put_155    = omm::domain::InstrumentFactory::make_put ("AAPL", 155.0, expiry);
 
+    // instantiate options (ptrs) vector for easy passing to modules.
+
     std::vector<std::shared_ptr<omm::domain::Option>> options = {
         call_150, call_145, put_155
     };
 
     std::cout << "[Init] Factory: created instruments:\n";
     std::cout << "  " << underlying->id() << " (" << underlying->type_name() << ")\n";
-    for (const auto& opt : options) {
+    for (const auto& opt : options) { // const:只读 &: 引用避免拷贝
         std::cout << "  " << opt->id() << " (" << opt->type_name() << ")\n";
     }
     std::cout << "\n";
 
     // ────────────────────────────────────────────────────────
-    // main bus - receives events from all components, used for cross-cutting concerns like parameter updates
+    // main bus - communicates between channels (Phase 1 and 2 in this case), used for cross-cutting concerns like parameter updates
     // ────────────────────────────────────────────────────────
-    auto main_bus = std::make_shared<omm::events::EventBus>(); // initialize main event bus as shared pointer pointed at type omm::events::EventBus
+    auto main_bus = std::make_shared<omm::events::EventBus>(); // initialize main event bus as shared pointer pointed at type EventBus.
 
     // ────────────────────────────────────────────────────────
-    // ParameterStore — centralized repository for model parameters, subscribes to ParamUpdateEvent
+    // ParameterStore — 
+    // BacktestCalibrationApp → ParamUpdateEvent → ParameterStore
+
     // ────────────────────────────────────────────────────────
-    auto param_store = std::make_shared<omm::infrastructure::ParameterStore>(main_bus);
+    auto param_store = std::make_shared<omm::infrastructure::ParameterStore>(main_bus); // initialize ParameterStore with main_bus.
     param_store->subscribe_handlers();
     std::cout << "[Init] ParameterStore registered (subscribing to ParamUpdateEvent)\n\n";
 
     // ════════════════════════════════════════════════════════
-    // ██ 第一阶段：实时仿真 + 实时风控 ██
+    // Stage One: Live Market-Making Simulation + Risk Monitoring
     // ════════════════════════════════════════════════════════
     std::cout << "┌──────────────────────────────────────────────────────────┐\n"
               << "│  Phase 1: Live Market-Making Simulation + Risk Monitoring│\n"
@@ -100,104 +98,20 @@ int main() {
     auto live_bus = std::make_shared<omm::events::EventBus>();
     std::cout << "[Init] Phase 1 EventBus created (live simulation)\n";
 
-    // ── 定价策略：粗糙波动率偏斜修正定价（Bergomi-Guyon 渐近展开）──
-    // 默认参数：H=0.1, η=1.5, ρ=-0.7, ξ₀=0.0625（基于实证标定的短期权益典型值）
+    // ── 定价策略：粗糙波动率定价引擎（Bergomi-Guyon 渐近展开）──
     // Phase 2 校准完成后通过 rough_engine->update_params() 热注入优化结果
-    omm::domain::RoughVolParams rough_params{};  // 使用默认值
+    omm::domain::RoughVolParams rough_params{};
     auto rough_engine = std::make_shared<omm::domain::RoughVolPricingEngine>(rough_params, 0.05);
-    // 以接口形式共享，供 PortfolioService / QuoteEngine / DeltaHedger 使用
-    std::shared_ptr<omm::domain::IPricingEngine> pricing_engine = rough_engine;
-    std::cout << "[Init] Pricing strategy: RoughVolPricingEngine (Bergomi-Guyon skew, H=0.1)\n";
+    std::cout << "[Init] Pricing strategy: RoughVolPricingEngine (H=0.1, Bergomi-Guyon skew)\n";
 
-    // ── PortfolioService — 模式无关的持仓追踪与估值 ─────────
-    // Phase 2：从 SellerRiskApp 中提取，统一由 PortfolioService 管理持仓
-    // 订阅 FillEvent + MarketDataEvent → 发布 PortfolioUpdateEvent
-    auto portfolio_svc = std::make_shared<omm::application::PortfolioService>(
-        live_bus, pricing_engine, options, underlying->id(), "DESK_A"
+    // ── 卖方模块安装（组合入口）──────────────────────────────
+    // SellerModule::install() 连线所有卖方组件并注册事件订阅
+    omm::seller::SellerConfig seller_cfg;
+    seller_cfg.underlying_id = underlying->id();
+
+    auto seller_ctx = omm::seller::SellerModule::install(
+        live_bus, seller_cfg, options, rough_engine
     );
-    portfolio_svc->register_handlers();
-    std::cout << "[Init] PortfolioService registered (account: DESK_A)\n";
-
-    // ── DeltaHedger 独立持仓管理器（用于对冲 Delta 计算）───
-    auto position_mgr = std::make_shared<omm::domain::PositionManager>();
-
-    // ── QuoteEngine — 固定价差报价策略 ──────────────────────
-    auto quote_engine = std::make_shared<omm::application::QuoteEngine>(
-        live_bus, pricing_engine, options,
-        0.05  // half_spread = $0.05
-    );
-    quote_engine->register_handlers();
-    std::cout << "[Init] QuoteEngine registered (strategy: fixed spread ±$0.05)\n";
-
-    // ── DeltaHedger — Delta 对冲策略 ─────────────────────────
-    auto delta_hedger = std::make_shared<omm::application::DeltaHedger>(
-        live_bus, position_mgr, pricing_engine, options,
-        underlying->id(),
-        0.5  // Delta 阈值 ±0.5
-    );
-    delta_hedger->register_handlers();
-    live_bus->subscribe<omm::events::MarketDataEvent>(
-        [&dh = *delta_hedger](const omm::events::MarketDataEvent& evt) {
-            dh.update_market_price(evt.underlying_price);
-        }
-    );
-    std::cout << "[Init] DeltaHedger registered (threshold: ±0.5 delta)\n";
-
-    // ── SellerRiskApp — 实时风险监控（Phase 2 简化版）─────────
-    // Phase 2：只订阅 PortfolioUpdateEvent，不再管理持仓状态
-    // 策略模式：SimpleRiskPolicy 定义风险限额规则，可替换
-    auto risk_policy = std::make_shared<omm::domain::SimpleRiskPolicy>(
-        1e6,     // 止损限额：已实现亏损超 $1,000,000 → BlockOrders
-        10000.0, // Delta 限额：|Δ| > 10,000 → ReduceOnly
-        5e5      // 日内回撤预警：> $500,000 → RiskAlertEvent
-    );
-
-    auto risk_app = std::make_shared<omm::application::SellerRiskApp>(
-        live_bus,
-        "DESK_A",   // 账户 ID
-        risk_policy
-    );
-    risk_app->register_handlers(); // 订阅 PortfolioUpdateEvent
-    std::cout << "[Init] SellerRiskApp registered (account: DESK_A, policy: SimpleRiskPolicy)\n";
-
-    // ── 风控事件处理器（日志存根）────────────────────────────
-    live_bus->subscribe<omm::events::RiskControlEvent>(
-        [](const omm::events::RiskControlEvent& evt) {
-            std::cout << "[Risk Log] action recorded: account=" << evt.account_id
-                      << "  action=";
-            switch (evt.action) {
-                case omm::events::RiskAction::BlockOrders:  std::cout << "BlockOrders"; break;
-                case omm::events::RiskAction::CancelOrders: std::cout << "CancelOrders"; break;
-                case omm::events::RiskAction::ReduceOnly:   std::cout << "ReduceOnly"; break;
-            }
-            std::cout << "  reason: " << evt.reason << "\n";
-        }
-    );
-
-    live_bus->subscribe<omm::events::RiskAlertEvent>(
-        [](const omm::events::RiskAlertEvent& evt) {
-            if (evt.value > 1.0) { // 仅打印有意义的预警（跳过 0 值噪音）
-                std::cout << "[Risk Alert] " << evt.account_id
-                          << "  metric: " << evt.metric_name
-                          << "  value: $" << std::fixed << std::setprecision(2) << evt.value
-                          << "  limit: $" << evt.limit << "\n";
-            }
-        }
-    );
-
-    // ── OrderRouter — 基础设施层执行边界（骨架实现）─────────
-    // 当前：订阅 OrderSubmittedEvent，记录并调用 send_to_exchange() 存根
-    // 未来：实现 FIX/WebSocket 协议，填单后发布 FillEvent 回总线
-    auto order_router = std::make_shared<omm::infrastructure::OrderRouter>(live_bus);
-    order_router->register_handlers();
-    std::cout << "[Init] OrderRouter registered (skeleton — stub send_to_exchange)\n";
-
-    // ── ProbabilisticTaker — 概率成交模拟器 ──────────────────
-    auto taker = std::make_shared<omm::infrastructure::ProbabilisticTaker>(
-        live_bus, 0.30, 42
-    );
-    taker->register_handlers();
-    std::cout << "[Init] ProbabilisticTaker registered (fill probability: 30%, seed: 42)\n";
 
     std::cout << "\n┌──────────────── Phase 1 Event Subscriptions ─────────────────┐\n"
               << "│ MarketDataEvent       → QuoteEngine (quote)                   │\n"
@@ -207,8 +121,8 @@ int main() {
               << "│ FillEvent             → PortfolioService (track position)     │\n"
               << "│                       → DeltaHedger (hedge check)             │\n"
               << "│ PortfolioUpdateEvent  → SellerRiskApp (risk check)            │\n"
-              << "│ RiskControlEvent      → risk log stub                         │\n"
-              << "│ OrderSubmittedEvent   → order router stub                     │\n"
+              << "│ RiskControlEvent      → risk log                              │\n"
+              << "│ OrderSubmittedEvent   → OrderRouter (stub)                    │\n"
               << "└───────────────────────────────────────────────────────────────┘\n\n";
 
     std::cout << "══════════════ Phase 1 Simulation Start ══════════════\n\n";
@@ -220,7 +134,7 @@ int main() {
     adapter.run();
 
     std::cout << "\n══════════════ Phase 1 Simulation End ══════════════\n\n";
-    position_mgr->print_positions();
+    seller_ctx.position_mgr->print_positions();
 
     // ════════════════════════════════════════════════════════
     // ██ 第二阶段：回测与参数校准 ██

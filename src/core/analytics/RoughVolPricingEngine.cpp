@@ -6,14 +6,27 @@
 #include <iomanip>
 
 // ============================================================
-// File：RoughVolPricingEngine.cpp
-// Bergomi-Guyon first order skew correction for European options
+// File: RoughVolPricingEngine.cpp
+// Bergomi-Guyon 2nd-order asymptotic expansion for implied vol.
 //
-// Explicit formula for skew-adjusted volatility:
-//   σ_ATM = √ξ₀
-//   ψ(T)  = ρ·η·Γ(H+0.5) / (2√π) · T^{H-0.5}   
-//   k     = log(K/S)                               
-//   σ_K   = max(σ_ATM + ψ·k, 0.001)               
+// Implied volatility formula (Bergomi-Guyon 2012 / Fukasawa 2011):
+//
+//   σ_ATM = √ξ₀                                        ATM vol
+//   ψ(T)  = ρ·η·Γ(H+0.5) / (2√π) · T^{H-0.5}         skew slope
+//   χ(T)  = ψ(T)² / σ_ATM                              smile curvature
+//   k     = log(K/S)                                    log-moneyness
+//
+//   σ_K   = max(σ_ATM + ψ·k + (χ/2)·k², 0.001)        2nd-order smile
+//
+// The curvature term χ/2·k² (Fukasawa 2011, Thm 4.1) is the
+// leading-order smile convexity for any rough vol model.
+// It ensures σ(k) is symmetric around ATM and always concave-up,
+// capturing the observed parabolic shape of short-dated smiles.
+//
+// Compared to 1st-order (linear in k):
+//   OTM call (k>0, ρ<0):  ψ·k < 0 (lower vol), χ/2·k² > 0 (partial offset)
+//   OTM put  (k<0, ρ<0):  ψ·k > 0 (higher vol), χ/2·k² > 0 (further boost)
+//   → asymmetric smile with put skew, consistent with equity markets
 // ============================================================
 
 namespace omm::domain {
@@ -46,11 +59,14 @@ double RoughVolPricingEngine::compute_skew_adjusted_vol(
                  / (2.0 * std::sqrt(M_PI))
                  * std::pow(T, p.H - 0.5);
 
-    // log moneyness k = log(K/S)
+    // log-moneyness k = log(K/S)
     double k = std::log(K / S);
 
-    // σ_K = σ_ATM + ψ·k skew adjustment with floor
-    double sigma_k = sigma_atm + psi * k;
+    // smile curvature χ = ψ²/σ_ATM  (Fukasawa 2011, leading-order convexity)
+    double chi = (psi * psi) / sigma_atm;
+
+    // 2nd-order implied vol: σ_K = σ_ATM + ψ·k + (χ/2)·k²
+    double sigma_k = sigma_atm + psi * k + 0.5 * chi * k * k;
     return std::max(sigma_k, 0.001);
 }
 
@@ -102,7 +118,8 @@ PriceResult RoughVolPricingEngine::price(
     std::cout << "[Rough Volatility] " << option.id()
               << "  σ_ATM=" << std::fixed << std::setprecision(3) << sigma_atm
               << "  σ_K="   << sigma_k
-              << "  skew adjustment=" << std::showpos << std::setprecision(3) << skew_adj
+              << "  adj=" << std::showpos << std::setprecision(3) << skew_adj
+              << " (linear+convexity)"
               << std::noshowpos << "\n";
 
     bool is_call = (option.option_type() == OptionType::Call);
