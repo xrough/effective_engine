@@ -8,10 +8,6 @@
 #include "../../core/analytics/PricingEngine.hpp"
 #include "../../core/analytics/CalibrationEngine.hpp"
 
-#ifdef BUILD_GRPC_CLIENT
-#include "../../core/infrastructure/ModelServiceClient.hpp"
-#endif
-
 // ============================================================
 // 文件：BacktestCalibrationApp.hpp
 // 职责：回测与参数校准应用 — 在隔离的事件总线上重放历史行情，
@@ -49,11 +45,6 @@ public:
         std::vector<std::shared_ptr<domain::Option>>   options,
         std::shared_ptr<domain::CalibrationEngine>     calibrator,
         std::string                                    model_id
-#ifdef BUILD_GRPC_CLIENT
-        // Phase 2b（可选）：传入 gRPC 客户端以触发 Rough Bergomi 校准
-        // nullptr → 跳过粗糙波动率校准，仅执行 BS 黄金分割搜索
-        , std::shared_ptr<infrastructure::ModelServiceClient> grpc_client = nullptr
-#endif
     );
 
     // register_handlers() — 在回测专用总线上注册行情处理器
@@ -89,12 +80,8 @@ private:
     std::shared_ptr<domain::CalibrationEngine>     calibrator_;
     std::string                                    model_id_;
     int                                            tick_count_;
-    double                                         last_spot_;        // 最近一次标的价格（供粗糙波动率校准使用）
+    double                                         last_spot_;        // 最近一次标的价格
     std::vector<RawObs>                            raw_observations_; // 原始观测缓存
-
-#ifdef BUILD_GRPC_CLIENT
-    std::shared_ptr<infrastructure::ModelServiceClient> grpc_client_; // 可选 gRPC 客户端
-#endif
 };
 
 } // namespace omm::application

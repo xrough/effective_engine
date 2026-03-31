@@ -25,9 +25,6 @@ BacktestCalibrationApp::BacktestCalibrationApp(
     std::vector<std::shared_ptr<domain::Option>>   options,
     std::shared_ptr<domain::CalibrationEngine>     calibrator,
     std::string                                    model_id
-#ifdef BUILD_GRPC_CLIENT
-    , std::shared_ptr<infrastructure::ModelServiceClient> grpc_client
-#endif
 )
     : backtest_bus_(std::move(backtest_bus))
     , main_bus_(std::move(main_bus))
@@ -38,9 +35,6 @@ BacktestCalibrationApp::BacktestCalibrationApp(
     , model_id_(std::move(model_id))
     , tick_count_(0)
     , last_spot_(0.0)
-#ifdef BUILD_GRPC_CLIENT
-    , grpc_client_(std::move(grpc_client))
-#endif
 {}
 
 void BacktestCalibrationApp::register_handlers() {
@@ -126,61 +120,6 @@ double BacktestCalibrationApp::finalize() {
               << model_id_ << "  参数: vol=" << best_vol << "\n";
 
     main_bus_->publish(update);
-
-#ifdef BUILD_GRPC_CLIENT
-    // ── Phase 2b：粗糙 Bergomi 校准（仅当 gRPC 客户端已注入时执行）────
-    if (grpc_client_) {
-        std::cout << "\n[回测校准] ──── 开始 Rough Bergomi 校准（gRPC）────\n";
-
-        // 从原始观测中提取 OptionQuote 列表（去重：用最后一次 tick 的市场价）
-        std::vector<infrastructure::OptionQuote> quotes;
-        for (const auto& opt : options_) {
-            double mp = market_engine_->price(*opt, last_spot_).theo;
-            auto now  = std::chrono::system_clock::now();
-            double T  = std::chrono::duration<double>(opt->expiry() - now).count()
-                        / (365.0 * 24.0 * 3600.0);
-            T = std::max(T, 1e-6);
-            quotes.push_back(infrastructure::OptionQuote{
-                opt->strike(), T,
-                opt->option_type() == domain::OptionType::Call,
-                mp
-            });
-        }
-
-        try {
-            // n_paths=2000 — 计算轻量（"computationally light" 方案）
-            auto result = grpc_client_->calibrate_rough_bergomi(
-                last_spot_, quotes, 0.05, 0.0, 2000, 64, 42
-            );
-
-            std::cout << "[回测校准] ✅ Rough Bergomi 校准完成！\n"
-                      << "             H   = " << result.params.at("hurst") << "\n"
-                      << "             eta = " << result.params.at("eta")   << "\n"
-                      << "             rho = " << result.params.at("rho")   << "\n"
-                      << "             xi0 = " << result.params.at("xi0")   << "\n"
-                      << "             MSE = " << result.mse
-                      << "  耗时 " << result.elapsed_s << "s\n";
-
-            // 发布粗糙参数到主总线 → ParameterStore 存储
-            events::ParamUpdateEvent rough_update{
-                "rough_bergomi",
-                {
-                    {"H",   result.params.at("hurst")},
-                    {"eta", result.params.at("eta")},
-                    {"rho", result.params.at("rho")},
-                    {"xi0", result.params.at("xi0")}
-                },
-                std::chrono::system_clock::now()
-            };
-            std::cout << "[回测校准] 📤 发布 ParamUpdateEvent → 模型: rough_bergomi\n";
-            main_bus_->publish(rough_update);
-
-        } catch (const std::exception& e) {
-            std::cout << "[回测校准] ⚠️  Rough Bergomi 校准失败（服务未启动？）: "
-                      << e.what() << "\n";
-        }
-    }
-#endif
 
     return best_vol;
 }

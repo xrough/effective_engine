@@ -8,7 +8,7 @@
 
 //   Strategy Pattern   — The abstract interface defines the contract, the concrete class provides the implementation, and main.cpp is the only place that decides which concrete class to use e.g. IPricingEngine and IRiskPolicy interfaces allow dynamic swapping of pricing and risk strategies (RoughVolPricingEngine, SimpleRiskPolicy, etc.)
 
-//   Adapter Pattern    — Adapt from external data sources (MarketDataAdapter) and services (ModelServiceClient) to internal interfaces
+//   Adapter Pattern    — Adapt from external data sources (MarketDataAdapter) to internal interfaces
 
 //   Command Pattern    — e.g. OrderSubmittedEvent encapsulates order details; OrderRouter executes commands
 
@@ -32,10 +32,6 @@
 #include "core/analytics/RoughVolPricingEngine.hpp"
 #include "core/analytics/RiskPolicy.hpp"
 #include "core/analytics/CalibrationEngine.hpp"
-
-#ifdef BUILD_GRPC_CLIENT
-#include "core/infrastructure/ModelServiceClient.hpp"
-#endif
 
 #include "core/infrastructure/MarketDataAdapter.hpp"
 #include "core/infrastructure/ParameterStore.hpp"
@@ -162,13 +158,6 @@ int main() {
 
     auto calibrator = std::make_shared<omm::domain::CalibrationEngine>();
 
-#ifdef BUILD_GRPC_CLIENT
-    // ── gRPC 客户端（可选）：仅在 BUILD_GRPC_CLIENT=ON 时构建 ──
-    // 校准服务需提前启动：cd ~/rough_pricing_env/Rough-Pricing && python3 -m roughvol.service.server
-    auto grpc_client = std::make_shared<omm::infrastructure::ModelServiceClient>("localhost:50051");
-    std::cout << "[Backtest Init] gRPC ModelServiceClient created (target: localhost:50051)\n";
-#endif
-
     auto backtest_app = std::make_shared<omm::application::BacktestCalibrationApp>(
         backtest_bus,
         main_bus,     // 校准结果发布到主总线 → ParameterStore
@@ -177,9 +166,6 @@ int main() {
         options,
         calibrator,
         "bs_model"    // 模型 ID
-#ifdef BUILD_GRPC_CLIENT
-        , grpc_client // 注入 gRPC 客户端 → finalize() 触发 Rough Bergomi 校准
-#endif
     );
     backtest_app->register_handlers();
 
@@ -254,7 +240,6 @@ int main() {
               << "║  2. Live risk monitoring + limit enforcement              ║\n"
               << "║  3. Historical backtest + model calibration               ║\n"
               << "║     BS: golden-section vol search                        ║\n"
-              << "║     Rough Bergomi: gRPC batch calibration (if enabled)   ║\n"
               << "║  4. Parameter feedback loop                               ║\n"
               << "║     (ParamUpdateEvent → ParameterStore → hot-inject)     ║\n"
               << "╚══════════════════════════════════════════════════════════╝\n";
