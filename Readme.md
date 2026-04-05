@@ -23,7 +23,7 @@ Replays the same market data on an isolated bus, calibrates implied volatility v
 
 Extracts ATM implied variance from option mid quotes via BS IV bisection, computes a rolling z-score against the rough-model forward variance forecast (`xi0 * T`), and runs a Flat → Live → Cooldown state machine to trade ATM front straddles when the spread is statistically significant.
 
-**Deep BSDE hedging demo (`demo/`)**
+**Deep BSDE hedging demo ([demo/](demo/Readme.md))**
 
 Generates lifted rough Heston paths in C++, trains a shared-weight MLP offline in Python to solve the BSDE hedging problem, exports to ONNX, and benchmarks in-process inference against analytic BS delta and finite-difference delta:
 
