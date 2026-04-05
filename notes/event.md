@@ -10,7 +10,7 @@ void register_handlers() {
         [this](const events::OptionMidQuoteEvent& e) { on_option_quote(e); }
     );
 }
-This calls subscribe<T>() on the bus with a lambda. Inside subscribe (EventBus.hpp:47-57):
+This calls subscribe<T>() on the bus with a lambda. Inside subscribe:
 
 
 template<typename T>

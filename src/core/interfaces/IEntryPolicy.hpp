@@ -5,33 +5,33 @@
 #include "../domain/RiskMetrics.hpp"
 
 // ============================================================
-// 文件：IEntryPolicy.hpp
-// 职责：入场决策纯接口 — 将 Alpha 信号转化为订单请求。
+// Files：IEntryPolicy.hpp
+// Role：decision gate, Alpha -> OrderRequest given risk metrics.
 //
-// 设计原则：
-//   - 纯行为契约，evaluate() 是命令式的：给定信号 + 风险指标，
-//     返回是否入场以及入场参数
-//   - 不含 EventBus；调用方（OrderEngine）负责将 OrderRequest 提交给
-//     IExecutionPolicy
+
+// Principles:
+//   - Pure behavioral contract: evaluate() is imperative — given a signal + risk metrics, return whether to enter and with what parameters
+//   - No EventBus; caller (OrderEngine) is responsible for submitting the OrderRequest to the IExecutionPolicy
 // ============================================================
 
 namespace omm::core {
 
-// OrderRequest — 入场决策的输出：描述一笔待提交订单的参数
+// OrderRequest — represents a decision to enter a trade, returned by IEntryPolicy::evaluate() when conditions are met. 
 struct OrderRequest {
-    std::string instrument_id; // 目标合约
+    std::string instrument_id; 
     events::Side side;         // 方向（Buy/Sell，从我方视角）
-    double quantity;           // 数量（手）
-    double limit_price;        // 限价（0.0 = 市价单）
-    std::string strategy_id;   // 策略标识（供审计/归因使用）
+    double quantity;           
+    double limit_price;        
+    std::string strategy_id;   // strategy identifier for tracking/logging
 };
 
 class IEntryPolicy {
 public:
     virtual ~IEntryPolicy() = default;
 
-    // evaluate() — 根据信号与当前风险指标决定是否入场
-    //   返回 std::nullopt 表示跳过此次信号（不入场）
+    // evaluate() — given the latest market data and risk metrics, decide whether to enter a trade. Returns:
+    //   - std::nullopt: no action
+    //   - OrderRequest: parameters for the new trade to enter (e.g., instrument, side, quantity)
     virtual std::optional<OrderRequest> evaluate(
         const events::MarketDataEvent& market,
         const domain::RiskMetrics&     metrics
