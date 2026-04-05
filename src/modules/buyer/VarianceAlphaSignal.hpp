@@ -27,11 +27,11 @@
 namespace omm::buyer {
 
 struct AlphaSignalConfig {
-    int    window    = 50;    // 滚动 z-score 窗口长度
+    int    window    = 50;    
     double z_entry   = 1.5;  // 入场阈值
     double z_exit    = 0.5;  // 离场阈值
     double z_cap     = 3.0;  // z-score 上限（仓位缩放用）
-    double base_vega = 1000.0; // 基础 vega 预算（美元）
+    double base_vega = 1000.0; 
 };
 
 class VarianceAlphaSignal : public core::IAlphaSignal {
