@@ -187,14 +187,24 @@ The demo is successful if:
 - p50 and p99 inference latency are within target,
 - the full train-export-load-replay loop is reproducible.
 
-Immediate Next Task
-Write down the exact runtime interface:
-Input:
-- normalized state vector
-- optional market context needed at hedge time
+End-to-End Results (seed=42, H=0.1, m=4, n_paths=2000 OOS)
 
-Output:
-- price estimate or continuation value if needed
-- executable hedge signal(s)
+Benchmark: LRH paths, European call, 50 time steps, antithetic training.
+Z measured in BM space: PnL = Σ Z_i · dW1_i − payoff.
 
-This interface should be finalized before implementation begins.
+Hedger comparison (PnL statistics):
+
+  对冲方法      均值      标准差    p5        p50       p95       VaR(95%)  CVaR(95%)
+  BS Delta对冲  -9.9344   4.2350    -18.8897  -8.6767   -5.5704   18.9276   22.5660
+  FD Delta      -9.8858   3.6540    -16.6019  -8.9449   -5.7318   16.6033   20.3540
+  Neural BSDE   -9.8554   3.4001    -16.2167  -9.2285   -5.5771   16.2206   19.3488
+
+  推理延迟  p50=3.4 μs,  p99=4.8 μs
+
+Observations:
+- FD delta slightly better than analytic BS delta (std 3.65 vs 4.24): FD uses instantaneous V_t for bump, while BS baseline uses fixed sigma=sqrt(V0); FD adapts to path-realized variance
+- Neural BSDE achieves lowest std (3.40) and CVaR (19.35): ~20% variance reduction vs BS delta, ~6% vs FD delta
+- All three methods converge to same mean (~-9.9 ≈ -Y0): correct — mean PnL = -price
+- Inference latency p50=3.4 μs, p99=4.8 μs — well within online hedge decision budget
+- Y0 converged to 9.78 (MC benchmark ~9.75, <0.5% error)
+- High terminal loss floor (~10.7) is expected: incomplete market (dW2 unhedged) + rough dynamics

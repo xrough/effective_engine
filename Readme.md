@@ -1,14 +1,6 @@
-# Options Market Maker MVP
+# Effective Engine — MVP
 
-A C++ simulation of an options market-making desk using a layered DDD architecture and event-driven design. Built while learning C++, with assistance from Claude Code.
-
-## What it does
-
-- Quotes bid/ask spreads on options (Black-Scholes, intrinsic, or Rough Bergomi skew)
-- Simulates a probabilistic counterparty generating trades (30% fill probability)
-- Threshold-based delta hedging via an outbound order router
-- Real-time risk monitoring with loss and delta limit enforcement
-- Backtests on historical data and calibrates implied volatility via golden-section search
+C++ options trading engine. Event-driven, layered DDD architecture. Covers both sell-side market making and buy-side variance alpha, with a deep BSDE neural hedging demo. Built while learning C++, with assistance from Claude Code.
 
 ## Quick start
 
@@ -17,82 +9,49 @@ cmake -S . -B build && cmake --build build --parallel
 ./build/market_maker
 ```
 
+## What it does
+
+**Phase 1 — Live simulation**
+
+Quotes bid/ask spreads (Rough Bergomi skew or Black-Scholes), simulates a probabilistic counterparty (30% fill), runs threshold-based delta hedging, and enforces live risk limits (max loss $1M, max delta 10,000).
+
+**Phase 2 — Backtest and calibration**
+
+Replays the same market data on an isolated bus, calibrates implied volatility via golden-section search, and hot-injects the result back into the live pricing engine.
+
+**Variance Alpha pipeline (BuyerModule)**
+
+Extracts ATM implied variance from option mid quotes via BS IV bisection, computes a rolling z-score against the rough-model forward variance forecast (`xi0 * T`), and runs a Flat → Live → Cooldown state machine to trade ATM front straddles when the spread is statistically significant.
+
+**Deep BSDE hedging demo (`demo/`)**
+
+Generates lifted rough Heston paths in C++, trains a shared-weight MLP offline in Python to solve the BSDE hedging problem, exports to ONNX, and benchmarks in-process inference against analytic BS delta and finite-difference delta:
+
+| Hedger | PnL std | CVaR(95%) | Latency p50 |
+|---|---|---|---|
+| BS delta (analytic) | 4.24 | 22.57 | — |
+| BS delta (FD bump) | 3.65 | 20.35 | — |
+| Neural BSDE | **3.40** | **19.35** | 3.4 µs |
+
 ## Architecture
 
-Four-layer DDD structure in `src/`:
+Four-layer DDD in `src/core/` (events → domain → analytics → application/infrastructure), with two isolated module composition entry points in `src/modules/`:
 
-| Layer | Path | Responsibility |
-|---|---|---|
-| Events | `src/core/events/` | `EventBus` pub/sub dispatcher; all domain event definitions |
-| Domain | `src/core/domain/` | `Instrument` hierarchy, `InstrumentFactory`, `PositionManager`, `PortfolioAggregate`, `RiskMetrics` |
-| Analytics | `src/core/analytics/` | `IPricingEngine` + implementations, `CalibrationEngine`, `IRiskPolicy` |
-| Application | `src/core/application/` + `src/modules/` | `PortfolioService`, `QuoteEngine`, `DeltaHedger`, `SellerRiskApp`, `BacktestCalibrationApp` |
-| Infrastructure | `src/core/infrastructure/` | `MarketDataAdapter`, `OrderRouter`, `ParameterStore` |
-| Composition | `src/main.cpp` | **Only file where concrete class names appear**; wires all components via constructor injection |
+- `src/modules/buyer/` — variance alpha: implied variance extraction, rolling z-score signal, Flat/Live/Cooldown strategy controller. Own `EventBus` and `RoughVolPricingEngine` instance.
+- `src/modules/seller/` — market making: quoting, delta hedging, risk control, backtest calibration. Own `EventBus` and `RoughVolPricingEngine` instance.
 
-## Event flow
+The two modules share no direct dependencies. Each exposes a static `install()` that wires all internal components and returns a context struct. Cross-cutting concerns (calibration parameter feedback) flow only through the shared `main_bus` via `ParamUpdateEvent → ParameterStore`.
 
-```
-Phase 1 — Live Simulation:
-
-  MarketDataEvent (MarketDataAdapter)
-    ├→ QuoteEngine       → QuoteGeneratedEvent (bid/ask around BS theo)
-    ├→ DeltaHedger       → caches spot price
-    └→ PortfolioService  → PortfolioUpdateEvent (mark-to-market)
-
-  QuoteGeneratedEvent
-    └→ ProbabilisticTaker → FillEvent (30% probability)
-
-  FillEvent
-    ├→ PortfolioService  → PortfolioUpdateEvent (position + PnL update)
-    └→ DeltaHedger       → OrderSubmittedEvent (if |Δ| > threshold)
-
-  PortfolioUpdateEvent
-    └→ SellerRiskApp     → RiskControlEvent / RiskAlertEvent
-
-  OrderSubmittedEvent
-    └→ OrderRouter       → send_to_exchange() [stub]
-
-Phase 2 — Backtest & Calibration (isolated bus):
-
-  MarketDataEvent (CSV replay)
-    └→ BacktestCalibrationApp → caches (S, option, market_price)
-         → CalibrationEngine::solve()  [golden-section, minimizes MSE]
-         → ParamUpdateEvent → ParameterStore (main bus)
-```
-
-## Key files
-
-- [src/main.cpp](src/main.cpp) — composition root; the only place concrete types are named
-- [src/core/events/EventBus.hpp](src/core/events/EventBus.hpp) — type-erased synchronous pub/sub dispatcher
-- [src/core/analytics/PricingEngine.hpp](src/core/analytics/PricingEngine.hpp) — `IPricingEngine` interface + BS and simple implementations
-- [src/core/analytics/RoughVolPricingEngine.hpp](src/core/analytics/RoughVolPricingEngine.hpp) — Rough Bergomi skew correction with hot parameter injection
-- [src/modules/seller/SellerRiskApp.hpp](src/modules/seller/SellerRiskApp.hpp) — live risk monitoring + limit enforcement
-- [src/modules/seller/BacktestCalibrationApp.hpp](src/modules/seller/BacktestCalibrationApp.hpp) — historical replay + vol calibration
-
-## Design patterns
-
-| Pattern | Example |
-|---|---|
-| Observer | `EventBus` — all inter-component communication |
-| Strategy | `IPricingEngine`, `IRiskPolicy` — swapped only in `main.cpp` |
-| Factory | `InstrumentFactory::make_call()`, `make_put()`, `make_underlying()` |
-| Adapter | `MarketDataAdapter` (CSV → events), `OrderRouter` (events → exchange) |
-| Command | `OrderSubmittedEvent` encapsulates order intent; `OrderRouter` is the receiver |
-| Aggregate Root | `PortfolioAggregate` owns positions + PnL consistency |
+`src/main.cpp` is the sole composition root — the only file where concrete class names appear. All intra-module communication goes through that module's `EventBus` (synchronous pub/sub, type-erased via `std::type_index` + `std::any`).
 
 **Extensibility rule:** to add a new pricing model or risk policy, implement `IPricingEngine` / `IRiskPolicy` and swap the concrete type only in `main.cpp`.
 
-## Key parameters (configurable in `src/main.cpp`)
+## Key interfaces
 
-| Parameter | Value |
-|---|---|
-| Quote half-spread | $0.05 |
-| Delta hedge threshold | 0.5 |
-| Trade probability | 30% |
-| RNG seed | 42 |
-| Market vol (ground truth) | 0.25 |
-| Model initial vol | 0.15 |
-| Calibration range | [0.01, 1.0] |
-| Risk limit — max loss | $1M (BlockOrders) |
-| Risk limit — max delta | 10,000 (ReduceOnly) |
+- [src/core/events/EventBus.hpp](src/core/events/EventBus.hpp) — type-erased pub/sub dispatcher
+- [src/core/analytics/PricingEngine.hpp](src/core/analytics/PricingEngine.hpp) — `IPricingEngine` + BS / intrinsic implementations
+- [src/core/analytics/RoughVolPricingEngine.hpp](src/core/analytics/RoughVolPricingEngine.hpp) — Rough Bergomi skew with hot parameter injection
+- [src/core/interfaces/IAlphaSignal.hpp](src/core/interfaces/IAlphaSignal.hpp) — buyer-side signal interface
+- [src/core/interfaces/IEntryPolicy.hpp](src/core/interfaces/IEntryPolicy.hpp) — order decision interface
+- [src/modules/seller/SellerModule.hpp](src/modules/seller/SellerModule.hpp) — seller composition entry point
+- [src/modules/buyer/BuyerModule.hpp](src/modules/buyer/BuyerModule.hpp) — buyer composition entry point

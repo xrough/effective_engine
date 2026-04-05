@@ -126,4 +126,34 @@ struct ParamUpdateEvent {
     Timestamp   updated_at;                       
 };
 
+// ============================================================
+// OptionMidQuoteEvent — ATM 期权中间价行情（买方 alpha 入口）
+// Published by: 市场数据适配器或模拟器
+// Consumed by: ImpliedVarianceExtractor
+// ============================================================
+struct OptionMidQuoteEvent {
+    std::string instrument_id;  // 合约标识，如 "AAPL_150_C_20240201"
+    double      mid_price;      // 买卖中间价
+    double      underlying;     // 同步标的价格
+    double      strike;         // 行权价
+    double      time_to_expiry; // 到期时间（年）
+    bool        is_call;        // true = 认购，false = 认沽
+    Timestamp   timestamp;
+};
+
+// ============================================================
+// SignalSnapshotEvent — 方差 Alpha 信号快照
+// Published by: VarianceAlphaSignal
+// Consumed by: StrategyController + 监控
+// ============================================================
+struct SignalSnapshotEvent {
+    Timestamp ts;
+    bool      valid;                      // 滚动窗口已充满，z-score 可信
+    double    atm_implied_variance;       // σ²_atm（市场端）
+    double    rough_forecast_variance;    // xi0 * T（粗糙模型端）
+    double    raw_spread;                 // atm_iv - rough_forecast
+    double    zscore;                     // (spread - mean) / std
+    bool      calibration_ok;            // 校准质量标记
+};
+
 } // namespace omm::events
