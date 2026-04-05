@@ -264,7 +264,34 @@ int main() {
             pnl_nn[p] -= payoff;
         }
 
-        // 统计
+        // --------------------------------------------------------
+        // 步骤5b: FD Delta 对冲（有限差分基准，验证 BS delta 数值精度）
+        // --------------------------------------------------------
+        std::vector<double> pnl_fd(N_OOS_PATHS, 0.0);
+
+        for (int p = 0; p < N_OOS_PATHS; ++p) {
+            for (int i = 0; i < N_STEPS; ++i) {
+                int base   = (p * oos_batch.n_times + i) * d;
+                float tau_i  = oos_batch.state_tensor[base + 0];
+                float logm_i = oos_batch.state_tensor[base + 1];
+                float V_t    = oos_batch.state_tensor[base + 2];
+                double S_t   = params.K * std::exp(logm_i);
+                double dW1_i = oos_batch.dW1[p * N_STEPS + i];
+
+                double sigma_t = std::sqrt(std::max((double)V_t, 1e-8));
+                double eps     = 0.01 * S_t;
+                double C_up    = bs_call_price(S_t + eps, params.K, tau_i, params.r, sigma_bs);
+                double C_dn    = bs_call_price(S_t - eps, params.K, tau_i, params.r, sigma_bs);
+                double delta_fd = (C_up - C_dn) / (2.0 * eps);
+                double Z_fd_bm  = delta_fd * sigma_t * S_t;  // BM空间
+                pnl_fd[p] += Z_fd_bm * dW1_i;
+            }
+            pnl_fd[p] -= oos_batch.terminal_payoff[p];
+        }
+
+        // --------------------------------------------------------
+        // 统计：均值、标准差、分位数、VaR(95%)、CVaR(95%)
+        // --------------------------------------------------------
         auto stats = [&](const std::vector<double>& v) -> std::pair<double,double> {
             double mean = std::accumulate(v.begin(), v.end(), 0.0) / v.size();
             double var  = 0;
@@ -272,17 +299,66 @@ int main() {
             return {mean, std::sqrt(var / v.size())};
         };
 
+        // 分位数（就地排序副本）
+        auto quantile = [](std::vector<double> v, double p) -> double {
+            std::sort(v.begin(), v.end());
+            int idx = std::max(0, std::min((int)(p * (int)v.size()), (int)v.size() - 1));
+            return v[idx];
+        };
+
+        // VaR / CVaR（基于损失 = -PnL）
+        auto var_cvar = [](const std::vector<double>& pnl, double alpha)
+                -> std::pair<double,double> {
+            std::vector<double> loss(pnl.size());
+            std::transform(pnl.begin(), pnl.end(), loss.begin(),
+                           [](double x){ return -x; });
+            std::sort(loss.begin(), loss.end());
+            int idx = std::max(0, std::min((int)(alpha * (int)loss.size()),
+                                           (int)loss.size() - 1));
+            double var  = loss[idx];
+            double cvar = 0; int n = 0;
+            for (int i = idx; i < (int)loss.size(); ++i) { cvar += loss[i]; ++n; }
+            return {var, n > 0 ? cvar / n : var};
+        };
+
         auto [bs_mean, bs_std] = stats(pnl_bs);
+        auto [fd_mean, fd_std] = stats(pnl_fd);
         auto [nn_mean, nn_std] = stats(pnl_nn);
+        auto [bs_var, bs_cvar] = var_cvar(pnl_bs, 0.95);
+        auto [fd_var, fd_cvar] = var_cvar(pnl_fd, 0.95);
+        auto [nn_var, nn_cvar] = var_cvar(pnl_nn, 0.95);
         auto lat = infer.get_latency_stats();
 
-        std::cout << "\n  ========================================\n"
-                  << "  对冲方法         PnL均值    PnL标准差\n"
-                  << "  ----------------------------------------\n"
+        std::cout << "\n"
                   << std::fixed << std::setprecision(4)
-                  << "  BS Delta对冲     " << bs_mean << "   " << bs_std << "\n"
-                  << "  Neural BSDE      " << nn_mean << "   " << nn_std << "\n"
-                  << "  ========================================\n"
+                  << "  ============================================================\n"
+                  << "  对冲方法      均值      标准差    p5        p50       p95\n"
+                  << "  ------------------------------------------------------------\n"
+                  << "  BS Delta对冲  " << std::setw(9) << bs_mean
+                  << "  " << std::setw(8) << bs_std
+                  << "  " << std::setw(8) << quantile(pnl_bs, 0.05)
+                  << "  " << std::setw(8) << quantile(pnl_bs, 0.50)
+                  << "  " << std::setw(8) << quantile(pnl_bs, 0.95) << "\n"
+                  << "  FD Delta      " << std::setw(9) << fd_mean
+                  << "  " << std::setw(8) << fd_std
+                  << "  " << std::setw(8) << quantile(pnl_fd, 0.05)
+                  << "  " << std::setw(8) << quantile(pnl_fd, 0.50)
+                  << "  " << std::setw(8) << quantile(pnl_fd, 0.95) << "\n"
+                  << "  Neural BSDE   " << std::setw(9) << nn_mean
+                  << "  " << std::setw(8) << nn_std
+                  << "  " << std::setw(8) << quantile(pnl_nn, 0.05)
+                  << "  " << std::setw(8) << quantile(pnl_nn, 0.50)
+                  << "  " << std::setw(8) << quantile(pnl_nn, 0.95) << "\n"
+                  << "  ============================================================\n"
+                  << "  对冲方法      VaR(95%)  CVaR(95%)\n"
+                  << "  ------------------------------------------------------------\n"
+                  << "  BS Delta对冲  " << std::setw(9) << bs_var
+                  << "  " << std::setw(9) << bs_cvar << "\n"
+                  << "  FD Delta      " << std::setw(9) << fd_var
+                  << "  " << std::setw(9) << fd_cvar << "\n"
+                  << "  Neural BSDE   " << std::setw(9) << nn_var
+                  << "  " << std::setw(9) << nn_cvar << "\n"
+                  << "  ============================================================\n"
                   << "  推理延迟  p50=" << std::setprecision(1) << lat.p50_us
                   << " μs,  p99=" << lat.p99_us << " μs\n\n";
     }
