@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <unordered_map>
 #include "core/events/EventBus.hpp"
 #include "core/events/Events.hpp"
 
@@ -70,36 +71,45 @@ public:
     }
 
 private:
+    struct InstrumentPosition {
+        int    qty      = 0;
+        double cost     = 0.0;  // 累计成本（qty × fill_price 之和）
+        double last_mid = 0.0;  // 最近一次中间价
+    };
+
     void on_fill(const events::FillEvent& e) {
         int signed_qty = (e.side == events::Side::Buy) ? e.fill_qty : -e.fill_qty;
 
         if (e.producer == "hedge_order") {
-            // 对冲成交：累计已实现 delta hedge PnL
-            // 简化：对冲成交本身的成本由 transaction_cost 捕获
             delta_hedge_pnl_ -= signed_qty * e.fill_price;
             transaction_cost_ += half_spread_ * std::abs(e.fill_qty);
         } else if (e.producer == "alpha_exec") {
-            // Alpha 入场/离场成交：更新持仓，累计交易成本
-            held_qty_  += signed_qty;
-            avg_cost_  += signed_qty * e.fill_price;
+            auto& pos = positions_[e.instrument_id];
+            pos.qty  += signed_qty;
+            pos.cost += signed_qty * e.fill_price;
             transaction_cost_ += half_spread_ * std::abs(e.fill_qty);
         }
     }
 
     void on_quote(const events::OptionMidQuoteEvent& e) {
-        // 用最新中间价重算 MTM（持仓 × 当前中间价 - 持仓成本）
-        if (held_qty_ != 0)
-            option_mtm_ = held_qty_ * e.mid_price - avg_cost_;
+        auto it = positions_.find(e.instrument_id);
+        if (it != positions_.end()) {
+            it->second.last_mid = e.mid_price;
+        }
+        // 重算所有持仓的 MTM
+        option_mtm_ = 0.0;
+        for (const auto& [id, pos] : positions_) {
+            if (pos.qty != 0 && pos.last_mid > 0.0)
+                option_mtm_ += pos.qty * pos.last_mid - pos.cost;
+        }
     }
 
-    std::shared_ptr<events::EventBus> bus_;
-    double half_spread_;
-
-    int    held_qty_         = 0;
-    double avg_cost_         = 0.0;
-    double option_mtm_       = 0.0;
-    double delta_hedge_pnl_  = 0.0;
-    double transaction_cost_ = 0.0;
+    std::shared_ptr<events::EventBus>                    bus_;
+    double                                               half_spread_;
+    std::unordered_map<std::string, InstrumentPosition>  positions_;
+    double                                               option_mtm_       = 0.0;
+    double                                               delta_hedge_pnl_  = 0.0;
+    double                                               transaction_cost_ = 0.0;
 };
 
 } // namespace omm::demo

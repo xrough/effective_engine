@@ -102,26 +102,6 @@ private:
                 break;
         }
 
-        // 信号有效且处于 Live 状态时提交跨式两腿订单
-        if (state_ == StrategyState::Live) {
-            auto req = evaluate(events::MarketDataEvent{}, domain::RiskMetrics{});
-            if (req.has_value()) {
-                core::OrderRequest put_req = req.value();
-                put_req.instrument_id = "ATM_PUT";
-                bus_->publish(events::OrderSubmittedEvent{
-                    req.value().instrument_id,
-                    req.value().side,
-                    static_cast<int>(req.value().quantity),
-                    events::OrderType::Market
-                });
-                bus_->publish(events::OrderSubmittedEvent{
-                    put_req.instrument_id,
-                    put_req.side,
-                    static_cast<int>(put_req.quantity),
-                    events::OrderType::Market
-                });
-            }
-        }
     }
 
     void try_enter(const events::SignalSnapshotEvent& sig) {
@@ -138,6 +118,25 @@ private:
                   << "  交易类型=" << (current_trade_ == TradeType::LongFrontVariance
                                         ? "LongFrontVariance" : "ShortFrontVariance")
                   << "  zscore=" << sig.zscore << "\n";
+
+        // 入场时提交一次跨式两腿订单（仅在状态转换时触发）
+        auto req = evaluate(events::MarketDataEvent{}, domain::RiskMetrics{});
+        if (req.has_value()) {
+            core::OrderRequest put_req = req.value();
+            put_req.instrument_id = "ATM_PUT";
+            bus_->publish(events::OrderSubmittedEvent{
+                req.value().instrument_id,
+                req.value().side,
+                static_cast<int>(req.value().quantity),
+                events::OrderType::Market
+            });
+            bus_->publish(events::OrderSubmittedEvent{
+                put_req.instrument_id,
+                put_req.side,
+                static_cast<int>(put_req.quantity),
+                events::OrderType::Market
+            });
+        }
     }
 
     void try_exit(const events::SignalSnapshotEvent& sig) {
