@@ -3,50 +3,50 @@
 #include <cmath>
 #include <memory>
 #include <numeric>
-#include "../../core/events/EventBus.hpp"
-#include "../../core/events/Events.hpp"
-#include "../../core/interfaces/IAlphaSignal.hpp"
-#include "../../core/analytics/RoughVolPricingEngine.hpp"
-#include "ImpliedVarianceExtractor.hpp"
+#include "core/events/EventBus.hpp"
+#include "core/events/Events.hpp"
+#include "modules/buyer/IAlphaSignal.hpp"
+#include "core/analytics/RoughVolPricingEngine.hpp"
+#include "core/analytics/ImpliedVarianceExtractor.hpp"
 
 // ============================================================
-// File: VarianceAlphaSignal.hpp
-// Role: variance alpha signal generator, implementing IAlphaSignal interface.
+// File: VarianceAlphaSignal.hpp  (demo/cpp/)
+// Role: concrete IAlphaSignal implementation for the variance alpha strategy.
 //
 // Signal logic:
-//   raw_spread  = σ²_atm(market ) − xi0 * T（rough vola proxy）
+//   raw_spread  = σ²_atm(market) − xi0 * T  (rough vola proxy)
 //   zscore      = (raw_spread − rolling_mean) / rolling_std
-//============================================================
-
+//
 // 粗糙模型预测：使用已校准的 RoughVolPricingEngine 的 xi0 参数。
 //   E[RV(t,T)] ≈ xi0 * T（粗糙 Bergomi 零阶近似）
 //
 // 滚动窗口默认 50 个观测，窗口未充满时 valid=false。
 // 充满后发布 SignalSnapshotEvent。
+// ============================================================
 
 namespace omm::buyer {
 
 struct AlphaSignalConfig {
-    int    window    = 50;    
-    double z_entry   = 1.5;  // 入场阈值
-    double z_exit    = 0.5;  // 离场阈值
-    double z_cap     = 3.0;  // z-score 上限（仓位缩放用）
-    double base_vega = 1000.0; 
+    int    window    = 50;
+    double z_entry   = 1.5;    // 入场阈值
+    double z_exit    = 0.5;    // 离场阈值
+    double z_cap     = 3.0;    // z-score 上限（仓位缩放用）
+    double base_vega = 1000.0;
 };
 
-class VarianceAlphaSignal : public core::IAlphaSignal {
+class VarianceAlphaSignal : public IAlphaSignal {
 public:
     VarianceAlphaSignal(
-        std::shared_ptr<events::EventBus>              bus,
-        std::shared_ptr<ImpliedVarianceExtractor>      extractor,
-        std::shared_ptr<domain::RoughVolPricingEngine> rough_engine,
+        std::shared_ptr<events::EventBus>                    bus,
+        std::shared_ptr<analytics::ImpliedVarianceExtractor> extractor,
+        std::shared_ptr<domain::RoughVolPricingEngine>       rough_engine,
         AlphaSignalConfig cfg = {}
     ) : bus_(std::move(bus))
       , extractor_(std::move(extractor))
       , rough_(std::move(rough_engine))
       , cfg_(cfg) {}
 
-    void register_handlers() {
+    void register_handlers() override {
         bus_->subscribe<events::OptionMidQuoteEvent>(
             [this](const events::OptionMidQuoteEvent& e) { on_option_quote(e); }
         );
@@ -57,7 +57,7 @@ public:
     void on_market_data(const events::MarketDataEvent& /*event*/) override {}
 
     void on_option_quote(const events::OptionMidQuoteEvent& e) {
-        ImpliedVariancePoint iv = extractor_->last_point();
+        analytics::ImpliedVariancePoint iv = extractor_->last_point();
         if (!iv.valid) return;
 
         // 粗糙模型远期方差代理
@@ -90,7 +90,6 @@ public:
     }
 
 private:
-    // 计算滚动均值和标准差
     std::pair<double, double> rolling_stats() const {
         double mean = std::accumulate(spread_history_.begin(),
                                       spread_history_.end(), 0.0)
@@ -102,11 +101,11 @@ private:
         return {mean, std_dev};
     }
 
-    std::shared_ptr<events::EventBus>              bus_;
-    std::shared_ptr<ImpliedVarianceExtractor>      extractor_;
-    std::shared_ptr<domain::RoughVolPricingEngine> rough_;
-    AlphaSignalConfig                              cfg_;
-    std::deque<double>                             spread_history_;
+    std::shared_ptr<events::EventBus>                    bus_;
+    std::shared_ptr<analytics::ImpliedVarianceExtractor> extractor_;
+    std::shared_ptr<domain::RoughVolPricingEngine>       rough_;
+    AlphaSignalConfig                                    cfg_;
+    std::deque<double>                                   spread_history_;
 };
 
 } // namespace omm::buyer

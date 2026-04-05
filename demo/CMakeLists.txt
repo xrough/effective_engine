@@ -42,5 +42,22 @@ if(BUILD_ONNX_DEMO)
     endif()
 endif()
 
+# ── Alpha Pipeline Demo (buyer-side) ─────────────────────────
+# Collects all src/core/*.cpp (domain, analytics, infrastructure)
+# plus DeltaHedger from the seller module.
+file(GLOB_RECURSE ALPHA_CORE_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../src/core/**/*.cpp")
+
+add_executable(alpha_runner
+    cpp/alpha_main.cpp
+    ${ALPHA_CORE_SRCS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/modules/seller/DeltaHedger.cpp
+)
+
+target_include_directories(alpha_runner PRIVATE
+    cpp                                               # demo-local headers
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src                # resolves core/... and modules/...
+)
+
 # artifacts目录输出路径（运行时相对路径提示）
 message(STATUS "构建完成后请在 demo/ 目录下运行: ./build/demo_runner")
+message(STATUS "Alpha pipeline: ./build/alpha_runner")

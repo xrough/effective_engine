@@ -2,71 +2,63 @@
 #include <memory>
 #include <iostream>
 #include "../../core/events/EventBus.hpp"
-#include "../../core/analytics/RoughVolPricingEngine.hpp"
-#include "ImpliedVarianceExtractor.hpp"
-#include "VarianceAlphaSignal.hpp"
-#include "StrategyController.hpp"
+#include "../../core/events/Events.hpp"
+#include "../../core/analytics/ImpliedVarianceExtractor.hpp"
+#include "../../core/interfaces/IEntryPolicy.hpp"
+#include "IAlphaSignal.hpp"
 
 // ============================================================
-// File：BuyerModule.hpp
-// Role: entrypoint for buyer-side logic, assembling all components and wiring them to the EventBus.
+// File: BuyerModule.hpp
+// Role: wiring template for the buyer-side pipeline.
+//
+// Accepts injected implementations of IAlphaSignal and IEntryPolicy
+// so the demo (or any caller) supplies the concrete strategy logic.
+// BuyerModule only handles registration and logging — no concrete
+// strategy instantiation happens here.
 // ============================================================
 
 namespace omm::buyer {
 
 struct BuyerConfig {
-    AlphaSignalConfig        signal;      // signal parameters (window, threshold, vega budget)
-    StrategyControllerConfig controller;  // strategy parameters (timeout, cooldown, stop-loss)
-    double interest_rate = 0.05;       
+    double interest_rate = 0.05;
 };
 
-// BuyerContext — install() returns this struct containing shared pointers to all buyer components, allowing external access if needed (e.g., for testing or monitoring).
+// BuyerContext — returned by install(); holds shared_ptrs for external
+// access (monitoring, testing).
 struct BuyerContext {
-    std::shared_ptr<ImpliedVarianceExtractor> extractor;
-    std::shared_ptr<VarianceAlphaSignal>      signal;
-    std::shared_ptr<StrategyController>       controller;
+    std::shared_ptr<analytics::ImpliedVarianceExtractor> extractor;
+    std::shared_ptr<IAlphaSignal>                        signal;
+    std::shared_ptr<core::IEntryPolicy>                  controller;
 };
 
 class BuyerModule {
 public:
-    // install() — construct and register all buyer components.
+    // install() — wire all buyer components onto the bus.
     //
-    // parameters:
-    //   bus      
-    //   rough_engine — tuned rough vola model for signal generation
-    //   cfg          
+    // Parameters:
+    //   bus        — shared event bus for the buyer pipeline
+    //   extractor  — IV extractor (from core/analytics, shared tool)
+    //   signal     — concrete IAlphaSignal impl (injected by demo)
+    //   controller — concrete IEntryPolicy impl (injected by demo)
+    //   cfg        — optional config (interest rate etc.)
     static BuyerContext install(
-        std::shared_ptr<events::EventBus>              bus,
-        std::shared_ptr<domain::RoughVolPricingEngine> rough_engine,
-        const BuyerConfig&                             cfg = {}
+        std::shared_ptr<events::EventBus>                    bus,
+        std::shared_ptr<analytics::ImpliedVarianceExtractor> extractor,
+        std::shared_ptr<IAlphaSignal>                        signal,
+        std::shared_ptr<core::IEntryPolicy>                  controller,
+        const BuyerConfig&                                   cfg = {}
     ) {
-        // ── implied variance extractor ──────────────────────────────────────
-        auto extractor = std::make_shared<ImpliedVarianceExtractor>(
-            bus, cfg.interest_rate
-        );
+        (void)cfg;
+
+        // ── 注册 extractor 处理器（owned by BuyerModule） ────
         extractor->register_handlers();
-        std::cout << "[BuyerModule] ImpliedVarianceExtractor is installed"
-                  << " (r=" << cfg.interest_rate << ")\n";
+        std::cout << "[BuyerModule] ImpliedVarianceExtractor 已注册\n";
 
-        // ── variance alpha ────────────────────────────────────
-        auto signal = std::make_shared<VarianceAlphaSignal>(
-            bus, extractor, rough_engine, cfg.signal
-        );
-        signal->register_handlers();
-        std::cout << "[BuyerModule] VarianceAlphaSignal is installed"
-                  << " (window=" << cfg.signal.window
-                  << ", z_entry=" << cfg.signal.z_entry << ")\n";
+        // ── signal 和 controller 由调用方在 install() 前注册 ──
+        // 调用方（demo）负责在传入前调用各自的 register_handlers()。
+        std::cout << "[BuyerModule] IAlphaSignal + IEntryPolicy 已由调用方注册\n";
 
-        // ── strategy controller ─────────────────────────────────────────
-        auto controller = std::make_shared<StrategyController>(
-            bus, cfg.signal, cfg.controller
-        );
-        controller->register_handlers();
-        std::cout << "[BuyerModule] StrategyController is installed"
-                  << " (max_holding=" << cfg.controller.max_holding_bars
-                  << ", cooldown=" << cfg.controller.cooldown_bars << ")\n";
-
-        // ── signal snapshot logging ──────────────────────────
+        // ── 信号快照日志订阅 ──────────────────────────────────
         bus->subscribe<events::SignalSnapshotEvent>(
             [](const events::SignalSnapshotEvent& s) {
                 if (s.valid && std::abs(s.zscore) > 0.5) {

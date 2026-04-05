@@ -36,9 +36,6 @@
 #include "core/infrastructure/MarketDataAdapter.hpp"
 #include "core/infrastructure/ParameterStore.hpp"
 
-// Buyer module (variance alpha pipeline)
-#include "modules/buyer/BuyerModule.hpp"
-
 // Seller module (market making + risk + backtest calibration)
 #include "modules/seller/SellerModule.hpp"
 #include "modules/seller/BacktestCalibrationApp.hpp"
@@ -79,32 +76,7 @@ int main() {
     std::cout << "[Init] ParameterStore 已注册 (主总线)\n\n";
 
     // ════════════════════════════════════════════════════════
-    // 模块一：买方（方差 Alpha 策略）
-    //   独立总线 + 独立定价引擎
-    //   入口：OptionMidQuoteEvent（本次仿真中静默，等待实盘接入）
-    // ════════════════════════════════════════════════════════
-    std::cout << "┌──────────────────────────────────────────────────────────┐\n"
-              << "│  Module 1: Buyer — Variance Alpha Pipeline               │\n"
-              << "└──────────────────────────────────────────────────────────┘\n\n";
-
-    auto buyer_bus          = std::make_shared<omm::events::EventBus>();
-    auto buyer_rough_engine = std::make_shared<omm::domain::RoughVolPricingEngine>(
-        omm::domain::RoughVolParams{}, 0.05
-    );
-
-    omm::buyer::BuyerConfig buyer_cfg;
-    auto buyer_ctx = omm::buyer::BuyerModule::install(
-        buyer_bus, buyer_rough_engine, buyer_cfg
-    );
-
-    std::cout << "\n  [Buyer Bus] 事件流:\n"
-              << "  OptionMidQuoteEvent → ImpliedVarianceExtractor\n"
-              << "                      → VarianceAlphaSignal (滚动 z-score)\n"
-              << "                      → StrategyController  (Flat/Live/Cooldown)\n"
-              << "                      → OrderSubmittedEvent\n\n";
-
-    // ════════════════════════════════════════════════════════
-    // 模块二：卖方（做市 + 风控 + 回测校准）
+    // 卖方（做市 + 风控 + 回测校准）
     //   独立总线 + 独立定价引擎
     //   校准结果通过主总线 → ParameterStore → 热注入
     // ════════════════════════════════════════════════════════
@@ -208,8 +180,7 @@ int main() {
 
     std::cout << "\n╔══════════════════════════════════════════════════════════╗\n"
               << "║  Complete.                                               ║\n"
-              << "║  Buyer  (isolated bus): variance alpha pipeline ready    ║\n"
-              << "║  Seller (isolated bus): market making + risk + calib     ║\n"
+              << "║  Seller: market making + risk + calibration              ║\n"
               << "╚══════════════════════════════════════════════════════════╝\n";
 
     return 0;

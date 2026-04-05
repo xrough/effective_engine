@@ -3,14 +3,14 @@
 #include <memory>
 #include <optional>
 #include <iostream>
-#include "../../core/events/EventBus.hpp"
-#include "../../core/events/Events.hpp"
-#include "../../core/domain/RiskMetrics.hpp"
-#include "../../core/interfaces/IEntryPolicy.hpp"
+#include "core/events/EventBus.hpp"
+#include "core/events/Events.hpp"
+#include "core/domain/RiskMetrics.hpp"
+#include "core/interfaces/IEntryPolicy.hpp"
 #include "VarianceAlphaSignal.hpp"
 
 // ============================================================
-// 文件：StrategyController.hpp
+// 文件：StrategyController.hpp  (demo/cpp/)
 // 职责：方差 Alpha 策略控制器，实现 IEntryPolicy 接口。
 //
 // 状态机：Flat → Live → Cooldown → Flat
@@ -31,9 +31,9 @@ enum class StrategyState { Flat, Live, Cooldown };
 enum class TradeType { None, LongFrontVariance, ShortFrontVariance };
 
 struct StrategyControllerConfig {
-    int    max_holding_bars = 100;   // 最大持仓周期数（超时强制离场）
+    int    max_holding_bars = 100;    // 最大持仓周期数（超时强制离场）
     double stop_loss_vega   = 2000.0; // vega 侧止损阈值（美元）
-    int    cooldown_bars    = 20;    // 离场后冷却周期数
+    int    cooldown_bars    = 20;     // 离场后冷却周期数
 };
 
 class StrategyController : public core::IEntryPolicy {
@@ -46,6 +46,7 @@ public:
       , signal_cfg_(signal_cfg)
       , ctrl_cfg_(ctrl_cfg) {}
 
+    // Called by demo before BuyerModule::install()
     void register_handlers() {
         bus_->subscribe<events::SignalSnapshotEvent>(
             [this](const events::SignalSnapshotEvent& s) { on_signal(s); }
@@ -61,22 +62,21 @@ public:
         if (state_ != StrategyState::Live) return std::nullopt;
         if (!latest_signal_.valid)          return std::nullopt;
 
-        double zscore    = latest_signal_.zscore;
-        double scale     = std::min(std::abs(zscore) / signal_cfg_.z_cap, 1.0);
+        double zscore      = latest_signal_.zscore;
+        double scale       = std::min(std::abs(zscore) / signal_cfg_.z_cap, 1.0);
         double target_vega = signal_cfg_.base_vega * scale;
 
-        // 发布跨式主腿（认购）
         core::OrderRequest req;
-        req.instrument_id = "ATM_CALL";  // 由执行层解析为实际合约
+        req.instrument_id = "ATM_CALL";
         req.side          = (current_trade_ == TradeType::LongFrontVariance)
                             ? events::Side::Buy : events::Side::Sell;
         req.quantity      = target_vega;  // v1 以 vega 为单位，执行层换算手数
-        req.limit_price   = 0.0;          // 市价单
+        req.limit_price   = 0.0;
         req.strategy_id   = "VarianceAlpha";
         return req;
     }
 
-    StrategyState state()        const { return state_; }
+    StrategyState state()         const { return state_; }
     TradeType     current_trade() const { return current_trade_; }
 
 private:
@@ -102,11 +102,10 @@ private:
                 break;
         }
 
-        // 发布入场/离场指令（非空则提交订单）
+        // 信号有效且处于 Live 状态时提交跨式两腿订单
         if (state_ == StrategyState::Live) {
             auto req = evaluate(events::MarketDataEvent{}, domain::RiskMetrics{});
             if (req.has_value()) {
-                // 同时提交认沽腿（跨式第二腿）
                 core::OrderRequest put_req = req.value();
                 put_req.instrument_id = "ATM_PUT";
                 bus_->publish(events::OrderSubmittedEvent{
@@ -132,8 +131,8 @@ private:
         state_ = StrategyState::Live;
         bars_in_state_ = 0;
         current_trade_ = (sig.zscore > 0)
-                         ? TradeType::ShortFrontVariance  // 隐含方差偏贵 → 做空
-                         : TradeType::LongFrontVariance;  // 隐含方差偏廉 → 做多
+                         ? TradeType::ShortFrontVariance
+                         : TradeType::LongFrontVariance;
 
         std::cout << "[StrategyController] Flat → Live"
                   << "  交易类型=" << (current_trade_ == TradeType::LongFrontVariance

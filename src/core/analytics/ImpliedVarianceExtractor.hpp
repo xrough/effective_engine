@@ -3,8 +3,8 @@
 #include <mutex>
 #include <memory>
 #include <stdexcept>
-#include "../../core/events/EventBus.hpp"
-#include "../../core/events/Events.hpp"
+#include "../events/EventBus.hpp"
+#include "../events/Events.hpp"
 
 // ============================================================
 // File: ImpliedVarianceExtractor.hpp
@@ -14,7 +14,7 @@
 // Output: ImpliedVariancePoint (consumed by VarianceAlphaSignal)
 // ============================================================
 
-namespace omm::buyer {
+namespace omm::analytics {
 
 // ImpliedVariancePoint — pointwise IV.
 struct ImpliedVariancePoint {
@@ -36,7 +36,6 @@ public:
     void register_handlers() {
         bus_->subscribe<events::OptionMidQuoteEvent>(
             [this](const events::OptionMidQuoteEvent& e) { on_quote(e); }
-            // on_quote is defined below as a member function that processes incoming option quotes and updates the latest implied variance point.
         );
     }
 
@@ -66,7 +65,7 @@ private:
         last_ = pt;
     }
 
-    // BS direct
+    // BS direct bisection
     double bs_implied_vol(double S, double K, double T, double r,
                            double mid, bool is_call) const {
         auto norm_cdf = [](double x) {
@@ -101,4 +100,4 @@ private:
     mutable std::mutex                mu_;
 };
 
-} // namespace omm::buyer
+} // namespace omm::analytics
