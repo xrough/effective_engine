@@ -218,35 +218,47 @@ int main() {
         };
         double sigma_bs = std::sqrt(params.V0);  // BS基准用初始波动率
 
+        // --------------------------------------------------------
+        // PnL计算说明（BM空间，两种对冲方法统一单位）：
+        //
+        // BSDE训练公式：Y_{i+1} = Y_i + Z_i * dW1_i
+        // 因此 Z_i 是 dollar-per-unit-BM 的对冲量，不是份数（shares）。
+        //
+        // 两种对冲方法均在BM空间计算，确保单位一致：
+        //   BS:     Z_bs_bm = N(d1) * sqrt(V_t) * S_t   (delta转换到BM空间)
+        //   Neural: Z_nn    = Z_spot                     (直接来自网络，已在BM空间)
+        //
+        // PnL = sum_i( Z_i * dW1_i ) - payoff
+        // （不含期权权利金Y0，因此均值约为 -Y0，方差反映对冲质量）
+        // --------------------------------------------------------
         int d = oos_batch.state_dim;
         for (int p = 0; p < N_OOS_PATHS; ++p) {
             for (int i = 0; i < N_STEPS; ++i) {
                 int base = (p * oos_batch.n_times + i) * d;
-                float tau_i    = oos_batch.state_tensor[base + 0];
-                float logm_i   = oos_batch.state_tensor[base + 1];  // log(S_t/K)
+                float tau_i  = oos_batch.state_tensor[base + 0];
+                float logm_i = oos_batch.state_tensor[base + 1];  // log(S_t/K)
+                float V_t    = oos_batch.state_tensor[base + 2];  // 瞬时方差
+                double S_t   = params.K * std::exp(logm_i);
+                double dW1_i = oos_batch.dW1[p * N_STEPS + i];   // 实际BM增量
 
-                // 当前和下一时刻的 S_t
-                float logm_next = oos_batch.state_tensor[
-                    (p * oos_batch.n_times + i + 1) * d + 1];
-                double dS = params.K * (std::exp(logm_next) - std::exp(logm_i));
-
-                // BS delta
+                // BS对冲（BM空间）：Z_bs_bm = N(d1) * sqrt(V_t) * S_t
+                double sigma_t = std::sqrt(std::max((double)V_t, 1e-8));
                 double d1 = (static_cast<double>(logm_i)
-                             + (params.r + 0.5 * sigma_bs * sigma_bs) * tau_i)
-                            / (sigma_bs * std::sqrt(std::max((double)tau_i, 1e-6)));
-                double Z_bs = norm_cdf(d1);
-                pnl_bs[p] += Z_bs * dS;
+                             + (params.r + 0.5 * sigma_t * sigma_t) * tau_i)
+                            / (sigma_t * std::sqrt(std::max((double)tau_i, 1e-6)));
+                double Z_bs_bm = norm_cdf(d1) * sigma_t * S_t;
+                pnl_bs[p] += Z_bs_bm * dW1_i;
 
-                // 神经网络 hedge signal
+                // 神经网络对冲（BM空间）：直接使用Z_spot，乘以dW1
                 std::vector<float> state_i(oos_batch.state_tensor.begin() + base,
                                             oos_batch.state_tensor.begin() + base + d);
                 for (int j = 0; j < d; ++j)
                     state_i[j] = (state_i[j] - norm_stats.mean[j]) / norm_stats.std[j];
 
                 auto sig = infer.run(state_i);
-                pnl_nn[p] += sig.Z_spot * static_cast<float>(dS);
+                pnl_nn[p] += static_cast<double>(sig.Z_spot) * dW1_i;
             }
-            // 扣减收益
+            // 扣减折现收益（不含权利金，均值约为 -Y0）
             double payoff = oos_batch.terminal_payoff[p];
             pnl_bs[p] -= payoff;
             pnl_nn[p] -= payoff;

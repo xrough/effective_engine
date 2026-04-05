@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <iostream>
 
 // 最小JSON解析（仅用于读取normalization.json中的mean/std数组）
 // 避免引入外部JSON库依赖
