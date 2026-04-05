@@ -7,16 +7,16 @@
 #include "../../core/events/Events.hpp"
 
 // ============================================================
-// 文件：ImpliedVarianceExtractor.hpp
-// 职责：从 OptionMidQuoteEvent 中反推 ATM 隐含波动率和隐含方差。
+// File: ImpliedVarianceExtractor.hpp
+// Role: extract ATM implied volatility and variance from OptionMidQuoteEvent.
 //
-// 方法：Black-Scholes 二分法（50次迭代，σ ∈ [1e-4, 5.0]）
-// 输出：ImpliedVariancePoint（供 VarianceAlphaSignal 消费）
+// Method: Black-Scholes bisection
+// Output: ImpliedVariancePoint (consumed by VarianceAlphaSignal)
 // ============================================================
 
 namespace omm::buyer {
 
-// ImpliedVariancePoint — 单次隐含方差提取结果
+// ImpliedVariancePoint — pointwise IV.
 struct ImpliedVariancePoint {
     bool   valid               = false;
     double strike              = 0.0;
@@ -36,16 +36,18 @@ public:
     void register_handlers() {
         bus_->subscribe<events::OptionMidQuoteEvent>(
             [this](const events::OptionMidQuoteEvent& e) { on_quote(e); }
+            // on_quote is defined below as a member function that processes incoming option quotes and updates the latest implied variance point.
         );
     }
 
-    // 线程安全地读取最新提取结果
+    // lock the mutex, safely copy the latest point, then unlock and return the copy
     ImpliedVariancePoint last_point() const {
         std::lock_guard<std::mutex> lk(mu_);
         return last_;
     }
 
 private:
+    // triggered on OptionMidQuoteEvent
     void on_quote(const events::OptionMidQuoteEvent& e) {
         if (e.time_to_expiry <= 0.0 || e.mid_price <= 0.0) return;
 
@@ -64,7 +66,7 @@ private:
         last_ = pt;
     }
 
-    // BS 隐含波动率：二分法，50次迭代
+    // BS direct
     double bs_implied_vol(double S, double K, double T, double r,
                            double mid, bool is_call) const {
         auto norm_cdf = [](double x) {

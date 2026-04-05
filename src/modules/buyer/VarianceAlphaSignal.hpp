@@ -10,19 +10,19 @@
 #include "ImpliedVarianceExtractor.hpp"
 
 // ============================================================
-// 文件：VarianceAlphaSignal.hpp
-// 职责：方差 Alpha 信号生成器，实现 IAlphaSignal 接口。
+// File: VarianceAlphaSignal.hpp
+// Role: variance alpha signal generator, implementing IAlphaSignal interface.
 //
-// 信号逻辑：
-//   raw_spread  = σ²_atm(市场) − xi0 * T（粗糙模型远期方差代理）
+// Signal logic:
+//   raw_spread  = σ²_atm(market ) − xi0 * T（rough vola proxy）
 //   zscore      = (raw_spread − rolling_mean) / rolling_std
-//
+//============================================================
+
 // 粗糙模型预测：使用已校准的 RoughVolPricingEngine 的 xi0 参数。
 //   E[RV(t,T)] ≈ xi0 * T（粗糙 Bergomi 零阶近似）
 //
 // 滚动窗口默认 50 个观测，窗口未充满时 valid=false。
 // 充满后发布 SignalSnapshotEvent。
-// ============================================================
 
 namespace omm::buyer {
 

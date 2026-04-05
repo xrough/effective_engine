@@ -128,16 +128,16 @@ struct ParamUpdateEvent {
 
 // ============================================================
 // OptionMidQuoteEvent — ATM 期权中间价行情（买方 alpha 入口）
-// Published by: 市场数据适配器或模拟器
+// Published by: MarketDataAdapter
 // Consumed by: ImpliedVarianceExtractor
 // ============================================================
 struct OptionMidQuoteEvent {
-    std::string instrument_id;  // 合约标识，如 "AAPL_150_C_20240201"
-    double      mid_price;      // 买卖中间价
-    double      underlying;     // 同步标的价格
-    double      strike;         // 行权价
-    double      time_to_expiry; // 到期时间（年）
-    bool        is_call;        // true = 认购，false = 认沽
+    std::string instrument_id;  
+    double      mid_price;      // mid price is most relevant for implied volatility extraction
+    double      underlying;     
+    double      strike;         
+    double      time_to_expiry; 
+    bool        is_call;        
     Timestamp   timestamp;
 };
 
