@@ -142,9 +142,9 @@ struct OptionMidQuoteEvent {
 };
 
 // ============================================================
-// SignalSnapshotEvent — 方差 Alpha 信号快照
+// SignalSnapshotEvent — variance alpha signal snapshot
 // Published by: VarianceAlphaSignal
-// Consumed by: StrategyController + 监控
+// Consumed by: StrategyController + monitoring / logging
 // ============================================================
 struct SignalSnapshotEvent {
     Timestamp ts;
