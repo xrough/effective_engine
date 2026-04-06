@@ -1,0 +1,15 @@
+# 提升粗糙Heston训练配置
+# 先决条件：Gate 1（BS验证）必须通过
+# 用法: python python/trainer.py --config python/configs/lifted_rough_heston.yaml
+
+mode: lrh
+
+# 训练参数
+n_epochs:   500
+batch_size: 4096
+lr:         1.0e-3
+lambda_z:   0.005
+hidden_dim: 64
+
+# artifacts目录（相对于demo/）
+# artifacts_dir: artifacts  # 默认

@@ -9,8 +9,12 @@
 //     → VarianceAlphaSignal             → SignalSnapshotEvent
 //     → StrategyController              → OrderSubmittedEvent
 //     → SimpleExecSim (adapter)         → FillEvent
-//     → DeltaHedger                     → OrderSubmittedEvent (hedge)
+//     → DeltaHedger / NeuralBSDEHedger  → OrderSubmittedEvent (hedge)
 //     → AlphaPnLTracker                 → StrategyPnLBreakdown
+//
+// 对冲引擎选择（运行时）：
+//   BUILD_ONNX_DEMO=ON 且模型文件存在 → NeuralBSDEHedger（BSDE 神经网络）
+//   否则                              → DeltaHedger（解析 BS Delta）
 // ============================================================
 
 #include <iostream>
@@ -18,6 +22,7 @@
 #include <memory>
 #include <vector>
 #include <chrono>
+#include <filesystem>
 
 #include "core/events/EventBus.hpp"
 #include "core/domain/Instrument.hpp"
@@ -35,6 +40,13 @@
 #include "AlphaPnLTracker.hpp"
 #include "VarianceAlphaSignal.hpp"
 #include "StrategyController.hpp"
+#include "RoughVolCalibrator.hpp"
+#include "LiftedHestonStateEstimator.hpp"
+#include "NeuralBSDEHedger.hpp"
+
+#ifdef BUILD_ONNX_DEMO
+#include "OnnxInference.hpp"
+#endif
 
 int main() {
     std::cout << "╔══════════════════════════════════════════════════════════╗\n"
@@ -70,6 +82,13 @@ int main() {
         bus, signal_cfg, ctrl_cfg
     );
 
+    // ── 在线 xi0 校准器（在信号之前注册，确保先更新引擎参数） ─
+    auto calibrator = std::make_shared<omm::demo::RoughVolCalibrator>(
+        bus, extractor, rough_engine, /*lambda=*/0.15
+    );
+    calibrator->register_handlers();
+    std::cout << "[Demo] RoughVolCalibrator 已注册 (λ=0.15)\n";
+
     // 调用方在 install() 前注册 signal + controller
     signal->register_handlers();
     controller->register_handlers();
@@ -77,41 +96,88 @@ int main() {
     omm::buyer::BuyerModule::install(bus, extractor, signal, controller);
     std::cout << "\n";
 
-    // ── Delta 对冲 ────────────────────────────────────────────
-    auto expiry   = std::chrono::system_clock::now() + std::chrono::hours(30 * 24);
-    auto call_atm = omm::domain::InstrumentFactory::make_call("AAPL", 150.0, expiry);
-    auto put_atm  = omm::domain::InstrumentFactory::make_put ("AAPL", 150.0, expiry);
-    std::vector<std::shared_ptr<omm::domain::Option>> hedge_options = {call_atm, put_atm};
+    // ── 对冲引擎（DeltaHedger 或 NeuralBSDEHedger） ─────────
+    auto expiry        = std::chrono::system_clock::now() + std::chrono::hours(30 * 24);
+    constexpr double   STRIKE_ENTRY = 150.0;
+    const std::string  CALL_ID      = "ATM_CALL";
+    const std::string  PUT_ID       = "ATM_PUT";
 
     auto position_mgr = std::make_shared<omm::domain::PositionManager>();
-    auto delta_hedger = std::make_shared<omm::application::DeltaHedger>(
-        bus, position_mgr, rough_engine, hedge_options, "AAPL", /*threshold=*/0.3
-    );
-    delta_hedger->register_handlers();
 
-    // DeltaHedger 需要跟踪最新标的价格
-    bus->subscribe<omm::events::MarketDataEvent>(
-        [&delta_hedger](const omm::events::MarketDataEvent& e) {
-            delta_hedger->update_market_price(e.underlying_price);
-        }
-    );
-    std::cout << "[Demo] DeltaHedger 已注册 (阈值=0.3)\n";
+    // 将所有对冲组件声明在外层作用域，确保生命周期覆盖 adapter.run()
+#ifdef BUILD_ONNX_DEMO
+    const std::string onnx_path = "artifacts/neural_bsde.onnx";
+    const std::string norm_path = "artifacts/normalization.json";
+    const bool use_neural = std::filesystem::exists(onnx_path) &&
+                            std::filesystem::exists(norm_path);
+    std::shared_ptr<::demo::OnnxInference>          onnx_model;
+    std::shared_ptr<omm::demo::NeuralBSDEHedger>    neural_hedger;
+#else
+    const bool use_neural = false;
+#endif
+    std::shared_ptr<omm::application::DeltaHedger>  delta_hedger;
 
-    // ── PnL 追踪（行为组件，不依赖 demo 适配器） ─────────────
-    auto pnl_tracker = std::make_shared<omm::demo::AlphaPnLTracker>(bus);
+    if (use_neural) {
+#ifdef BUILD_ONNX_DEMO
+        // LRH 状态估计器（normalization.json 中的 model_params 提供默认值）
+        auto state_est = std::make_shared<omm::demo::LiftedHestonStateEstimator>(
+            /*kappa=*/0.3, /*theta=*/0.04, /*xi=*/0.5, /*V0=*/0.04
+        );
+        onnx_model    = std::make_shared<::demo::OnnxInference>(onnx_path, norm_path);
+        neural_hedger = std::make_shared<omm::demo::NeuralBSDEHedger>(
+            bus, onnx_model, rough_engine, position_mgr, state_est,
+            "AAPL", CALL_ID, PUT_ID,
+            STRIKE_ENTRY, expiry, /*threshold=*/0.3
+        );
+        neural_hedger->register_handlers();
+        std::cout << "[Hedger] NeuralBSDEHedger 已激活（BSDE + 在线 OU 状态，阈值=0.3）\n";
+#endif
+    } else {
+        auto call_atm = omm::domain::InstrumentFactory::make_call("AAPL", STRIKE_ENTRY, expiry);
+        auto put_atm  = omm::domain::InstrumentFactory::make_put ("AAPL", STRIKE_ENTRY, expiry);
+        std::vector<std::shared_ptr<omm::domain::Option>> hedge_options = {call_atm, put_atm};
+
+        delta_hedger = std::make_shared<omm::application::DeltaHedger>(
+            bus, position_mgr, rough_engine, hedge_options, "AAPL", /*threshold=*/0.3
+        );
+        delta_hedger->register_handlers();
+
+        // DeltaHedger 需要跟踪最新标的价格
+        bus->subscribe<omm::events::MarketDataEvent>(
+            [delta_hedger](const omm::events::MarketDataEvent& e) {
+                delta_hedger->update_market_price(e.underlying_price);
+            }
+        );
+        std::cout << "[Hedger] DeltaHedger 已激活（解析 BS Delta，阈值=0.3）\n";
+    }
+
+    // ── PnL 追踪（行为组件，注入引擎 + 期权列表 + extractor） ─
+    // 使用与 StrategyController 相同的 fill ID ("ATM_CALL" / "ATM_PUT")
+    // 以确保 on_market_data Greeks 循环能正确找到对应持仓
+    auto call_pnl = omm::domain::InstrumentFactory::make_call("AAPL", STRIKE_ENTRY, expiry);
+    auto put_pnl  = omm::domain::InstrumentFactory::make_put ("AAPL", STRIKE_ENTRY, expiry);
+    std::vector<omm::demo::AlphaPnLTracker::OptionEntry> pnl_options = {
+        {CALL_ID, call_pnl},   // "ATM_CALL" → call option for repricing
+        {PUT_ID,  put_pnl}     // "ATM_PUT"  → put option for repricing
+    };
+
+    auto pnl_tracker = std::make_shared<omm::demo::AlphaPnLTracker>(
+        bus, rough_engine, pnl_options, extractor
+    );
     pnl_tracker->register_handlers();
-    std::cout << "[Demo] AlphaPnLTracker 已注册\n\n";
+    std::cout << "[Demo] AlphaPnLTracker 已注册（Greeks 归因）\n\n";
 
     // ── 事件流说明 ────────────────────────────────────────────
     std::cout << "  [事件流]\n"
               << "  MarketDataEvent\n"
-              << "    → SyntheticOptionFeed  → OptionMidQuoteEvent\n"
+              << "    → SyntheticOptionFeed      → OptionMidQuoteEvent\n"
               << "    → ImpliedVarianceExtractor (σ²_atm)\n"
-              << "    → VarianceAlphaSignal  → SignalSnapshotEvent (zscore)\n"
-              << "    → StrategyController   → OrderSubmittedEvent (straddle)\n"
-              << "    → SimpleExecSim        → FillEvent\n"
-              << "    → DeltaHedger          → OrderSubmittedEvent (hedge)\n"
-              << "    → AlphaPnLTracker      (option_mtm + delta_hedge_pnl)\n\n";
+              << "    → VarianceAlphaSignal      → SignalSnapshotEvent (zscore)\n"
+              << "    → StrategyController       → OrderSubmittedEvent (straddle)\n"
+              << "    → SimpleExecSim            → FillEvent\n"
+              << "    → " << (use_neural ? "NeuralBSDEHedger" : "DeltaHedger      ")
+              <<                            " → OrderSubmittedEvent (hedge)\n"
+              << "    → AlphaPnLTracker          (option_mtm + delta_hedge_pnl)\n\n";
 
     // ── 运行仿真 ──────────────────────────────────────────────
     std::cout << "══════════════ Alpha Pipeline Start ══════════════\n\n";

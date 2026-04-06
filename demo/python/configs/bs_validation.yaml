@@ -1,0 +1,25 @@
+# Gate 1 验证配置：Black-Scholes
+# 目标：
+#   - Y0 在 1% 以内匹配解析BS价格 (~10.45)
+#   - t=0时的Z在 10% 以内匹配 N(d1) (~0.637)
+#   - epoch 200时终值损失 < 1e-3
+# 用法: python python/trainer.py --config python/configs/bs_validation.yaml
+
+mode: bs_validation
+
+# 训练参数
+n_epochs:   600
+batch_size: 2048
+lr:         1.0e-3
+lambda_z:   0.0005
+hidden_dim: 64
+
+# BS路径生成参数
+bs_n_paths: 10000
+bs_n_steps: 50
+bs:
+  S0:    100.0
+  K:     100.0
+  T:     1.0
+  r:     0.05
+  sigma: 0.20

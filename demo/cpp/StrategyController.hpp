@@ -31,9 +31,11 @@ enum class StrategyState { Flat, Live, Cooldown };
 enum class TradeType { None, LongFrontVariance, ShortFrontVariance };
 
 struct StrategyControllerConfig {
-    int    max_holding_bars = 100;    // 最大持仓周期数（超时强制离场）
-    double stop_loss_vega   = 2000.0; // vega 侧止损阈值（美元）
-    int    cooldown_bars    = 20;     // 离场后冷却周期数
+    int    max_holding_bars   = 100;    // 最大持仓周期数（超时强制离场）
+    double stop_loss_vega     = 2000.0; // vega 侧止损阈值（美元）
+    int    cooldown_bars      = 20;     // 离场后冷却周期数
+    int    max_position       = 200;    // 最大持仓（硬上限，防止 vega 跳跃导致仓位暴涨）
+    double min_vega_notional  = 5.0;    // ATM vega 下限（$），低于此值跳过入场
 };
 
 class StrategyController : public core::IEntryPolicy {
@@ -53,27 +55,12 @@ public:
         );
     }
 
-    // IEntryPolicy 接口：根据最新信号和风险指标决定入场
-    // 返回 nullopt 表示跳过（Flat/Cooldown 状态或信号无效）
+    // IEntryPolicy 接口：入场逻辑已迁移至 try_enter()，此处仅做接口合规
     std::optional<core::OrderRequest> evaluate(
         const events::MarketDataEvent& /*market*/,
         const domain::RiskMetrics&    /*metrics*/
     ) override {
-        if (state_ != StrategyState::Live) return std::nullopt;
-        if (!latest_signal_.valid)          return std::nullopt;
-
-        double zscore      = latest_signal_.zscore;
-        double scale       = std::min(std::abs(zscore) / signal_cfg_.z_cap, 1.0);
-        double target_vega = signal_cfg_.base_vega * scale;
-
-        core::OrderRequest req;
-        req.instrument_id = "ATM_CALL";
-        req.side          = (current_trade_ == TradeType::LongFrontVariance)
-                            ? events::Side::Buy : events::Side::Sell;
-        req.quantity      = target_vega;  // v1 以 vega 为单位，执行层换算手数
-        req.limit_price   = 0.0;
-        req.strategy_id   = "VarianceAlpha";
-        return req;
+        return std::nullopt;  // 订单发布由 try_enter() 直接处理
     }
 
     StrategyState state()         const { return state_; }
@@ -108,35 +95,43 @@ private:
         if (!sig.valid || !sig.calibration_ok) return;
         if (std::abs(sig.zscore) <= signal_cfg_.z_entry) return;
 
+        // ATM vega 下限保护：vega 过小时跳过（近到期或零波动率 tick）
+        if (sig.atm_vega < ctrl_cfg_.min_vega_notional) {
+            std::cout << "[StrategyController] 跳过入场：ATM vega 过小 ("
+                      << std::fixed << std::setprecision(2) << sig.atm_vega << ")\n";
+            return;
+        }
+
         state_ = StrategyState::Live;
         bars_in_state_ = 0;
         current_trade_ = (sig.zscore > 0)
                          ? TradeType::ShortFrontVariance
                          : TradeType::LongFrontVariance;
 
+        // 基于信念度和 ATM vega 的仓位缩放，受硬上限约束
+        double conviction = std::min(std::abs(sig.zscore) / signal_cfg_.z_cap, 1.0);
+        int raw_qty = std::max(1, static_cast<int>(
+                          signal_cfg_.base_vega * conviction / sig.atm_vega));
+        int qty = std::min(raw_qty, ctrl_cfg_.max_position);
+
         std::cout << "[StrategyController] Flat → Live"
                   << "  交易类型=" << (current_trade_ == TradeType::LongFrontVariance
                                         ? "LongFrontVariance" : "ShortFrontVariance")
-                  << "  zscore=" << sig.zscore << "\n";
+                  << "  zscore=" << std::fixed << std::setprecision(3) << sig.zscore
+                  << "  conviction=" << std::setprecision(2) << conviction
+                  << "  atm_vega=" << std::setprecision(2) << sig.atm_vega
+                  << "  qty=" << qty << "\n";
+
+        auto side = (current_trade_ == TradeType::LongFrontVariance)
+                    ? events::Side::Buy : events::Side::Sell;
 
         // 入场时提交一次跨式两腿订单（仅在状态转换时触发）
-        auto req = evaluate(events::MarketDataEvent{}, domain::RiskMetrics{});
-        if (req.has_value()) {
-            core::OrderRequest put_req = req.value();
-            put_req.instrument_id = "ATM_PUT";
-            bus_->publish(events::OrderSubmittedEvent{
-                req.value().instrument_id,
-                req.value().side,
-                static_cast<int>(req.value().quantity),
-                events::OrderType::Market
-            });
-            bus_->publish(events::OrderSubmittedEvent{
-                put_req.instrument_id,
-                put_req.side,
-                static_cast<int>(put_req.quantity),
-                events::OrderType::Market
-            });
-        }
+        bus_->publish(events::OrderSubmittedEvent{
+            "ATM_CALL", side, qty, events::OrderType::Market
+        });
+        bus_->publish(events::OrderSubmittedEvent{
+            "ATM_PUT",  side, qty, events::OrderType::Market
+        });
     }
 
     void try_exit(const events::SignalSnapshotEvent& sig) {

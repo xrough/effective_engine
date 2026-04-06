@@ -3,11 +3,13 @@
 #include <cmath>
 #include <memory>
 #include <numeric>
+#include <chrono>
 #include "core/events/EventBus.hpp"
 #include "core/events/Events.hpp"
 #include "modules/buyer/IAlphaSignal.hpp"
 #include "core/analytics/RoughVolPricingEngine.hpp"
 #include "core/analytics/ImpliedVarianceExtractor.hpp"
+#include "core/domain/InstrumentFactory.hpp"
 
 // ============================================================
 // File: VarianceAlphaSignal.hpp  (demo/cpp/)
@@ -77,6 +79,19 @@ public:
                 zscore = (spread - ms.first) / ms.second;
         }
 
+        // 计算 ATM call vega（用于仓位缩放）
+        double atm_vega = 0.0;
+        {
+            // 使用当前 spot 作为 ATM 行权价，expiry = 30天
+            double spot = e.underlying;
+            double K_atm = std::round(spot);
+            auto expiry_tp = std::chrono::system_clock::now()
+                             + std::chrono::hours(static_cast<int>(iv.time_to_expiry * 365.0 * 24.0));
+            auto call_tmp = domain::InstrumentFactory::make_call("SIGNAL_ATM", K_atm, expiry_tp);
+            auto pr = rough_->price(*call_tmp, spot);
+            atm_vega = pr.vega;
+        }
+
         events::SignalSnapshotEvent snap;
         snap.ts                      = e.timestamp;
         snap.valid                   = window_full;
@@ -84,7 +99,9 @@ public:
         snap.rough_forecast_variance = rough_fv;
         snap.raw_spread              = spread;
         snap.zscore                  = zscore;
-        snap.calibration_ok          = true; // 粗糙引擎校准后始终有效
+        snap.calibration_ok          = true;
+        snap.atm_vega                = atm_vega;
+        snap.atm_spot                = e.underlying;
 
         bus_->publish(snap);
     }

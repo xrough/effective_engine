@@ -58,6 +58,20 @@ target_include_directories(alpha_runner PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../src                # resolves core/... and modules/...
 )
 
+# 当 BUILD_ONNX_DEMO=ON 时，为 alpha_runner 链接 ONNX Runtime + NeuralBSDEHedger
+if(BUILD_ONNX_DEMO)
+    target_sources(alpha_runner PRIVATE cpp/OnnxInference.cpp)
+    if(ORT_INCLUDE_DIR AND ORT_LIB)
+        target_include_directories(alpha_runner PRIVATE ${ORT_INCLUDE_DIR})
+        target_link_libraries(alpha_runner PRIVATE ${ORT_LIB})
+        target_compile_definitions(alpha_runner PRIVATE BUILD_ONNX_DEMO)
+        message(STATUS "[alpha_runner] NeuralBSDEHedger 已启用（ONNX Runtime: ${ORT_LIB}）")
+    else()
+        message(WARNING "[alpha_runner] BUILD_ONNX_DEMO=ON 但未找到 ONNX Runtime，"
+                        "NeuralBSDEHedger 将退化为空壳")
+    endif()
+endif()
+
 # artifacts目录输出路径（运行时相对路径提示）
 message(STATUS "构建完成后请在 demo/ 目录下运行: ./build/demo_runner")
 message(STATUS "Alpha pipeline: ./build/alpha_runner")
