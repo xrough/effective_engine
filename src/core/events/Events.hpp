@@ -154,6 +154,8 @@ struct SignalSnapshotEvent {
     double    raw_spread;                 // atm_iv - rough_forecast
     double    zscore;                     // (spread - mean) / std
     bool      calibration_ok;            // 校准质量标记
+    double    atm_vega    = 0.0;         // BS vega of ATM call (用于仓位缩放)
+    double    atm_spot    = 0.0;         // 当前标的价格（供 StrategyController 校验）
 };
 
 } // namespace omm::events

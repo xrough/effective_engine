@@ -72,25 +72,39 @@ double RoughVolPricingEngine::compute_skew_adjusted_vol(
 
 // ── bs_price_and_delta() ─────────────────────────────────────
 PriceResult RoughVolPricingEngine::bs_price_and_delta(
-    double S, double K, double T, double sigma, bool is_call) const
+    double S, double K, double T, double sigma, bool is_call, double /*sigma_impl*/) const
 {
     double d1 = (std::log(S / K) + (r_ + 0.5 * sigma * sigma) * T)
                 / (sigma * std::sqrt(T));
     double d2 = d1 - sigma * std::sqrt(T);
 
+    double Nd1  = norm_cdf(d1);
+    double Nd2  = norm_cdf(d2);
+    double n_d1 = std::exp(-0.5 * d1 * d1) / std::sqrt(2.0 * M_PI);  // N'(d1)
+
     double theo  = 0.0;
     double delta = 0.0;
+    double theta = 0.0;
 
     if (is_call) {
-        theo  = S * norm_cdf(d1) - K * std::exp(-r_ * T) * norm_cdf(d2);
-        delta = norm_cdf(d1);
+        theo  = S * Nd1 - K * std::exp(-r_ * T) * Nd2;
+        delta = Nd1;
+        theta = -(S * sigma * n_d1) / (2.0 * std::sqrt(T))
+                - r_ * K * std::exp(-r_ * T) * Nd2;
     } else {
         theo  = K * std::exp(-r_ * T) * norm_cdf(-d2) - S * norm_cdf(-d1);
-        delta = norm_cdf(d1) - 1.0;
+        delta = Nd1 - 1.0;
+        theta = -(S * sigma * n_d1) / (2.0 * std::sqrt(T))
+                + r_ * K * std::exp(-r_ * T) * norm_cdf(-d2);
     }
 
-    theo = std::max(0.0, theo);
-    return PriceResult{theo, delta};
+    PriceResult result;
+    result.theo  = std::max(0.0, theo);
+    result.delta = delta;
+    result.gamma = n_d1 / (S * sigma * std::sqrt(T));
+    result.vega  = S * std::sqrt(T) * n_d1;
+    result.theta = theta;
+    return result;
 }
 
 // ── price() ──────────────────────────────────────────────────
@@ -123,7 +137,7 @@ PriceResult RoughVolPricingEngine::price(
               << std::noshowpos << "\n";
 
     bool is_call = (option.option_type() == OptionType::Call);
-    return bs_price_and_delta(S, K, T, sigma_k, is_call);
+    return bs_price_and_delta(S, K, T, sigma_k, is_call, sigma_atm);
 }
 
 // ── update_params() ──────────────────────────────────────────

@@ -19,11 +19,6 @@ cd .. && ./build/demo_runner     # see demo/Readme.md for full pipeline
 ```
 
 ## What it does
-
-**Seller — live simulation + calibration (`./build/market_maker`)**
-
-Quotes bid/ask spreads (Rough Bergomi skew), simulates a probabilistic counterparty (30% fill), runs threshold-based delta hedging, enforces live risk limits (max loss $1M, max delta 10,000), then replays on an isolated bus to calibrate implied volatility via golden-section search and hot-inject the result.
-
 **Buyer — variance alpha demo (`./build/alpha_runner`)**
 
 Extracts ATM implied variance from synthetic option quotes via BS IV bisection, computes a rolling z-score against the rough-model forward variance forecast (`xi0 * T`), and runs a Flat → Live → Cooldown state machine to trade ATM front straddles when the spread is statistically significant. Delta-hedges the resulting position and reports a PnL breakdown (option MTM, delta hedge PnL, transaction cost).
@@ -38,44 +33,15 @@ Generates lifted rough Heston paths in C++, trains a shared-weight MLP offline i
 | BS delta (FD bump) | 3.65 | 20.35 | — |
 | Neural BSDE | **3.40** | **19.35** | 3.4 µs |
 
-## Architecture
+**Seller — live simulation + calibration (`./build/market_maker`)**
 
-```
-src/
-  core/
-    events/         EventBus (type-erased pub/sub), Events
-    domain/         Instrument, PositionManager, RiskMetrics
-    analytics/      IPricingEngine, BS/RoughVol engines, CalibrationEngine,
-                    ImpliedVarianceExtractor
-    application/    PortfolioService
-    infrastructure/ MarketDataAdapter, ParameterStore
-    interfaces/     IEntryPolicy, IExecutionPolicy, IHedgeStrategy, IQuoteStrategy
-
-  modules/
-    seller/         QuoteEngine, DeltaHedger, SellerRiskApp, SellerModule,
-                    BacktestCalibrationApp, ProbabilisticTaker
-    buyer/          IAlphaSignal (buyer-local interface)
-                    BuyerModule  (wiring template — accepts injected strategy impls)
-
-demo/cpp/           Concrete buyer strategy (VarianceAlphaSignal, StrategyController)
-                    + simulation adapters (SyntheticOptionFeed, SimpleExecSim)
-                    + PnL attribution (AlphaPnLTracker)
-                    + Deep BSDE path generation (LiftedHestonSim)
-```
+Quotes bid/ask spreads (Rough Bergomi skew), simulates a probabilistic counterparty (30% fill), runs threshold-based delta hedging, enforces live risk limits (max loss $1M, max delta 10,000), then replays on an isolated bus to calibrate implied volatility via golden-section search and hot-inject the result.
 
 **Boundary rule:**
 - `src/core/` — reusable tools and contracts (domain, analytics, infrastructure, interfaces)
 - `src/modules/seller/` — the market-making engine
 - `src/modules/buyer/` — wiring pattern and buyer-local interface only; no concrete strategy logic
 - `demo/cpp/` — one specific buyer strategy built on top of the engine; replace freely without touching `src/`
-
-**Event flow (seller):**
-```
-MarketDataEvent → QuoteEngine → QuoteGeneratedEvent
-                → ProbabilisticTaker → FillEvent
-                  → PortfolioService / DeltaHedger → OrderSubmittedEvent
-                  → SellerRiskApp → RiskControlEvent / RiskAlertEvent
-```
 
 **Event flow (buyer alpha demo):**
 ```

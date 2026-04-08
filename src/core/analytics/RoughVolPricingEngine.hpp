@@ -42,9 +42,10 @@ public:
     RoughVolParams get_params() const;
 
 private:
-    // bs_price_and_delta() — standard BS formula
+    // bs_price_and_delta() — standard BS formula with full Greeks
     PriceResult bs_price_and_delta(
-        double S, double K, double T, double sigma, bool is_call
+        double S, double K, double T, double sigma, bool is_call,
+        double sigma_impl = -1.0  // 调用方传入的ATM vol供vega日志使用；默认使用sigma
     ) const;
 
     // compute_skew_adjusted_vol() — adjust vol

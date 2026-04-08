@@ -16,8 +16,11 @@ namespace omm::domain {
 // pricing output struct
 // ============================================================
 struct PriceResult {
-    double theo;   // theoretical price
-    double delta;  
+    double theo;          // theoretical price
+    double delta;
+    double gamma = 0.0;   // N'(d1) / (S σ √T)
+    double vega  = 0.0;   // S √T N'(d1)  （每单位σ变动的价值变化）
+    double theta = 0.0;   // −(S σ N'(d1))/(2√T) ∓ r·K·e^{−rT}·N(∓d2)
 };
 
 // ============================================================

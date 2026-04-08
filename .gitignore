@@ -33,7 +33,6 @@ structure.md
 compile_commands.json
 
 # Python
-python/
 __pycache__/
 *.pyc
 *.pyo
@@ -44,3 +43,6 @@ venv/
 
 # 笔记
 notes/
+
+# data
+demo/data/

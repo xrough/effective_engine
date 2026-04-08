@@ -43,6 +43,7 @@
 #include "RoughVolCalibrator.hpp"
 #include "LiftedHestonStateEstimator.hpp"
 #include "NeuralBSDEHedger.hpp"
+#include "HistoricalChainAdapter.hpp"
 
 #ifdef BUILD_ONNX_DEMO
 #include "OnnxInference.hpp"
@@ -53,6 +54,13 @@ int main() {
               << "║   Variance Alpha Pipeline Demo — Buyer Side              ║\n"
               << "╚══════════════════════════════════════════════════════════╝\n\n";
 
+    // ── 数据模式检测 ──────────────────────────────────────────
+    const std::string real_data_csv = "../demo/data/spy_atm_chain.csv";
+    const bool use_real_data = std::filesystem::exists(real_data_csv);
+    std::cout << "[数据模式] " << (use_real_data
+        ? "真实 OPRA 数据 (" + real_data_csv + ")"
+        : "合成数据 (market_data.csv)") << "\n\n";
+
     // ── 事件总线 ─────────────────────────────────────────────
     auto bus = std::make_shared<omm::events::EventBus>();
 
@@ -61,18 +69,30 @@ int main() {
         omm::domain::RoughVolParams{}, 0.05
     );
 
-    // ── 模拟适配器（demo infrastructure） ────────────────────
-    auto feed     = std::make_shared<omm::demo::SyntheticOptionFeed>(bus);
+    // ── 执行模拟器（两种模式都需要） ──────────────────────────
     auto exec_sim = std::make_shared<omm::demo::SimpleExecSim>(bus);
-    feed->register_handlers();
     exec_sim->register_handlers();
-    std::cout << "[Demo] SyntheticOptionFeed + SimpleExecSim 已注册\n";
+
+    // ── 合成模式：SyntheticOptionFeed 将 MarketDataEvent → OptionMidQuoteEvent
+    // ── 真实模式：HistoricalChainAdapter 直接发布两类事件，无需此适配器 ──
+    std::shared_ptr<omm::demo::SyntheticOptionFeed> feed;
+    std::shared_ptr<omm::demo::HistoricalChainAdapter> chain_adapter;
+
+    if (use_real_data) {
+        chain_adapter = std::make_shared<omm::demo::HistoricalChainAdapter>(bus, real_data_csv);
+    } else {
+        feed = std::make_shared<omm::demo::SyntheticOptionFeed>(bus);
+        feed->register_handlers();
+        std::cout << "[Demo] SyntheticOptionFeed 已注册\n";
+    }
+    std::cout << "[Demo] SimpleExecSim 已注册\n";
 
     // ── 买方核心组件（注入到 BuyerModule） ────────────────────
     auto extractor  = std::make_shared<omm::analytics::ImpliedVarianceExtractor>(bus);
 
     omm::buyer::AlphaSignalConfig signal_cfg;
-    signal_cfg.window = 10;   // demo: 缩小窗口适配 20 条 tick 数据（生产默认 50）
+    // 真实数据有 2000+ 条，使用默认窗口 50；合成数据仅 20 条，缩小至 10
+    signal_cfg.window = use_real_data ? 50 : 10;
     omm::buyer::StrategyControllerConfig ctrl_cfg;  // 默认: max_holding=100
 
     auto signal     = std::make_shared<omm::buyer::VarianceAlphaSignal>(
@@ -97,8 +117,11 @@ int main() {
     std::cout << "\n";
 
     // ── 对冲引擎（DeltaHedger 或 NeuralBSDEHedger） ─────────
-    auto expiry        = std::chrono::system_clock::now() + std::chrono::hours(30 * 24);
-    constexpr double   STRIKE_ENTRY = 150.0;
+    // 真实数据：从 CSV 首行读取行权价和到期日；合成数据：使用固定值
+    auto expiry = use_real_data
+        ? chain_adapter->initial_expiry()
+        : std::chrono::system_clock::now() + std::chrono::hours(30 * 24);
+    double STRIKE_ENTRY = use_real_data ? chain_adapter->initial_strike() : 150.0;
     const std::string  CALL_ID      = "ATM_CALL";
     const std::string  PUT_ID       = "ATM_PUT";
 
@@ -181,8 +204,12 @@ int main() {
 
     // ── 运行仿真 ──────────────────────────────────────────────
     std::cout << "══════════════ Alpha Pipeline Start ══════════════\n\n";
-    omm::infrastructure::MarketDataAdapter adapter(bus, "../data/market_data.csv");
-    adapter.run();
+    if (use_real_data) {
+        chain_adapter->run();
+    } else {
+        omm::infrastructure::MarketDataAdapter adapter(bus, "../data/market_data.csv");
+        adapter.run();
+    }
     std::cout << "\n══════════════ Alpha Pipeline End ══════════════\n";
 
     // ── 最终持仓 + PnL 归因 ───────────────────────────────────
