@@ -1,0 +1,242 @@
+
+Gate 0 — roughtemporal_intraday
+  Run:      2026-04-09 09:19:11 UTC
+  Days:     127  |  H=0.1  |  bar=120-min  |  select=far (furthest expiries)
+  DTE:      7–60  |  N_EXP=2  |  RATE=0.053  |  DIV=0.013
+  [  1/127] 2025-08-07 ... 381 bar-expiry records
+  [  2/127] 2025-08-08 ... 762 bar-expiry records
+  [  3/127] 2025-08-11 ... 762 bar-expiry records
+  [  4/127] 2025-08-12 ... 762 bar-expiry records
+  [  5/127] 2025-08-13 ... 762 bar-expiry records
+  [  6/127] 2025-08-14 ... 762 bar-expiry records
+  [  7/127] 2025-08-15 ... 762 bar-expiry records
+  [  8/127] 2025-08-18 ... 762 bar-expiry records
+  [  9/127] 2025-08-19 ... 762 bar-expiry records
+  [ 10/127] 2025-08-20 ... 762 bar-expiry records
+  [ 11/127] 2025-08-21 ... 381 bar-expiry records
+  [ 12/127] 2025-08-22 ... 760 bar-expiry records
+  [ 13/127] 2025-08-25 ... 762 bar-expiry records
+  [ 14/127] 2025-08-26 ... 762 bar-expiry records
+  [ 15/127] 2025-08-27 ... 762 bar-expiry records
+  [ 16/127] 2025-08-28 ... 381 bar-expiry records
+  [ 17/127] 2025-08-29 ... 381 bar-expiry records
+  [ 18/127] 2025-09-02 ... 762 bar-expiry records
+  [ 19/127] 2025-09-03 ... 762 bar-expiry records
+  [ 20/127] 2025-09-04 ... 381 bar-expiry records
+  [ 21/127] 2025-09-05 ... 762 bar-expiry records
+  [ 22/127] 2025-09-08 ... 762 bar-expiry records
+  [ 23/127] 2025-09-09 ... 762 bar-expiry records
+  [ 24/127] 2025-09-10 ... 762 bar-expiry records
+  [ 25/127] 2025-09-11 ... 762 bar-expiry records
+  [ 26/127] 2025-09-12 ... 762 bar-expiry records
+  [ 27/127] 2025-09-15 ... 762 bar-expiry records
+  [ 28/127] 2025-09-16 ... 762 bar-expiry records
+  [ 29/127] 2025-09-17 ... 762 bar-expiry records
+  [ 30/127] 2025-09-18 ... 762 bar-expiry records
+  [ 31/127] 2025-09-19 ... 762 bar-expiry records
+  [ 32/127] 2025-09-22 ... 762 bar-expiry records
+  [ 33/127] 2025-09-23 ... 762 bar-expiry records
+  [ 34/127] 2025-09-24 ... 762 bar-expiry records
+  [ 35/127] 2025-09-25 ... 381 bar-expiry records
+  [ 36/127] 2025-09-26 ... 761 bar-expiry records
+  [ 37/127] 2025-09-29 ... 762 bar-expiry records
+  [ 38/127] 2025-09-30 ... 762 bar-expiry records
+  [ 39/127] 2025-10-01 ... 762 bar-expiry records
+  [ 40/127] 2025-10-02 ... 762 bar-expiry records
+  [ 41/127] 2025-10-03 ... 762 bar-expiry records
+  [ 42/127] 2025-10-06 ... 762 bar-expiry records
+  [ 43/127] 2025-10-07 ... 762 bar-expiry records
+  [ 44/127] 2025-10-08 ... 762 bar-expiry records
+  [ 45/127] 2025-10-09 ... 762 bar-expiry records
+  [ 46/127] 2025-10-10 ... 762 bar-expiry records
+  [ 47/127] 2025-10-13 ... 762 bar-expiry records
+  [ 48/127] 2025-10-14 ... 762 bar-expiry records
+  [ 49/127] 2025-10-15 ... 762 bar-expiry records
+  [ 50/127] 2025-10-16 ... 762 bar-expiry records
+  [ 51/127] 2025-10-17 ... 762 bar-expiry records
+  [ 52/127] 2025-10-20 ... 762 bar-expiry records
+  [ 53/127] 2025-10-21 ... 762 bar-expiry records
+  [ 54/127] 2025-10-22 ... 744 bar-expiry records
+  [ 55/127] 2025-10-23 ... 381 bar-expiry records
+  [ 56/127] 2025-10-24 ... 760 bar-expiry records
+  [ 57/127] 2025-10-27 ... 762 bar-expiry records
+  [ 58/127] 2025-10-28 ... 762 bar-expiry records
+  [ 59/127] 2025-10-29 ... 762 bar-expiry records
+  [ 60/127] 2025-10-30 ... 381 bar-expiry records
+  [ 61/127] 2025-10-31 ... 762 bar-expiry records
+  [ 62/127] 2025-11-03 ... 650 bar-expiry records
+  [ 63/127] 2025-11-04 ... 650 bar-expiry records
+  [ 64/127] 2025-11-05 ... 650 bar-expiry records
+  [ 65/127] 2025-11-06 ... 325 bar-expiry records
+  [ 66/127] 2025-11-07 ... 649 bar-expiry records
+  [ 67/127] 2025-11-10 ... 650 bar-expiry records
+  [ 68/127] 2025-11-11 ... 650 bar-expiry records
+  [ 69/127] 2025-11-12 ... 650 bar-expiry records
+  [ 70/127] 2025-11-13 ... 325 bar-expiry records
+  [ 71/127] 2025-11-14 ... 650 bar-expiry records
+  [ 72/127] 2025-11-17 ... 650 bar-expiry records
+  [ 73/127] 2025-11-18 ... 650 bar-expiry records
+  [ 74/127] 2025-11-19 ... 649 bar-expiry records
+  [ 75/127] 2025-11-20 ... 650 bar-expiry records
+  [ 76/127] 2025-11-21 ... 647 bar-expiry records
+  [ 77/127] 2025-11-24 ... 650 bar-expiry records
+  [ 78/127] 2025-11-25 ... 650 bar-expiry records
+  [ 79/127] 2025-11-26 ... 325 bar-expiry records
+  [ 80/127] 2025-11-28 ... 431 bar-expiry records
+  [ 81/127] 2025-12-01 ... 650 bar-expiry records
+  [ 82/127] 2025-12-02 ... 650 bar-expiry records
+  [ 83/127] 2025-12-03 ... 649 bar-expiry records
+  [ 84/127] 2025-12-04 ... 325 bar-expiry records
+  [ 85/127] 2025-12-05 ... 649 bar-expiry records
+  [ 86/127] 2025-12-08 ... 650 bar-expiry records
+  [ 87/127] 2025-12-09 ... 649 bar-expiry records
+  [ 88/127] 2025-12-10 ... 649 bar-expiry records
+  [ 89/127] 2025-12-11 ... 650 bar-expiry records
+  [ 90/127] 2025-12-12 ... 650 bar-expiry records
+  [ 91/127] 2025-12-15 ... 650 bar-expiry records
+  [ 92/127] 2025-12-16 ... 650 bar-expiry records
+  [ 93/127] 2025-12-17 ... 650 bar-expiry records
+  [ 94/127] 2025-12-18 ... 650 bar-expiry records
+  [ 95/127] 2025-12-19 ... 650 bar-expiry records
+  [ 96/127] 2025-12-22 ... 650 bar-expiry records
+  [ 97/127] 2025-12-23 ... 650 bar-expiry records
+  [ 98/127] 2025-12-24 ... 225 bar-expiry records
+  [ 99/127] 2025-12-26 ... 650 bar-expiry records
+  [100/127] 2025-12-29 ... 650 bar-expiry records
+  [101/127] 2025-12-30 ... 650 bar-expiry records
+  [102/127] 2025-12-31 ... 650 bar-expiry records
+  [103/127] 2026-01-02 ... 650 bar-expiry records
+  [104/127] 2026-01-05 ... 650 bar-expiry records
+  [105/127] 2026-01-06 ... 650 bar-expiry records
+  [106/127] 2026-01-07 ... 650 bar-expiry records
+  [107/127] 2026-01-08 ... 650 bar-expiry records
+  [108/127] 2026-01-09 ... 650 bar-expiry records
+  [109/127] 2026-01-12 ... 650 bar-expiry records
+  [110/127] 2026-01-13 ... 650 bar-expiry records
+  [111/127] 2026-01-14 ... 650 bar-expiry records
+  [112/127] 2026-01-15 ... 650 bar-expiry records
+  [113/127] 2026-01-16 ... 650 bar-expiry records
+  [114/127] 2026-01-20 ... 650 bar-expiry records
+  [115/127] 2026-01-21 ... 650 bar-expiry records
+  [116/127] 2026-01-22 ... 325 bar-expiry records
+  [117/127] 2026-01-23 ... 649 bar-expiry records
+  [118/127] 2026-01-26 ... 650 bar-expiry records
+  [119/127] 2026-01-27 ... 650 bar-expiry records
+  [120/127] 2026-01-28 ... 650 bar-expiry records
+  [121/127] 2026-01-29 ... 325 bar-expiry records
+  [122/127] 2026-01-30 ... 650 bar-expiry records
+  [123/127] 2026-02-02 ... 650 bar-expiry records
+  [124/127] 2026-02-03 ... 650 bar-expiry records
+  [125/127] 2026-02-04 ... 650 bar-expiry records
+  [126/127] 2026-02-05 ... 325 bar-expiry records
+  [127/127] 2026-02-06 ... 649 bar-expiry records
+  Resampled to 120-min bars: 828 total bar-expiry records
+
+Evaluating 26 expiry series (min 20 bars each) ...
+  2025-09-26: 24 bars
+  2025-09-30: 40 bars
+  2025-10-17: 48 bars
+  2025-10-24: 44 bars
+  2025-10-31: 68 bars
+  2025-11-21: 80 bars
+  2025-11-28: 72 bars
+  2025-12-19: 49 bars
+  2025-12-31: 30 bars
+  2026-01-02: 24 bars
+  2026-01-16: 36 bars
+  2026-01-23: 33 bars
+  2026-01-30: 51 bars
+  2026-02-20: 54 bars
+  2026-02-27: 48 bars
+  2026-03-20: 36 bars
+
+========================================================================
+  GATE 0 — Rough Model Temporal Forecast Benchmark
+  Experiment: roughtemporal_intraday
+  H=0.10  RATE=0.053  DIV=0.013  bar=120-min
+========================================================================
+
+── 0. Experiment metadata ────────────────────────────────────────────
+
+  Run timestamp:          2026-04-09 09:19:11 UTC
+  Trading days analyzed:  127  (2025-08-07 → 2026-02-06)
+  Expiry selection mode:  far (furthest expiries)
+  DTE window:             7–60 days
+  Expiries tracked/bar:   2
+  Raw 1-min bar-expiry records:    83381
+  After 120-min resampling:        828
+  Expiry series qualifying:        16
+
+── 1. Per-expiry breakdown ───────────────────────────────────────────
+
+  Expiry        Bars    α mean   α CV    γ mean   γ CV     rr25 RMSE  carry vs rough
+  ------------ -----  -------- ------  -------- ------  ------------  --------------
+  2025-09-26      24   -0.1740  0.055   +0.8136  0.104       0.00140        +110.1% (rough)
+  2025-09-30      40   -0.1847  0.062   +0.8170  0.119       0.00192         +82.0% (rough)
+  2025-10-17      48   -0.1918  0.060   +0.6548  0.209       0.00276         +49.4% (rough)
+  2025-10-24      44   -0.1586  0.117   +0.6846  0.082       0.00162        +264.9% (rough)
+  2025-10-31      68   -0.1745  0.153   +0.6101  0.112       0.00162        +406.6% (rough)
+  2025-11-21      80   -0.1678  0.064   +0.4810  0.131       0.00394         +22.6% (rough)
+  2025-11-28      72   -0.1765  0.062   +0.4826  0.139       0.00429         +21.0% (rough)
+  2025-12-19      49   -0.1713  0.128   +0.4817  0.161       0.00299        +170.1% (rough)
+  2025-12-31      30   -0.1671  0.070   +0.3946  0.136       0.00392         +34.6% (rough)
+  2026-01-02      24   -0.1696  0.048   +0.3128  0.272       0.00729          +1.7% (rough)
+  2026-01-16      36   -0.1716  0.117   +0.3177  0.352       0.00558         +60.5% (rough)
+  2026-01-23      33   -0.1496  0.038   +0.4207  0.141       0.00176         +54.2% (rough)
+  2026-01-30      51   -0.1619  0.052   +0.4112  0.184       0.00167         +86.9% (rough)
+  2026-02-20      54   -0.1535  0.078   +0.4800  0.170       0.00198         +77.4% (rough)
+  2026-02-27      48   -0.1632  0.042   +0.4567  0.149       0.00358         +11.7% (rough)
+  2026-03-20      36   -0.1949  0.039   +0.4171  0.201       0.00419          +5.1% (rough)
+
+── 2. Feature distributions (across all qualifying bars) ─────────────
+
+  Feature              N      mean      std       min       p25       p50       p75       max
+  --------------- ------ --------- -------- --------- --------- --------- --------- ---------
+  atm_total_var      737  +0.00268  0.00045  +0.00199  +0.00233  +0.00261  +0.00301  +0.00362
+  rr25               737  -0.05440  0.00619  -0.06949  -0.05895  -0.05289  -0.04953  -0.04610
+  bf25               737  +0.00648  0.00073  +0.00485  +0.00603  +0.00649  +0.00689  +0.00807
+
+── 3. RMSE (lower = better) ──────────────────────────────────────────
+
+  Feature                 Carry      Rough      AR(1)   vs-carry  Winner
+  ------------------ ---------- ---------- ----------  ---------  ------
+  atm_total_var         0.00021    0.00021    0.00021      +0.0%  ar1
+  rr25                  0.00316    0.00514    0.00324     +62.7%  carry
+  bf25                  0.00081    0.00110    0.00080     +36.2%  ar1
+
+── 4. Directional accuracy (% correct sign of 1-bar change) ──────────
+
+  Feature                 Carry      Rough      AR(1)
+  ------------------ ---------- ---------- ----------
+  atm_total_var           45.9%      45.9%      46.9%
+  rr25                    47.1%      45.9%      47.0%
+  bf25                    65.2%      60.4%      66.1%
+
+── 5. Residual autocorrelation, lag 1 ────────────────────────────────
+
+  Negative ACF → mean-reversion → tradeable signal exists
+  Positive ACF → momentum       → carry dominates
+
+  rr25 residual ACF(1) = +0.5274  (p=0.1287)  ▶ momentum/noise
+  bf25 residual ACF(1) = +0.5691  (p=0.0073)  ▶ momentum/noise
+
+── 6. Structural coefficient stability ───────────────────────────────
+
+  CV = std/|mean|.  < 0.5 → stable structure.  > 1.0 → model breaks.
+
+  Coefficient                         mean       std      CV  flag
+  ------------------------------ --------- --------- -------  ----
+  α  rr25/(T^{H-.5}·σ)             -0.1706    0.0126   0.074  ✓ stable
+  γ  bf25/(T^{2H-1}·ATV)           +0.5148    0.0794   0.166  ✓ stable
+
+── 7. VERDICT ────────────────────────────────────────────────────────
+
+  Rough RMSE < carry on rr25:         NO  (Δ=-0.00198)
+  Rough RMSE < carry on bf25:         NO  (Δ=-0.00029)
+  Residuals mean-revert (ACF<-0.05):  NO
+  Structural coeff stable (CV<0.75):  YES
+
+  >>> ABORT — no rough-vol edge at 120-min frequency
+      Carry dominates. Residuals do not mean-revert. The rough model adds no predictive information over naive baselines at this timescale. Structural coefficients are stable cross-sectionally but provide no temporal forecasting power.
+========================================================================
+

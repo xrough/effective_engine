@@ -1,0 +1,10 @@
+
+Gate 0 — roughtemporal_intraday
+  Run:      2026-04-09 09:17:30 UTC
+  Days:     127  |  H=0.1  |  bar=120-min  |  select=far (furthest expiries)
+  DTE:      7–60  |  N_EXP=2  |  RATE=0.053  |  DIV=0.013
+  [  1/127] 2025-08-07 ... 381 bar-expiry records
+  [  2/127] 2025-08-08 ... 762 bar-expiry records
+  [  3/127] 2025-08-11 ... 762 bar-expiry records
+  [  4/127] 2025-08-12 ... 762 bar-expiry records
+  [  5/127] 2025-08-13 ... 
