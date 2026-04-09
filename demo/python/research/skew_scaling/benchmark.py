@@ -2,25 +2,27 @@
 """
 skew_scaling/benchmark.py
 ==========================
-Experiment: Cross-sectional ATM skew power-law scaling
+Experiment: Cross-sectional rr25 maturity power-law scaling
 
 Research question (Gate 0A):
     Does the short-end SPY smile exhibit the maturity-scaling structure
     predicted by rough-volatility asymptotics?
 
-Rough vol predicts:
-    |rr25(T)| ∝ T^{H - 0.5}
+Theoretical derivation:
+    Rough vol predicts ATM skew scales as:
+        ∂σ/∂k|_{k=0} ~ T^{H − 0.5}
 
-    i.e. log|rr25(T)| = intercept + beta · log(T)
-         with beta ≈ H − 0.5 ≈ −0.40 for H = 0.1
+    However rr25 is NOT the ATM skew. The 25-delta strikes sit at
+    log-moneyness k ≈ ±0.674·σ·√T. Under a linear smile:
 
-This is a CROSS-SECTIONAL test: for each 1-minute timestamp, we collect
-rr25 across all expiries visible in [MIN_DTE, MAX_DTE] DTE, fit the
-log-log regression, and ask whether the slope distribution is consistent
-with rough-vol theory.
+        rr25 ≈ skew × 2 × 0.674 × σ × √T
+              ~ T^{H − 0.5} × √T = T^H
 
-This tests the Bayer–Friz / Fukasawa geometry claim directly.
-It does NOT test temporal forecasting — that is conditional_dynamics.
+    Therefore the correct theoretical slope for the rr25 log-log regression is:
+
+        log|rr25(T)| = intercept + beta · log(T),  beta ≈ H = 0.10
+
+    (NOT H−0.5 = −0.40, which applies only to the true ATM derivative ∂σ/∂k.)
 
 Design
 ------
@@ -31,7 +33,7 @@ Design
 4. Report distribution of beta across all qualifying timestamps.
 
 Success criteria (PROCEED):
-  - Median beta within ±0.10 of theoretical H−0.5
+  - Median beta within ±0.10 of theoretical H (= 0.10 for H=0.1)
   - Mean R² > 0.70
   - Beta CV (std/|mean|) < 0.50
 
@@ -48,6 +50,7 @@ Usage
 import argparse
 import io
 import math
+import multiprocessing as mp
 import re
 import sys
 import zipfile
@@ -62,8 +65,20 @@ _HERE = Path(__file__).resolve()
 sys.path.insert(0, str(_HERE.parents[1] / "shared"))
 from smile_pipeline import (
     RATE, DIV, MIN_DTE, MAX_DTE, MKT_OPEN_UTC, MKT_CLOSE_UTC,
-    _Tee, process_day_full,
+    _Tee, process_day_full, get_device,
 )
+
+
+# ── parallel worker (module-level for pickling with spawn context) ─────────────
+def _day_worker(args):
+    """Open a fresh ZipFile per process — ZipFile handles are not picklable."""
+    zip_path, fname, trade_date, H, device, min_dte, max_dte = args
+    import zipfile as _zf
+    try:
+        with _zf.ZipFile(zip_path) as zf:
+            return process_day_full(zf, fname, trade_date, H, device, min_dte, max_dte)
+    except Exception:
+        return []
 
 # ── paths ──────────────────────────────────────────────────────────────────────
 ROOT     = _HERE.parents[4]   # .../MVP
@@ -136,7 +151,7 @@ def evaluate_skew_scaling(all_ts_records: dict, H: float) -> dict:
       n_ts_total, n_ts_fitted — total vs qualifying timestamps
       beta_mean, beta_std, beta_median, beta_p5, beta_p95, beta_cv
       r2_mean, r2_median
-      theory_beta — H − 0.5
+      theory_beta — H  (rr25 ~ T^H, not T^{H-0.5})
       frac_consistent — fraction of timestamps where |beta − theory| < 0.10
       verdict — PROCEED | WEAK | ABORT
     """
@@ -157,7 +172,7 @@ def evaluate_skew_scaling(all_ts_records: dict, H: float) -> dict:
 
     betas_arr = np.array(betas)
     r2_arr    = np.array([r for r in r2s if math.isfinite(r)])
-    theory    = H - 0.5
+    theory    = H          # rr25 ~ T^H (not T^{H-0.5}; see module docstring)
 
     beta_mean   = float(np.mean(betas_arr))
     beta_std    = float(np.std(betas_arr))
@@ -207,7 +222,7 @@ def print_report(result: dict, H: float, run_meta: dict | None = None):
     print("\n" + "=" * W)
     print("  ATM SKEW POWER-LAW SCALING — Cross-Sectional Benchmark")
     print("  Experiment: skew_scaling")
-    print(f"  H={H:.2f}  (theoretical slope = H−0.5 = {H-0.5:+.2f})")
+    print(f"  H={H:.2f}  (theoretical slope for rr25 = H = {H:+.2f})")
     print("=" * W)
 
     if run_meta:
@@ -223,7 +238,7 @@ def print_report(result: dict, H: float, run_meta: dict | None = None):
         if math.isfinite(mean_n):
             print(f"  Mean expiries per timestamp:  {mean_n:.1f}")
 
-    theory = result.get("theory_beta", H - 0.5)
+    theory = result.get("theory_beta", H)   # rr25 ~ T^H
 
     print("\n── 1. Slope (beta) distribution ────────────────────────────────\n")
     print(f"  Theoretical beta (H−0.5):  {theory:+.4f}")
@@ -254,7 +269,7 @@ def print_report(result: dict, H: float, run_meta: dict | None = None):
     print("\n── 3. Verdict ──────────────────────────────────────────────────\n")
     bm  = result.get("beta_median", float("nan"))
     bcv = result.get("beta_cv",    float("nan"))
-    print(f"  Median beta within ±0.10 of theory ({theory:+.2f}): "
+    print(f"  Median beta within ±0.10 of H={theory:+.2f} (rr25~T^H): "
           f"{'YES' if math.isfinite(bm) and abs(bm-theory)<0.10 else 'NO'}"
           f"  (median={bm:+.4f})")
     print(f"  Mean R² > 0.70:   {'YES' if math.isfinite(r2m) and r2m>0.70 else 'NO'}"
@@ -265,15 +280,16 @@ def print_report(result: dict, H: float, run_meta: dict | None = None):
     verdict = result.get("verdict", "ABORT")
     print(f"  >>> {verdict}")
     if "PROCEED" in verdict:
-        print("      ATM skew exhibits power-law maturity scaling consistent with")
-        print("      rough-vol asymptotics. Cross-sectional theory validation passes.")
+        print("      rr25 scales as T^H consistent with rough-vol asymptotics.")
+        print("      Cross-sectional geometry validation passes.")
     elif "WEAK" in verdict:
-        print("      Partial evidence. Increase sample or check expiry density")
-        print("      before drawing strong conclusions.")
+        print(f"      Partial evidence. Empirical slope ({bm:+.4f}) is in the right")
+        print(f"      direction but deviates from theory (H={theory:+.2f}).")
+        print("      Possible causes: non-linear smile, vol-of-vol contamination,")
+        print("      or H is higher than assumed.")
     else:
-        print("      ATM skew does not show clear rough-vol power-law structure.")
-        print("      Possible causes: insufficient expiry range, data quality,")
-        print("      or the model is wrong at this DTE window.")
+        print("      rr25 does not scale as T^H. Rough-vol cross-sectional")
+        print("      geometry is not supported at this DTE window.")
     print("=" * W + "\n")
 
 
@@ -284,15 +300,21 @@ def print_report(result: dict, H: float, run_meta: dict | None = None):
 def main():
     ap = argparse.ArgumentParser(
         description="ATM Skew Power-Law Scaling benchmark (skew_scaling)")
-    ap.add_argument("--days",   type=int,   default=None)
-    ap.add_argument("--h",      type=float, default=0.1)
-    ap.add_argument("--quick",  action="store_true", help="--days 5")
-    ap.add_argument("--output", action="store_true",
+    ap.add_argument("--days",    type=int,   default=None)
+    ap.add_argument("--h",       type=float, default=0.1)
+    ap.add_argument("--quick",   action="store_true", help="--days 5")
+    ap.add_argument("--workers", type=int,   default=1,
+                    help="Parallel day-processing workers (default: 1)")
+    ap.add_argument("--device",  type=str,   default="auto",
+                    choices=["auto","cpu","cuda","mps"],
+                    help="IV computation device (default: auto)")
+    ap.add_argument("--output",  action="store_true",
                     help="Save full run log to output/<timestamp>.txt")
     args = ap.parse_args()
 
     H      = args.h
     n_days = 5 if args.quick else (args.days or None)
+    device = get_device(args.device)
 
     if not OPRA_ZIP.exists():
         sys.exit(f"OPRA zip not found: {OPRA_ZIP}")
@@ -304,7 +326,7 @@ def main():
         sys.stdout = _Tee(sys.__stdout__, buf)
 
     try:
-        _run(H, n_days)
+        _run(H, n_days, args.workers, device)
     finally:
         if buf is not None:
             sys.stdout = sys.__stdout__
@@ -314,40 +336,58 @@ def main():
             print(f"\nReport saved → {out_path}")
 
 
-def _run(H: float, n_days: int | None):
-    import zipfile as _zf
+def _run(H: float, n_days: int | None, workers: int = 1, device: str = "cpu"):
     run_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-    zf        = _zf.ZipFile(OPRA_ZIP)
-    dbn_files = sorted(f for f in zf.namelist() if f.endswith(".dbn.zst"))
+    with zipfile.ZipFile(OPRA_ZIP) as zf_index:
+        dbn_files = sorted(f for f in zf_index.namelist() if f.endswith(".dbn.zst"))
     if n_days:
         dbn_files = dbn_files[:n_days]
 
     print(f"\nskew_scaling benchmark")
-    print(f"  Run:   {run_ts}")
-    print(f"  Days:  {len(dbn_files)}  |  H={H}  |  DTE={MIN_DTE}–{MAX_DTE}")
-    print(f"  Mode:  all expiries per timestamp (cross-sectional)\n")
+    print(f"  Run:     {run_ts}")
+    print(f"  Days:    {len(dbn_files)}  |  H={H}  |  DTE={MIN_DTE}–{MAX_DTE}")
+    print(f"  Device:  {device}  |  Workers: {workers}")
+    print(f"  Mode:    all expiries per timestamp (cross-sectional)\n")
+
+    dates_order = []
+    for fname in dbn_files:
+        ds    = re.search(r"(\d{8})", fname).group(1)
+        tdate = date(int(ds[:4]), int(ds[4:6]), int(ds[6:]))
+        dates_order.append((fname, tdate))
+
+    task_args = [
+        (str(OPRA_ZIP), fname, tdate, H, device, MIN_DTE, MAX_DTE)
+        for fname, tdate in dates_order
+    ]
+
+    if workers > 1:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(workers) as pool:
+            day_results = pool.map(_day_worker, task_args)
+    else:
+        with zipfile.ZipFile(OPRA_ZIP) as zf:
+            day_results = []
+            for fname, tdate in dates_order:
+                try:
+                    day_results.append(
+                        process_day_full(zf, fname, tdate, H, device, MIN_DTE, MAX_DTE))
+                except Exception as e:
+                    print(f"  SKIP {tdate}: {e}")
+                    day_results.append([])
 
     # Collect records grouped by timestamp (across all days and expiries)
     all_ts_records: dict = defaultdict(list)
     dates_seen = []
 
-    for i, fname in enumerate(dbn_files):
-        ds    = re.search(r"(\d{8})", fname).group(1)
-        tdate = date(int(ds[:4]), int(ds[4:6]), int(ds[6:]))
+    for (fname, tdate), recs in zip(dates_order, day_results):
         dates_seen.append(tdate)
-        print(f"  [{i+1:3d}/{len(dbn_files)}] {tdate} ...", end=" ", flush=True)
-        try:
-            recs = process_day_full(zf, fname, tdate, H)
-        except Exception as e:
-            print(f"SKIP ({e})")
-            continue
         n_exp_ts: dict = defaultdict(set)
         for r in recs:
             all_ts_records[r["ts"]].append(r)
             n_exp_ts[r["ts"]].add(r["expiry"])
         qualifying = sum(1 for v in n_exp_ts.values() if len(v) >= 3)
-        print(f"{len(recs)} records, {len(n_exp_ts)} timestamps, "
+        print(f"  {tdate}: {len(recs)} records, {len(n_exp_ts)} timestamps, "
               f"{qualifying} with ≥3 expiries")
 
     if not all_ts_records:

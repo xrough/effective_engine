@@ -52,6 +52,7 @@ Usage
 import argparse
 import io
 import math
+import multiprocessing as mp
 import re
 import sys
 import zipfile
@@ -76,10 +77,22 @@ from smile_pipeline import (
     _Tee,
     _d1d2, _bs_call, _bs_put, _bs_delta_call, _bs_delta_put,
     _vec_iv, _parse_sym_batch, _recover_forward,
-    extract_features, ar1_forecast, evaluate_forecasts,
+    extract_features, ar1_forecast, evaluate_forecasts, get_device,
 )
 
 N_EXP = 2   # expiries tracked per bar (experiment-specific)
+
+
+# ── parallel worker (module-level for pickling with spawn context) ─────────────
+def _gate0_worker(args):
+    """Open a fresh ZipFile per process — ZipFile handles are not picklable."""
+    zip_path, fname, trade_date, H, select_far = args
+    import zipfile as _zf
+    try:
+        with _zf.ZipFile(zip_path) as zf:
+            return process_day(zf, fname, trade_date, H, select_far)
+    except Exception:
+        return []
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -365,18 +378,20 @@ def print_report(all_results: dict, H: float, resample: int,
 def main():
     ap = argparse.ArgumentParser(
         description="Gate 0: Rough Model Temporal Forecast Benchmark (roughtemporal_intraday)")
-    ap.add_argument("--days",    type=int,   default=None,
+    ap.add_argument("--days",     type=int,   default=None,
                     help="Number of trading days to process (default: all)")
-    ap.add_argument("--h",       type=float, default=0.1,
+    ap.add_argument("--h",        type=float, default=0.1,
                     help="Hurst exponent (default: 0.1)")
-    ap.add_argument("--quick",   action="store_true",
+    ap.add_argument("--quick",    action="store_true",
                     help="Alias for --days 5")
-    ap.add_argument("--resample", type=int,  default=1,
+    ap.add_argument("--resample", type=int,   default=1,
                     help="Bar size in minutes (default: 1). Try 5 or 120.")
-    ap.add_argument("--far",     action="store_true",
+    ap.add_argument("--far",      action="store_true",
                     help="Track furthest expiries in DTE window instead of nearest "
                          "(auto-enabled for --resample >= 60)")
-    ap.add_argument("--output",  action="store_true",
+    ap.add_argument("--workers",  type=int,   default=1,
+                    help="Parallel day-processing workers (default: 1)")
+    ap.add_argument("--output",   action="store_true",
                     help="Save full run log + detailed report to output/<bar>_<timestamp>.txt")
     args = ap.parse_args()
 
@@ -396,7 +411,7 @@ def main():
         sys.stdout = _Tee(sys.__stdout__, buf)
 
     try:
-        _run(H, resample, select_far, n_days)
+        _run(H, resample, select_far, n_days, args.workers)
     finally:
         if buf is not None:
             sys.stdout = sys.__stdout__
@@ -407,11 +422,12 @@ def main():
             print(f"\nReport saved → {out_path}")
 
 
-def _run(H: float, resample: int, select_far: bool, n_days: int | None):
+def _run(H: float, resample: int, select_far: bool, n_days: int | None,
+         workers: int = 1):
     run_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-    zf        = zipfile.ZipFile(OPRA_ZIP)
-    dbn_files = sorted(f for f in zf.namelist() if f.endswith(".dbn.zst"))
+    with zipfile.ZipFile(OPRA_ZIP) as zf_index:
+        dbn_files = sorted(f for f in zf_index.namelist() if f.endswith(".dbn.zst"))
     if n_days:
         dbn_files = dbn_files[:n_days]
 
@@ -420,26 +436,44 @@ def _run(H: float, resample: int, select_far: bool, n_days: int | None):
     print(f"\nGate 0 — roughtemporal_intraday")
     print(f"  Run:      {run_ts}")
     print(f"  Days:     {len(dbn_files)}  |  H={H}  |  bar={bar_label}  |  select={sel_label}")
+    print(f"  Workers:  {workers}")
     print(f"  DTE:      {MIN_DTE}–{MAX_DTE}  |  N_EXP={N_EXP}  |  RATE={RATE}  |  DIV={DIV}")
+
+    dates_order = []
+    for fname in dbn_files:
+        ds    = re.search(r"(\d{8})", fname).group(1)
+        tdate = date(int(ds[:4]), int(ds[4:6]), int(ds[6:]))
+        dates_order.append((fname, tdate))
+
+    task_args = [
+        (str(OPRA_ZIP), fname, tdate, H, select_far)
+        for fname, tdate in dates_order
+    ]
+
+    if workers > 1:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(workers) as pool:
+            day_results = pool.map(_gate0_worker, task_args)
+    else:
+        with zipfile.ZipFile(OPRA_ZIP) as zf:
+            day_results = []
+            for fname, tdate in dates_order:
+                try:
+                    day_results.append(process_day(zf, fname, tdate, H, select_far))
+                except Exception as e:
+                    print(f"  SKIP {tdate}: {e}")
+                    day_results.append([])
 
     all_expiry_ts: dict[date, list] = defaultdict(list)
     dates_seen = []
     total_raw  = 0
 
-    for i, fname in enumerate(dbn_files):
-        ds    = re.search(r"(\d{8})", fname).group(1)
-        tdate = date(int(ds[:4]), int(ds[4:6]), int(ds[6:]))
+    for (fname, tdate), recs in zip(dates_order, day_results):
         dates_seen.append(tdate)
-        print(f"  [{i+1:3d}/{len(dbn_files)}] {tdate} ...", end=" ", flush=True)
-        try:
-            recs = process_day(zf, fname, tdate, H, select_far)
-        except Exception as e:
-            print(f"SKIP ({e})")
-            continue
         for r in recs:
             all_expiry_ts[r["expiry"]].append(r)
         total_raw += len(recs)
-        print(f"{len(recs)} bar-expiry records")
+        print(f"  {tdate}: {len(recs)} bar-expiry records")
 
     if not all_expiry_ts:
         sys.exit("No valid records. Check data path and market-hours filter.")

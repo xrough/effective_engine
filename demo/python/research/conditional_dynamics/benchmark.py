@@ -45,6 +45,7 @@ Usage
 import argparse
 import io
 import math
+import multiprocessing as mp
 import re
 import sys
 import zipfile
@@ -60,8 +61,20 @@ _HERE = Path(__file__).resolve()
 sys.path.insert(0, str(_HERE.parents[1] / "shared"))
 from smile_pipeline import (
     RATE, DIV, MIN_DTE, MAX_DTE, MKT_OPEN_UTC, MKT_CLOSE_UTC,
-    _Tee, process_day_full, evaluate_forecasts, ar1_forecast,
+    _Tee, process_day_full, evaluate_forecasts, ar1_forecast, get_device,
 )
+
+
+# ── parallel worker (module-level for pickling with spawn context) ─────────────
+def _day_worker(args):
+    """Open a fresh ZipFile per process — ZipFile handles are not picklable."""
+    zip_path, fname, trade_date, H, device, min_dte, max_dte = args
+    import zipfile as _zf
+    try:
+        with _zf.ZipFile(zip_path) as zf:
+            return process_day_full(zf, fname, trade_date, H, device, min_dte, max_dte)
+    except Exception:
+        return []
 
 # ── paths ──────────────────────────────────────────────────────────────────────
 ROOT     = _HERE.parents[4]   # .../MVP
@@ -357,6 +370,11 @@ def main():
                     help="Track furthest expiries (auto-enabled for ≥60 min)")
     ap.add_argument("--move-pct", type=float, default=0.20,
                     help="Top fraction of |spot returns| defining ACTIVE regime (default 0.20)")
+    ap.add_argument("--workers",  type=int,   default=1,
+                    help="Parallel day-processing workers (default: 1)")
+    ap.add_argument("--device",   type=str,   default="auto",
+                    choices=["auto","cpu","cuda","mps"],
+                    help="IV computation device (default: auto)")
     ap.add_argument("--output",   action="store_true",
                     help="Save full run log to output/<timestamp>.txt")
     args = ap.parse_args()
@@ -366,6 +384,7 @@ def main():
     select_far = args.far or (resample >= 60)
     n_days     = 5 if args.quick else (args.days or None)
     move_pct   = args.move_pct
+    device     = get_device(args.device)
 
     if not OPRA_ZIP.exists():
         sys.exit(f"OPRA zip not found: {OPRA_ZIP}")
@@ -377,7 +396,7 @@ def main():
         sys.stdout = _Tee(sys.__stdout__, buf)
 
     try:
-        _run(H, resample, select_far, n_days, move_pct)
+        _run(H, resample, select_far, n_days, move_pct, args.workers, device)
     finally:
         if buf is not None:
             sys.stdout = sys.__stdout__
@@ -389,12 +408,11 @@ def main():
 
 
 def _run(H: float, resample: int, select_far: bool, n_days: int | None,
-         move_pct: float):
-    import zipfile as _zf
+         move_pct: float, workers: int = 1, device: str = "cpu"):
     run_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-    zf        = _zf.ZipFile(OPRA_ZIP)
-    dbn_files = sorted(f for f in zf.namelist() if f.endswith(".dbn.zst"))
+    with zipfile.ZipFile(OPRA_ZIP) as zf_index:
+        dbn_files = sorted(f for f in zf_index.namelist() if f.endswith(".dbn.zst"))
     if n_days:
         dbn_files = dbn_files[:n_days]
 
@@ -405,22 +423,42 @@ def _run(H: float, resample: int, select_far: bool, n_days: int | None,
     print(f"  Run:      {run_ts}")
     print(f"  Days:     {len(dbn_files)}  |  H={H}  |  bar={bar_label}")
     print(f"  Select:   {sel_label}  |  active=top {move_pct*100:.0f}% |Δspot|")
+    print(f"  Device:   {device}  |  Workers: {workers}")
     print(f"  DTE:      {MIN_DTE}–{MAX_DTE}  |  N_EXP={N_EXP}\n")
+
+    dates_order = []
+    for fname in dbn_files:
+        ds    = re.search(r"(\d{8})", fname).group(1)
+        tdate = date(int(ds[:4]), int(ds[4:6]), int(ds[6:]))
+        dates_order.append((fname, tdate))
+
+    task_args = [
+        (str(OPRA_ZIP), fname, tdate, H, device, MIN_DTE, MAX_DTE)
+        for fname, tdate in dates_order
+    ]
+
+    if workers > 1:
+        ctx = mp.get_context("spawn")
+        with ctx.Pool(workers) as pool:
+            day_results = pool.map(_day_worker, task_args)
+    else:
+        with zipfile.ZipFile(OPRA_ZIP) as zf:
+            day_results = []
+            for fname, tdate in dates_order:
+                try:
+                    day_results.append(
+                        process_day_full(zf, fname, tdate, H, device, MIN_DTE, MAX_DTE))
+                except Exception as e:
+                    print(f"  SKIP {tdate}: {e}")
+                    day_results.append([])
 
     all_expiry_ts: dict[date, list] = defaultdict(list)
     dates_seen = []
     total_raw  = 0
 
-    for i, fname in enumerate(dbn_files):
-        ds    = re.search(r"(\d{8})", fname).group(1)
-        tdate = date(int(ds[:4]), int(ds[4:6]), int(ds[6:]))
+    for (fname, tdate), recs in zip(dates_order, day_results):
         dates_seen.append(tdate)
-        print(f"  [{i+1:3d}/{len(dbn_files)}] {tdate} ...", end=" ", flush=True)
-        try:
-            recs = process_day_full(zf, fname, tdate, H)
-        except Exception as e:
-            print(f"SKIP ({e})")
-            continue
+        print(f"  {tdate}: {len(recs)} records", end=" ", flush=True)
 
         # Apply N_EXP selection (near or far) to match intraday benchmark conditions
         # Group by timestamp, then keep only selected N_EXP expiries

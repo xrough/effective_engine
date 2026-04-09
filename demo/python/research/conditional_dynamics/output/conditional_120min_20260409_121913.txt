@@ -1,0 +1,587 @@
+
+conditional_dynamics benchmark
+  Run:      2026-04-09 11:39:05 UTC
+  Days:     127  |  H=0.1  |  bar=120-min
+  Select:   far  |  active=top 20% |Δspot|
+  DTE:      7–60  |  N_EXP=2
+
+  [  1/127] 2025-08-07 ... 762 bar-expiry records
+  [  2/127] 2025-08-08 ... 762 bar-expiry records
+  [  3/127] 2025-08-11 ... 762 bar-expiry records
+  [  4/127] 2025-08-12 ... 762 bar-expiry records
+  [  5/127] 2025-08-13 ... 762 bar-expiry records
+  [  6/127] 2025-08-14 ... 762 bar-expiry records
+  [  7/127] 2025-08-15 ... 762 bar-expiry records
+  [  8/127] 2025-08-18 ... 762 bar-expiry records
+  [  9/127] 2025-08-19 ... 762 bar-expiry records
+  [ 10/127] 2025-08-20 ... 762 bar-expiry records
+  [ 11/127] 2025-08-21 ... 762 bar-expiry records
+  [ 12/127] 2025-08-22 ... 762 bar-expiry records
+  [ 13/127] 2025-08-25 ... 762 bar-expiry records
+  [ 14/127] 2025-08-26 ... 762 bar-expiry records
+  [ 15/127] 2025-08-27 ... 762 bar-expiry records
+  [ 16/127] 2025-08-28 ... 762 bar-expiry records
+  [ 17/127] 2025-08-29 ... 762 bar-expiry records
+  [ 18/127] 2025-09-02 ... 762 bar-expiry records
+  [ 19/127] 2025-09-03 ... 762 bar-expiry records
+  [ 20/127] 2025-09-04 ... 762 bar-expiry records
+  [ 21/127] 2025-09-05 ... 762 bar-expiry records
+  [ 22/127] 2025-09-08 ... 762 bar-expiry records
+  [ 23/127] 2025-09-09 ... 762 bar-expiry records
+  [ 24/127] 2025-09-10 ... 762 bar-expiry records
+  [ 25/127] 2025-09-11 ... 762 bar-expiry records
+  [ 26/127] 2025-09-12 ... 762 bar-expiry records
+  [ 27/127] 2025-09-15 ... 762 bar-expiry records
+  [ 28/127] 2025-09-16 ... 762 bar-expiry records
+  [ 29/127] 2025-09-17 ... 762 bar-expiry records
+  [ 30/127] 2025-09-18 ... 762 bar-expiry records
+  [ 31/127] 2025-09-19 ... 762 bar-expiry records
+  [ 32/127] 2025-09-22 ... 762 bar-expiry records
+  [ 33/127] 2025-09-23 ... 762 bar-expiry records
+  [ 34/127] 2025-09-24 ... 762 bar-expiry records
+  [ 35/127] 2025-09-25 ... 762 bar-expiry records
+  [ 36/127] 2025-09-26 ... 762 bar-expiry records
+  [ 37/127] 2025-09-29 ... 762 bar-expiry records
+  [ 38/127] 2025-09-30 ... 762 bar-expiry records
+  [ 39/127] 2025-10-01 ... 762 bar-expiry records
+  [ 40/127] 2025-10-02 ... 762 bar-expiry records
+  [ 41/127] 2025-10-03 ... 762 bar-expiry records
+  [ 42/127] 2025-10-06 ... 762 bar-expiry records
+  [ 43/127] 2025-10-07 ... 762 bar-expiry records
+  [ 44/127] 2025-10-08 ... 762 bar-expiry records
+  [ 45/127] 2025-10-09 ... 762 bar-expiry records
+  [ 46/127] 2025-10-10 ... 762 bar-expiry records
+  [ 47/127] 2025-10-13 ... 762 bar-expiry records
+  [ 48/127] 2025-10-14 ... 762 bar-expiry records
+  [ 49/127] 2025-10-15 ... 762 bar-expiry records
+  [ 50/127] 2025-10-16 ... 762 bar-expiry records
+  [ 51/127] 2025-10-17 ... 762 bar-expiry records
+  [ 52/127] 2025-10-20 ... 762 bar-expiry records
+  [ 53/127] 2025-10-21 ... 762 bar-expiry records
+  [ 54/127] 2025-10-22 ... 746 bar-expiry records
+  [ 55/127] 2025-10-23 ... 762 bar-expiry records
+  [ 56/127] 2025-10-24 ... 762 bar-expiry records
+  [ 57/127] 2025-10-27 ... 762 bar-expiry records
+  [ 58/127] 2025-10-28 ... 762 bar-expiry records
+  [ 59/127] 2025-10-29 ... 762 bar-expiry records
+  [ 60/127] 2025-10-30 ... 762 bar-expiry records
+  [ 61/127] 2025-10-31 ... 762 bar-expiry records
+  [ 62/127] 2025-11-03 ... 650 bar-expiry records
+  [ 63/127] 2025-11-04 ... 650 bar-expiry records
+  [ 64/127] 2025-11-05 ... 650 bar-expiry records
+  [ 65/127] 2025-11-06 ... 650 bar-expiry records
+  [ 66/127] 2025-11-07 ... 650 bar-expiry records
+  [ 67/127] 2025-11-10 ... 650 bar-expiry records
+  [ 68/127] 2025-11-11 ... 650 bar-expiry records
+  [ 69/127] 2025-11-12 ... 650 bar-expiry records
+  [ 70/127] 2025-11-13 ... 650 bar-expiry records
+  [ 71/127] 2025-11-14 ... 650 bar-expiry records
+  [ 72/127] 2025-11-17 ... 650 bar-expiry records
+  [ 73/127] 2025-11-18 ... 650 bar-expiry records
+  [ 74/127] 2025-11-19 ... 650 bar-expiry records
+  [ 75/127] 2025-11-20 ... 650 bar-expiry records
+  [ 76/127] 2025-11-21 ... 650 bar-expiry records
+  [ 77/127] 2025-11-24 ... 650 bar-expiry records
+  [ 78/127] 2025-11-25 ... 650 bar-expiry records
+  [ 79/127] 2025-11-26 ... 650 bar-expiry records
+  [ 80/127] 2025-11-28 ... 450 bar-expiry records
+  [ 81/127] 2025-12-01 ... 650 bar-expiry records
+  [ 82/127] 2025-12-02 ... 650 bar-expiry records
+  [ 83/127] 2025-12-03 ... 650 bar-expiry records
+  [ 84/127] 2025-12-04 ... 650 bar-expiry records
+  [ 85/127] 2025-12-05 ... 650 bar-expiry records
+  [ 86/127] 2025-12-08 ... 650 bar-expiry records
+  [ 87/127] 2025-12-09 ... 650 bar-expiry records
+  [ 88/127] 2025-12-10 ... 650 bar-expiry records
+  [ 89/127] 2025-12-11 ... 650 bar-expiry records
+  [ 90/127] 2025-12-12 ... 650 bar-expiry records
+  [ 91/127] 2025-12-15 ... 650 bar-expiry records
+  [ 92/127] 2025-12-16 ... 650 bar-expiry records
+  [ 93/127] 2025-12-17 ... 650 bar-expiry records
+  [ 94/127] 2025-12-18 ... 650 bar-expiry records
+  [ 95/127] 2025-12-19 ... 650 bar-expiry records
+  [ 96/127] 2025-12-22 ... 650 bar-expiry records
+  [ 97/127] 2025-12-23 ... 650 bar-expiry records
+  [ 98/127] 2025-12-24 ... 450 bar-expiry records
+  [ 99/127] 2025-12-26 ... 650 bar-expiry records
+  [100/127] 2025-12-29 ... 650 bar-expiry records
+  [101/127] 2025-12-30 ... 650 bar-expiry records
+  [102/127] 2025-12-31 ... 650 bar-expiry records
+  [103/127] 2026-01-02 ... 650 bar-expiry records
+  [104/127] 2026-01-05 ... 650 bar-expiry records
+  [105/127] 2026-01-06 ... 650 bar-expiry records
+  [106/127] 2026-01-07 ... 650 bar-expiry records
+  [107/127] 2026-01-08 ... 650 bar-expiry records
+  [108/127] 2026-01-09 ... 650 bar-expiry records
+  [109/127] 2026-01-12 ... 650 bar-expiry records
+  [110/127] 2026-01-13 ... 650 bar-expiry records
+  [111/127] 2026-01-14 ... 650 bar-expiry records
+  [112/127] 2026-01-15 ... 650 bar-expiry records
+  [113/127] 2026-01-16 ... 650 bar-expiry records
+  [114/127] 2026-01-20 ... 650 bar-expiry records
+  [115/127] 2026-01-21 ... 650 bar-expiry records
+  [116/127] 2026-01-22 ... 650 bar-expiry records
+  [117/127] 2026-01-23 ... 650 bar-expiry records
+  [118/127] 2026-01-26 ... 650 bar-expiry records
+  [119/127] 2026-01-27 ... 650 bar-expiry records
+  [120/127] 2026-01-28 ... 650 bar-expiry records
+  [121/127] 2026-01-29 ... 650 bar-expiry records
+  [122/127] 2026-01-30 ... 650 bar-expiry records
+  [123/127] 2026-02-02 ... 650 bar-expiry records
+  [124/127] 2026-02-03 ... 650 bar-expiry records
+  [125/127] 2026-02-04 ... 650 bar-expiry records
+  [126/127] 2026-02-05 ... 650 bar-expiry records
+  [127/127] 2026-02-06 ... 650 bar-expiry records
+  Resampled to 120-min bars: 904 bar-expiry records
+
+Evaluating 28 expiry series (min 20 bars, min 15 bars per regime) ...
+  2025-09-26: 24 bars total  (quiet=19, active=5)
+  2025-09-30: 45 bars total  (quiet=36, active=9)
+  2025-10-03: 24 bars total  (quiet=19, active=5)
+  2025-10-17: 52 bars total  (quiet=42, active=10)
+  2025-10-24: 44 bars total  (quiet=35, active=9)
+  2025-10-31: 73 bars total  (quiet=58, active=15)
+  2025-11-21: 81 bars total  (quiet=65, active=16)
+  2025-11-28: 78 bars total  (quiet=62, active=16)
+  2025-12-05: 20 bars total  (quiet=16, active=4)
+  2025-12-19: 55 bars total  (quiet=44, active=11)
+  2025-12-31: 32 bars total  (quiet=26, active=6)
+  2026-01-02: 28 bars total  (quiet=22, active=6)
+  2026-01-16: 42 bars total  (quiet=34, active=8)
+  2026-01-23: 33 bars total  (quiet=26, active=7)
+  2026-01-30: 54 bars total  (quiet=43, active=11)
+  2026-02-20: 54 bars total  (quiet=43, active=11)
+  2026-02-27: 52 bars total  (quiet=42, active=10)
+  2026-03-20: 40 bars total  (quiet=32, active=8)
+
+========================================================================
+  CONDITIONAL SMILE DYNAMICS — Spot Move Regime Benchmark
+  Experiment: conditional_dynamics
+  H=0.10  bar=120-min  active_regime=top 20% |Δspot|
+========================================================================
+
+── 0. Experiment metadata ──────────────────────────────────────────
+
+  Run:              2026-04-09 11:39:05 UTC
+  Trading days:     127  (2025-08-07 → 2026-02-06)
+  Expiry selection: far
+  RATE=0.053  DIV=0.013
+
+── 1. Per-expiry conditional results ───────────────────────────────
+
+  Hypothesis: rough edge (if any) shows in ACTIVE regime, not QUIET.
+
+  Expiry 2025-09-26  (quiet=19, active=5, threshold=|r|>0.00275)
+  [ALL   ]  n=24 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00140  0.00295  0.00140   +110.1% (carry)
+              bf25              0.00060  0.00085  0.00060    +41.5% (carry)
+              atm_total_var     0.00008  0.00008  0.00008     +0.0% (carry)
+    ACF(1):   rr25=+0.4913 (p=0.0202) ▶ momentum
+              bf25=+0.5360 (p=0.0101) ▶ momentum
+    Dir-acc:  rr25: carry=50.0% rough=45.5%  |  bf25: carry=68.2% rough=63.6%
+
+  [QUIET ]  n=19 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00187  0.00332  0.00187    +76.9% (carry)
+              bf25              0.00070  0.00082  0.00070    +16.9% (carry)
+              atm_total_var     0.00012  0.00012  0.00012     +0.0% (carry)
+    ACF(1):   rr25=+0.1034 (p=0.6930) ▶ momentum
+              bf25=+0.3096 (p=0.2265) ▶ momentum
+    Dir-acc:  rr25: carry=52.9% rough=41.2%  |  bf25: carry=76.5% rough=58.8%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2025-09-30  (quiet=36, active=9, threshold=|r|>0.00337)
+  [ALL   ]  n=45 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00222  0.00354  0.00221    +59.5% (ar1)
+              bf25              0.00071  0.00131  0.00075    +85.0% (carry)
+              atm_total_var     0.00011  0.00011  0.00011     +0.0% (ar1)
+    ACF(1):   rr25=+0.6343 (p=0.0000) ▶ momentum
+              bf25=+0.8064 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=44.2% rough=41.9%  |  bf25: carry=74.4% rough=67.4%
+
+  [QUIET ]  n=36 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00238  0.00346  0.00241    +45.6% (carry)
+              bf25              0.00062  0.00129  0.00070   +108.2% (carry)
+              atm_total_var     0.00013  0.00013  0.00013     +0.0% (ar1)
+    ACF(1):   rr25=+0.5301 (p=0.0013) ▶ momentum
+              bf25=+0.7716 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=47.1% rough=41.2%  |  bf25: carry=73.5% rough=70.6%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2025-10-03  (quiet=19, active=5, threshold=|r|>0.00245)
+  [ALL   ]  n=24 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00279  0.00316  0.00279    +13.1% (carry)
+              bf25              0.00063  0.00050  0.00063    -20.7% (rough)
+              atm_total_var     0.00010  0.00010  0.00010     +0.0% (carry)
+    ACF(1):   rr25=+0.3487 (p=0.1118) ▶ momentum
+              bf25=-0.0331 (p=0.8837) ▶ momentum
+    Dir-acc:  rr25: carry=54.5% rough=54.5%  |  bf25: carry=68.2% rough=68.2%
+
+  [QUIET ]  n=19 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00362  0.00374  0.00362     +3.2% (carry)
+              bf25              0.00067  0.00058  0.00067    -13.6% (rough)
+              atm_total_var     0.00012  0.00012  0.00012     +0.0% (carry)
+    ACF(1):   rr25=+0.1964 (p=0.4498) ▶ momentum
+              bf25=-0.3421 (p=0.1789) ◀ mean-reverts
+    Dir-acc:  rr25: carry=70.6% rough=64.7%  |  bf25: carry=76.5% rough=76.5%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2025-10-17  (quiet=42, active=10, threshold=|r|>0.00328)
+  [ALL   ]  n=52 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00269  0.00409  0.00269    +51.8% (ar1)
+              bf25              0.00172  0.00152  0.00171    -11.4% (rough)
+              atm_total_var     0.00014  0.00014  0.00014     +0.0% (carry)
+    ACF(1):   rr25=+0.5857 (p=0.0000) ▶ momentum
+              bf25=+0.3121 (p=0.0274) ▶ momentum
+    Dir-acc:  rr25: carry=36.0% rough=38.0%  |  bf25: carry=64.0% rough=68.0%
+
+  [QUIET ]  n=42 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00293  0.00380  0.00288    +29.6% (ar1)
+              bf25              0.00185  0.00132  0.00182    -28.4% (rough)
+              atm_total_var     0.00014  0.00014  0.00014     +0.0% (carry)
+    ACF(1):   rr25=+0.4706 (p=0.0022) ▶ momentum
+              bf25=-0.0268 (p=0.8695) ▶ momentum
+    Dir-acc:  rr25: carry=45.0% rough=42.5%  |  bf25: carry=70.0% rough=72.5%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2025-10-24  (quiet=35, active=9, threshold=|r|>0.00248)
+  [ALL   ]  n=44 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00162  0.00592  0.00162   +264.9% (carry)
+              bf25              0.00048  0.00063  0.00044    +29.1% (ar1)
+              atm_total_var     0.00007  0.00007  0.00007     +0.0% (ar1)
+    ACF(1):   rr25=+0.8679 (p=0.0000) ▶ momentum
+              bf25=+0.6585 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=45.2% rough=52.4%  |  bf25: carry=54.8% rough=57.1%
+
+  [QUIET ]  n=35 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00193  0.00560  0.00192   +190.8% (ar1)
+              bf25              0.00054  0.00067  0.00054    +23.0% (ar1)
+              atm_total_var     0.00008  0.00008  0.00008     +0.0% (carry)
+    ACF(1):   rr25=+0.7516 (p=0.0000) ▶ momentum
+              bf25=+0.5418 (p=0.0011) ▶ momentum
+    Dir-acc:  rr25: carry=45.5% rough=54.5%  |  bf25: carry=60.6% rough=54.5%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2025-10-31  (quiet=58, active=15, threshold=|r|>0.00329)
+  [ALL   ]  n=73 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00187  0.00836  0.00186   +346.5% (ar1)
+              bf25              0.00062  0.00088  0.00057    +43.0% (ar1)
+              atm_total_var     0.00012  0.00012  0.00012     +0.0% (ar1)
+    ACF(1):   rr25=+0.7966 (p=0.0000) ▶ momentum
+              bf25=+0.7052 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=52.1% rough=45.1%  |  bf25: carry=63.4% rough=56.3%
+
+  [QUIET ]  n=58 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00165  0.00776  0.00164   +370.1% (ar1)
+              bf25              0.00055  0.00068  0.00051    +24.1% (ar1)
+              atm_total_var     0.00009  0.00009  0.00009     +0.0% (ar1)
+    ACF(1):   rr25=+0.8416 (p=0.0000) ▶ momentum
+              bf25=+0.6624 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=50.0% rough=46.4%  |  bf25: carry=64.3% rough=67.9%
+
+  [ACTIVE]  n=15 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00380  0.01058  0.00380   +178.4% (carry)
+              bf25              0.00098  0.00110  0.00098    +11.4% (carry)
+              atm_total_var     0.00025  0.00025  0.00025     +0.0% (carry)
+    ACF(1):   rr25=+0.4552 (p=0.1181) ▶ momentum
+              bf25=+0.3201 (p=0.2864) ▶ momentum
+    Dir-acc:  rr25: carry=46.2% rough=38.5%  |  bf25: carry=76.9% rough=69.2%
+
+
+  Expiry 2025-11-21  (quiet=65, active=16, threshold=|r|>0.00452)
+  [ALL   ]  n=81 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00398  0.00483  0.00422    +21.3% (carry)
+              bf25              0.00058  0.00117  0.00052   +102.9% (ar1)
+              atm_total_var     0.00023  0.00023  0.00023     +0.0% (ar1)
+    ACF(1):   rr25=+0.4462 (p=0.0000) ▶ momentum
+              bf25=+0.7022 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=55.7% rough=54.4%  |  bf25: carry=72.2% rough=62.0%
+
+  [QUIET ]  n=65 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00421  0.00490  0.00437    +16.4% (carry)
+              bf25              0.00058  0.00114  0.00054    +97.7% (ar1)
+              atm_total_var     0.00021  0.00021  0.00021     +0.0% (ar1)
+    ACF(1):   rr25=+0.4605 (p=0.0001) ▶ momentum
+              bf25=+0.7792 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=50.8% rough=47.6%  |  bf25: carry=74.6% rough=60.3%
+
+  [ACTIVE]  n=16 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00677  0.00552  0.00677    -18.4% (rough)
+              bf25              0.00059  0.00087  0.00059    +47.5% (carry)
+              atm_total_var     0.00040  0.00040  0.00040     +0.0% (carry)
+    ACF(1):   rr25=-0.2629 (p=0.3637) ◀ mean-reverts
+              bf25=+0.5128 (p=0.0608) ▶ momentum
+    Dir-acc:  rr25: carry=64.3% rough=64.3%  |  bf25: carry=78.6% rough=64.3%
+
+
+  Expiry 2025-11-28  (quiet=62, active=16, threshold=|r|>0.00468)
+  [ALL   ]  n=78 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00423  0.00577  0.00456    +36.6% (carry)
+              bf25              0.00067  0.00116  0.00061    +74.2% (ar1)
+              atm_total_var     0.00026  0.00026  0.00028     +0.0% (carry)
+    ACF(1):   rr25=+0.5694 (p=0.0000) ▶ momentum
+              bf25=+0.6172 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=48.7% rough=52.6%  |  bf25: carry=65.8% rough=60.5%
+
+  [QUIET ]  n=62 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00448  0.00582  0.00463    +29.9% (carry)
+              bf25              0.00050  0.00106  0.00049   +111.1% (ar1)
+              atm_total_var     0.00024  0.00024  0.00025     +0.0% (carry)
+    ACF(1):   rr25=+0.5761 (p=0.0000) ▶ momentum
+              bf25=+0.7322 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=48.3% rough=48.3%  |  bf25: carry=63.3% rough=51.7%
+
+  [ACTIVE]  n=16 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00758  0.00776  0.00758     +2.4% (carry)
+              bf25              0.00098  0.00123  0.00098    +25.0% (carry)
+              atm_total_var     0.00047  0.00047  0.00047     +0.0% (carry)
+    ACF(1):   rr25=+0.1074 (p=0.7147) ▶ momentum
+              bf25=+0.2490 (p=0.3907) ▶ momentum
+    Dir-acc:  rr25: carry=71.4% rough=71.4%  |  bf25: carry=71.4% rough=71.4%
+
+
+  Expiry 2025-12-05  (quiet=16, active=4, threshold=|r|>0.00273)
+  [ALL   ]  n=20 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00227  0.00462  0.00227   +103.5% (carry)
+              bf25              0.00052  0.00081  0.00052    +56.5% (carry)
+              atm_total_var     0.00010  0.00010  0.00010     +0.0% (carry)
+    ACF(1):   rr25=+0.5423 (p=0.0201) ▶ momentum
+              bf25=+0.5840 (p=0.0109) ▶ momentum
+    Dir-acc:  rr25: carry=55.6% rough=61.1%  |  bf25: carry=66.7% rough=66.7%
+
+  [QUIET ]  n=16 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00241  0.00483  0.00241   +100.5% (carry)
+              bf25              0.00049  0.00083  0.00049    +68.8% (carry)
+              atm_total_var     0.00009  0.00009  0.00009     +0.0% (carry)
+    ACF(1):   rr25=+0.6286 (p=0.0161) ▶ momentum
+              bf25=+0.7585 (p=0.0017) ▶ momentum
+    Dir-acc:  rr25: carry=50.0% rough=64.3%  |  bf25: carry=71.4% rough=57.1%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2025-12-19  (quiet=44, active=11, threshold=|r|>0.00385)
+  [ALL   ]  n=55 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00358  0.00778  0.00357   +117.6% (ar1)
+              bf25              0.00147  0.00226  0.00162    +54.1% (carry)
+              atm_total_var     0.00026  0.00026  0.00024     +0.0% (ar1)
+    ACF(1):   rr25=+0.7163 (p=0.0000) ▶ momentum
+              bf25=+0.5394 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=54.7% rough=43.4%  |  bf25: carry=64.2% rough=56.6%
+
+  [QUIET ]  n=44 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00299  0.00803  0.00294   +168.9% (ar1)
+              bf25              0.00089  0.00144  0.00094    +62.0% (carry)
+              atm_total_var     0.00016  0.00016  0.00016     +0.0% (ar1)
+    ACF(1):   rr25=+0.8003 (p=0.0000) ▶ momentum
+              bf25=+0.6514 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=57.1% rough=52.4%  |  bf25: carry=66.7% rough=52.4%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2025-12-31  (quiet=26, active=6, threshold=|r|>0.00887)
+  [ALL   ]  n=32 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00502  0.00791  0.00488    +57.6% (ar1)
+              bf25              0.00307  0.00204  0.00306    -33.7% (rough)
+              atm_total_var     0.00070  0.00070  0.00065     +0.0% (ar1)
+    ACF(1):   rr25=+0.0598 (p=0.7538) ▶ momentum
+              bf25=+0.1207 (p=0.5251) ▶ momentum
+    Dir-acc:  rr25: carry=46.7% rough=50.0%  |  bf25: carry=56.7% rough=63.3%
+
+  [QUIET ]  n=26 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00449  0.00548  0.00449    +21.9% (carry)
+              bf25              0.00052  0.00086  0.00052    +63.9% (carry)
+              atm_total_var     0.00033  0.00033  0.00033     +0.0% (carry)
+    ACF(1):   rr25=+0.4819 (p=0.0171) ▶ momentum
+              bf25=+0.3849 (p=0.0633) ▶ momentum
+    Dir-acc:  rr25: carry=50.0% rough=45.8%  |  bf25: carry=58.3% rough=58.3%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2026-01-02  (quiet=22, active=6, threshold=|r|>0.00858)
+  [ALL   ]  n=28 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00682  0.00756  0.00682    +10.9% (carry)
+              bf25              0.00082  0.00176  0.00082   +115.0% (carry)
+              atm_total_var     0.00049  0.00049  0.00049     +0.0% (carry)
+    ACF(1):   rr25=+0.1780 (p=0.3844) ▶ momentum
+              bf25=+0.7032 (p=0.0001) ▶ momentum
+    Dir-acc:  rr25: carry=34.6% rough=30.8%  |  bf25: carry=80.8% rough=53.8%
+
+  [QUIET ]  n=22 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00425  0.00626  0.00425    +47.4% (carry)
+              bf25              0.00074  0.00163  0.00074   +121.0% (carry)
+              atm_total_var     0.00034  0.00034  0.00034     +0.0% (carry)
+    ACF(1):   rr25=+0.6591 (p=0.0016) ▶ momentum
+              bf25=+0.8575 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=25.0% rough=20.0%  |  bf25: carry=75.0% rough=50.0%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2026-01-16  (quiet=34, active=8, threshold=|r|>0.00566)
+  [ALL   ]  n=42 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00534  0.00916  0.00535    +71.8% (carry)
+              bf25              0.00201  0.00195  0.00193     -2.8% (ar1)
+              atm_total_var     0.00046  0.00046  0.00047     +0.0% (carry)
+    ACF(1):   rr25=+0.5516 (p=0.0002) ▶ momentum
+              bf25=+0.3945 (p=0.0118) ▶ momentum
+    Dir-acc:  rr25: carry=45.0% rough=35.0%  |  bf25: carry=60.0% rough=65.0%
+
+  [QUIET ]  n=34 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00377  0.00800  0.00378   +112.2% (carry)
+              bf25              0.00196  0.00179  0.00188     -8.5% (rough)
+              atm_total_var     0.00036  0.00036  0.00036     +0.0% (ar1)
+    ACF(1):   rr25=+0.7437 (p=0.0000) ▶ momentum
+              bf25=+0.3530 (p=0.0475) ▶ momentum
+    Dir-acc:  rr25: carry=43.8% rough=31.2%  |  bf25: carry=62.5% rough=68.8%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2026-01-23  (quiet=26, active=7, threshold=|r|>0.00360)
+  [ALL   ]  n=33 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00176  0.00271  0.00186    +54.2% (carry)
+              bf25              0.00060  0.00061  0.00058     +1.6% (ar1)
+              atm_total_var     0.00012  0.00012  0.00012     +0.0% (carry)
+    ACF(1):   rr25=+0.4919 (p=0.0049) ▶ momentum
+              bf25=+0.4589 (p=0.0094) ▶ momentum
+    Dir-acc:  rr25: carry=58.1% rough=58.1%  |  bf25: carry=77.4% rough=71.0%
+
+  [QUIET ]  n=26 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00184  0.00292  0.00184    +58.5% (carry)
+              bf25              0.00055  0.00063  0.00055    +15.1% (carry)
+              atm_total_var     0.00012  0.00012  0.00012     +0.0% (carry)
+    ACF(1):   rr25=+0.5383 (p=0.0067) ▶ momentum
+              bf25=+0.4737 (p=0.0194) ▶ momentum
+    Dir-acc:  rr25: carry=58.3% rough=50.0%  |  bf25: carry=75.0% rough=66.7%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2026-01-30  (quiet=43, active=11, threshold=|r|>0.00357)
+  [ALL   ]  n=54 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00165  0.00371  0.00180   +124.5% (carry)
+              bf25              0.00045  0.00086  0.00040    +90.6% (ar1)
+              atm_total_var     0.00012  0.00012  0.00012     +0.0% (ar1)
+    ACF(1):   rr25=+0.7255 (p=0.0000) ▶ momentum
+              bf25=+0.6965 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=55.8% rough=46.2%  |  bf25: carry=67.3% rough=53.8%
+
+  [QUIET ]  n=43 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00175  0.00402  0.00186   +129.3% (carry)
+              bf25              0.00049  0.00086  0.00044    +75.6% (ar1)
+              atm_total_var     0.00013  0.00013  0.00013     +0.0% (ar1)
+    ACF(1):   rr25=+0.7543 (p=0.0000) ▶ momentum
+              bf25=+0.6547 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=56.1% rough=46.3%  |  bf25: carry=61.0% rough=51.2%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2026-02-20  (quiet=43, active=11, threshold=|r|>0.00281)
+  [ALL   ]  n=54 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00198  0.00351  0.00212    +77.4% (carry)
+              bf25              0.00071  0.00094  0.00071    +32.1% (carry)
+              atm_total_var     0.00009  0.00009  0.00009     +0.0% (carry)
+    ACF(1):   rr25=+0.7077 (p=0.0000) ▶ momentum
+              bf25=+0.6115 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=42.3% rough=42.3%  |  bf25: carry=57.7% rough=53.8%
+
+  [QUIET ]  n=43 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00235  0.00398  0.00250    +69.1% (carry)
+              bf25              0.00081  0.00095  0.00081    +17.6% (ar1)
+              atm_total_var     0.00011  0.00011  0.00011     +0.0% (carry)
+    ACF(1):   rr25=+0.6214 (p=0.0000) ▶ momentum
+              bf25=+0.5687 (p=0.0001) ▶ momentum
+    Dir-acc:  rr25: carry=48.8% rough=43.9%  |  bf25: carry=53.7% rough=51.2%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2026-02-27  (quiet=42, active=10, threshold=|r|>0.00395)
+  [ALL   ]  n=52 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00359  0.00445  0.00381    +24.0% (carry)
+              bf25              0.00060  0.00092  0.00057    +52.8% (ar1)
+              atm_total_var     0.00018  0.00018  0.00017     +0.0% (ar1)
+    ACF(1):   rr25=+0.4156 (p=0.0027) ▶ momentum
+              bf25=+0.6694 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=44.0% rough=50.0%  |  bf25: carry=60.0% rough=54.0%
+
+  [QUIET ]  n=42 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00397  0.00476  0.00416    +19.9% (carry)
+              bf25              0.00063  0.00080  0.00059    +27.9% (ar1)
+              atm_total_var     0.00019  0.00019  0.00019     +0.0% (ar1)
+    ACF(1):   rr25=+0.1903 (p=0.2394) ▶ momentum
+              bf25=+0.4343 (p=0.0051) ▶ momentum
+    Dir-acc:  rr25: carry=45.0% rough=50.0%  |  bf25: carry=65.0% rough=50.0%
+
+  [ACTIVE]  insufficient bars (<15)
+
+  Expiry 2026-03-20  (quiet=32, active=8, threshold=|r|>0.00604)
+  [ALL   ]  n=40 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00477  0.00513  0.00480     +7.6% (carry)
+              bf25              0.00088  0.00192  0.00100   +117.7% (carry)
+              atm_total_var     0.00037  0.00037  0.00035     +0.0% (ar1)
+    ACF(1):   rr25=-0.1602 (p=0.3367) ◀ mean-reverts
+              bf25=+0.7832 (p=0.0000) ▶ momentum
+    Dir-acc:  rr25: carry=55.3% rough=55.3%  |  bf25: carry=60.5% rough=52.6%
+
+  [QUIET ]  n=32 bars
+    RMSE:     Feature             Carry    Rough      AR1  vs-carry
+              rr25              0.00392  0.00438  0.00408    +11.8% (carry)
+              bf25              0.00103  0.00142  0.00106    +38.4% (carry)
+              atm_total_var     0.00030  0.00030  0.00031     +0.0% (carry)
+    ACF(1):   rr25=+0.3181 (p=0.0867) ▶ momentum
+              bf25=+0.5469 (p=0.0018) ▶ momentum
+    Dir-acc:  rr25: carry=46.7% rough=50.0%  |  bf25: carry=63.3% rough=46.7%
+
+  [ACTIVE]  insufficient bars (<15)
+
+── 2. Aggregate verdict ────────────────────────────────────────────
+
+  Expiries evaluated: 18
+  ACTIVE regime — rough beats carry on rr25:  33%
+  ACTIVE regime — rough beats carry on bf25:  0%
+  ACTIVE regime — residuals mean-revert:      33%
+  QUIET  regime — rough beats carry on rr25:  0%
+
+  >>> ABORT — no rough-vol edge at 120-min frequency
+      Carry dominates in both regimes. Rough structure adds no conditional forecasting power after large spot moves.
+========================================================================
+

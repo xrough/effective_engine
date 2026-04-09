@@ -1,0 +1,62 @@
+
+skew_scaling benchmark
+  Run:   2026-04-09 10:16:11 UTC
+  Days:  5  |  H=0.1  |  DTE=7–60
+  Mode:  all expiries per timestamp (cross-sectional)
+
+  [  1/5] 2025-08-07 ... 4571 records, 381 timestamps, 381 with ≥3 expiries
+  [  2/5] 2025-08-08 ... 4572 records, 381 timestamps, 381 with ≥3 expiries
+  [  3/5] 2025-08-11 ... 4572 records, 381 timestamps, 381 with ≥3 expiries
+  [  4/5] 2025-08-12 ... 4572 records, 381 timestamps, 381 with ≥3 expiries
+  [  5/5] 2025-08-13 ... 4572 records, 381 timestamps, 381 with ≥3 expiries
+
+Total unique timestamps: 1905
+Running cross-sectional skew scaling regression ...
+
+======================================================================
+  ATM SKEW POWER-LAW SCALING — Cross-Sectional Benchmark
+  Experiment: skew_scaling
+  H=0.10  (theoretical slope = H−0.5 = -0.40)
+======================================================================
+
+── 0. Experiment metadata ──────────────────────────────────────
+
+  Run:              2026-04-09 10:16:11 UTC
+  Trading days:     5  (2025-08-07 → 2025-08-13)
+  DTE window:       7–60 days
+  RATE=0.053  DIV=0.013
+  Total timestamps evaluated:   1905
+  Timestamps with ≥3 expiries:  1905
+  Mean expiries per timestamp:  12.0
+
+── 1. Slope (beta) distribution ────────────────────────────────
+
+  Theoretical beta (H−0.5):  -0.4000
+
+  Statistic                 Value
+  -------------------- ----------
+  Mean                    +0.3361
+  Std                     +0.0386
+  Median                  +0.3413
+  p5                      +0.2719
+  p95                     +0.3957
+  CV                      +0.1149
+
+  Fraction of timestamps with |beta − theory| < 0.10: 0.0%
+
+── 2. Log-log fit quality (R²) ─────────────────────────────────
+
+  Mean R²:    0.9774
+  Median R²:  0.9794
+
+── 3. Verdict ──────────────────────────────────────────────────
+
+  Median beta within ±0.10 of theory (-0.40): NO  (median=+0.3413)
+  Mean R² > 0.70:   YES  (0.9774)
+  Beta CV < 0.50:   YES  (0.1149)
+
+  >>> WEAK — partial evidence
+      Partial evidence. Increase sample or check expiry density
+      before drawing strong conclusions.
+======================================================================
+
