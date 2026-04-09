@@ -55,6 +55,7 @@ import math
 import multiprocessing as mp
 import re
 import sys
+import time
 import zipfile
 from collections import defaultdict
 from datetime import date, datetime, timezone
@@ -83,6 +84,10 @@ from smile_pipeline import (
 N_EXP = 2   # expiries tracked per bar (experiment-specific)
 
 
+def _log(msg: str) -> None:
+    print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
+
+
 # ── parallel worker (module-level for pickling with spawn context) ─────────────
 def _gate0_worker(args):
     """Open a fresh ZipFile per process — ZipFile handles are not picklable."""
@@ -90,9 +95,9 @@ def _gate0_worker(args):
     import zipfile as _zf
     try:
         with _zf.ZipFile(zip_path) as zf:
-            return process_day(zf, fname, trade_date, H, select_far)
+            return (trade_date, process_day(zf, fname, trade_date, H, select_far))
     except Exception:
-        return []
+        return (trade_date, [])
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -450,30 +455,44 @@ def _run(H: float, resample: int, select_far: bool, n_days: int | None,
         for fname, tdate in dates_order
     ]
 
+    total = len(task_args)
+    t0    = time.time()
+    day_map: dict = {}
+
     if workers > 1:
         ctx = mp.get_context("spawn")
+        completed = 0
         with ctx.Pool(workers) as pool:
-            day_results = pool.map(_gate0_worker, task_args)
+            for tdate, recs in pool.imap_unordered(_gate0_worker, task_args):
+                completed += 1
+                _log(f"Day {completed:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                day_map[tdate] = recs
     else:
         with zipfile.ZipFile(OPRA_ZIP) as zf:
-            day_results = []
-            for fname, tdate in dates_order:
+            for i, (fname, tdate) in enumerate(dates_order, 1):
                 try:
-                    day_results.append(process_day(zf, fname, tdate, H, select_far))
+                    recs = process_day(zf, fname, tdate, H, select_far)
                 except Exception as e:
-                    print(f"  SKIP {tdate}: {e}")
-                    day_results.append([])
+                    _log(f"Day {i:3d}/{total:3d} — {tdate} — SKIP: {e}")
+                    recs = []
+                else:
+                    _log(f"Day {i:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                day_map[tdate] = recs
+
+    elapsed = time.time() - t0
+    total_extracted = sum(len(v) for v in day_map.values())
+    _log(f"Extraction done: {total} days, {total_extracted} records  (elapsed {elapsed:.0f}s)")
 
     all_expiry_ts: dict[date, list] = defaultdict(list)
     dates_seen = []
     total_raw  = 0
 
-    for (fname, tdate), recs in zip(dates_order, day_results):
+    for fname, tdate in dates_order:
+        recs = day_map.get(tdate, [])
         dates_seen.append(tdate)
         for r in recs:
             all_expiry_ts[r["expiry"]].append(r)
         total_raw += len(recs)
-        print(f"  {tdate}: {len(recs)} bar-expiry records")
 
     if not all_expiry_ts:
         sys.exit("No valid records. Check data path and market-hours filter.")

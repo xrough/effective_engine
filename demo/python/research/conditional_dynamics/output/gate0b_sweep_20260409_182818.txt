@@ -1,0 +1,267 @@
+
+Gate 0B Robustness Sweep
+  Run:          2026-04-09 18:13:57 UTC
+  Days:         90  |  select=near
+  Workers:      4  |  device=mps
+  H grid:       [0.03, 0.05, 0.07, 0.1, 0.15, 0.2]
+  Resample:     [1, 5, 15, 30, 60, 120, 390] min
+  Move-pct:     [0.1, 0.2, 0.3]
+  Total cells:  126
+[20:13:57] Extracting 90 days with 4 workers ...
+[20:14:23] Day   1/ 90 — 2025-08-12 — 4572 records
+[20:14:23] Day   2/ 90 — 2025-08-11 — 4572 records
+[20:14:23] Day   3/ 90 — 2025-08-08 — 4572 records
+[20:14:23] Day   4/ 90 — 2025-08-07 — 4571 records
+[20:14:44] Day   5/ 90 — 2025-08-13 — 4572 records
+[20:14:45] Day   6/ 90 — 2025-08-18 — 4572 records
+[20:14:45] Day   7/ 90 — 2025-08-15 — 4191 records
+[20:14:45] Day   8/ 90 — 2025-08-14 — 4572 records
+[20:15:04] Day   9/ 90 — 2025-08-19 — 4572 records
+[20:15:04] Day  10/ 90 — 2025-08-22 — 4184 records
+[20:15:05] Day  11/ 90 — 2025-08-20 — 4191 records
+[20:15:05] Day  12/ 90 — 2025-08-21 — 4191 records
+[20:15:23] Day  13/ 90 — 2025-08-25 — 4190 records
+[20:15:25] Day  14/ 90 — 2025-08-26 — 4572 records
+[20:15:26] Day  15/ 90 — 2025-08-27 — 4572 records
+[20:15:26] Day  16/ 90 — 2025-08-28 — 4570 records
+[20:15:43] Day  17/ 90 — 2025-08-29 — 4191 records
+[20:15:47] Day  18/ 90 — 2025-09-03 — 4571 records
+[20:15:47] Day  19/ 90 — 2025-09-02 — 4569 records
+[20:15:50] Day  20/ 90 — 2025-09-04 — 4733 records
+[20:16:09] Day  21/ 90 — 2025-09-05 — 4953 records
+[20:16:12] Day  22/ 90 — 2025-09-08 — 4953 records
+[20:16:14] Day  23/ 90 — 2025-09-09 — 4952 records
+[20:16:17] Day  24/ 90 — 2025-09-10 — 4951 records
+[20:16:36] Day  25/ 90 — 2025-09-11 — 4944 records
+[20:16:40] Day  26/ 90 — 2025-09-12 — 4570 records
+[20:16:41] Day  27/ 90 — 2025-09-15 — 4572 records
+[20:16:42] Day  28/ 90 — 2025-09-16 — 4191 records
+[20:17:01] Day  29/ 90 — 2025-09-17 — 4190 records
+[20:17:06] Day  30/ 90 — 2025-09-18 — 4191 records
+[20:17:06] Day  31/ 90 — 2025-09-19 — 3810 records
+[20:17:08] Day  32/ 90 — 2025-09-22 — 4190 records
+[20:17:29] Day  33/ 90 — 2025-09-23 — 4188 records
+[20:17:34] Day  34/ 90 — 2025-09-24 — 4191 records
+[20:17:37] Day  35/ 90 — 2025-09-26 — 4190 records
+[20:17:37] Day  36/ 90 — 2025-09-25 — 4189 records
+[20:17:54] Day  37/ 90 — 2025-09-29 — 4572 records
+[20:18:00] Day  38/ 90 — 2025-09-30 — 4570 records
+[20:18:03] Day  39/ 90 — 2025-10-01 — 4569 records
+[20:18:04] Day  40/ 90 — 2025-10-02 — 4572 records
+[20:18:20] Day  41/ 90 — 2025-10-03 — 4571 records
+[20:18:25] Day  42/ 90 — 2025-10-06 — 4572 records
+[20:18:29] Day  43/ 90 — 2025-10-07 — 4572 records
+[20:18:29] Day  44/ 90 — 2025-10-08 — 4571 records
+[20:18:45] Day  45/ 90 — 2025-10-09 — 4193 records
+[20:18:49] Day  46/ 90 — 2025-10-10 — 4183 records
+[20:18:53] Day  47/ 90 — 2025-10-13 — 4191 records
+[20:18:53] Day  48/ 90 — 2025-10-14 — 4188 records
+[20:19:08] Day  49/ 90 — 2025-10-15 — 4188 records
+[20:19:13] Day  50/ 90 — 2025-10-16 — 4190 records
+[20:19:16] Day  51/ 90 — 2025-10-17 — 3810 records
+[20:19:16] Day  52/ 90 — 2025-10-20 — 4191 records
+[20:19:31] Day  53/ 90 — 2025-10-21 — 4191 records
+[20:19:35] Day  54/ 90 — 2025-10-22 — 4092 records
+[20:19:40] Day  55/ 90 — 2025-10-23 — 4191 records
+[20:19:40] Day  56/ 90 — 2025-10-24 — 4189 records
+[20:19:54] Day  57/ 90 — 2025-10-27 — 4191 records
+[20:19:59] Day  58/ 90 — 2025-10-28 — 4191 records
+[20:20:06] Day  59/ 90 — 2025-10-29 — 4189 records
+[20:20:06] Day  60/ 90 — 2025-10-30 — 4191 records
+[20:20:19] Day  61/ 90 — 2025-10-31 — 4191 records
+[20:20:24] Day  62/ 90 — 2025-11-03 — 3899 records
+[20:20:32] Day  63/ 90 — 2025-11-05 — 3898 records
+[20:20:32] Day  64/ 90 — 2025-11-04 — 3900 records
+[20:20:44] Day  65/ 90 — 2025-11-06 — 3900 records
+[20:20:49] Day  66/ 90 — 2025-11-07 — 3896 records
+[20:20:56] Day  67/ 90 — 2025-11-10 — 3900 records
+[20:20:57] Day  68/ 90 — 2025-11-11 — 3900 records
+[20:21:08] Day  69/ 90 — 2025-11-12 — 3900 records
+[20:21:13] Day  70/ 90 — 2025-11-13 — 3574 records
+[20:21:21] Day  71/ 90 — 2025-11-14 — 3575 records
+[20:21:22] Day  72/ 90 — 2025-11-17 — 3900 records
+[20:21:34] Day  73/ 90 — 2025-11-18 — 3900 records
+[20:21:38] Day  74/ 90 — 2025-11-19 — 3898 records
+[20:21:48] Day  75/ 90 — 2025-11-20 — 3900 records
+[20:21:49] Day  76/ 90 — 2025-11-21 — 3894 records
+[20:22:00] Day  77/ 90 — 2025-11-24 — 3575 records
+[20:22:04] Day  78/ 90 — 2025-11-25 — 3900 records
+[20:22:04] Day  79/ 90 — 2025-11-28 — 2542 records
+[20:22:15] Day  80/ 90 — 2025-11-26 — 3900 records
+[20:22:28] Day  81/ 90 — 2025-12-01 — 4223 records
+[20:22:35] Day  82/ 90 — 2025-12-02 — 4225 records
+[20:22:35] Day  83/ 90 — 2025-12-03 — 4221 records
+[20:22:44] Day  84/ 90 — 2025-12-04 — 4225 records
+[20:22:56] Day  85/ 90 — 2025-12-05 — 4223 records
+[20:23:01] Day  86/ 90 — 2025-12-08 — 4225 records
+[20:23:02] Day  87/ 90 — 2025-12-09 — 4224 records
+[20:23:11] Day  88/ 90 — 2025-12-10 — 4221 records
+[20:23:21] Day  89/ 90 — 2025-12-11 — 3900 records
+[20:23:21] Day  90/ 90 — 2025-12-12 — 3575 records
+[20:23:21] Extraction done: 90 days, 380857 records  (elapsed 564s)
+[20:23:22] Cache saved: 380857 records → gate0b_days90_farF.pkl
+[20:23:22] Starting sweep: 126 cells (6 H × 7 resample × 3 move_pct)
+[20:23:36] Cell   1/126  H=0.03  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00140 rough=0.00337)  [13.4s]
+[20:23:48] Cell   2/126  H=0.03  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00107 rough=0.00335)  [12.7s]
+[20:24:01] Cell   3/126  H=0.03  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00089 rough=0.00332)  [12.4s]
+[20:24:03] Cell   4/126  H=0.03  resample=   5 min  move_pct=10%  →  PASS       (active rr25 carry=0.00247 rough=0.00378)  [2.0s]
+[20:24:05] Cell   5/126  H=0.03  resample=   5 min  move_pct=20%  →  PASS       (active rr25 carry=0.00184 rough=0.00365)  [1.9s]
+[20:24:06] Cell   6/126  H=0.03  resample=   5 min  move_pct=30%  →  PASS       (active rr25 carry=0.00151 rough=0.00360)  [1.9s]
+[20:24:07] Cell   7/126  H=0.03  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.6s]
+[20:24:08] Cell   8/126  H=0.03  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00211 rough=0.00446)  [0.6s]
+[20:24:08] Cell   9/126  H=0.03  resample=  15 min  move_pct=30%  →  PASS       (active rr25 carry=0.00253 rough=0.00416)  [0.7s]
+[20:24:09] Cell  10/126  H=0.03  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.5s]
+[20:24:09] Cell  11/126  H=0.03  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:24:10] Cell  12/126  H=0.03  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:24:10] Cell  13/126  H=0.03  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:10] Cell  14/126  H=0.03  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:10] Cell  15/126  H=0.03  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:11] Cell  16/126  H=0.03  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:11] Cell  17/126  H=0.03  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:11] Cell  18/126  H=0.03  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:11] Cell  19/126  H=0.03  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:11] Cell  20/126  H=0.03  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:12] Cell  21/126  H=0.03  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:25] Cell  22/126  H=0.05  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00140 rough=0.00331)  [13.3s]
+[20:24:38] Cell  23/126  H=0.05  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00107 rough=0.00329)  [12.6s]
+[20:24:50] Cell  24/126  H=0.05  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00089 rough=0.00326)  [12.3s]
+[20:24:52] Cell  25/126  H=0.05  resample=   5 min  move_pct=10%  →  PASS       (active rr25 carry=0.00247 rough=0.00374)  [1.9s]
+[20:24:54] Cell  26/126  H=0.05  resample=   5 min  move_pct=20%  →  PASS       (active rr25 carry=0.00184 rough=0.00359)  [1.9s]
+[20:24:56] Cell  27/126  H=0.05  resample=   5 min  move_pct=30%  →  PASS       (active rr25 carry=0.00151 rough=0.00354)  [1.9s]
+[20:24:56] Cell  28/126  H=0.05  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.7s]
+[20:24:57] Cell  29/126  H=0.05  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00211 rough=0.00437)  [0.7s]
+[20:24:58] Cell  30/126  H=0.05  resample=  15 min  move_pct=30%  →  PASS       (active rr25 carry=0.00253 rough=0.00411)  [0.7s]
+[20:24:58] Cell  31/126  H=0.05  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:24:59] Cell  32/126  H=0.05  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:24:59] Cell  33/126  H=0.05  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:24:59] Cell  34/126  H=0.05  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:24:59] Cell  35/126  H=0.05  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:00] Cell  36/126  H=0.05  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.3s]
+[20:25:00] Cell  37/126  H=0.05  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:00] Cell  38/126  H=0.05  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:00] Cell  39/126  H=0.05  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:00] Cell  40/126  H=0.05  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:01] Cell  41/126  H=0.05  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:01] Cell  42/126  H=0.05  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:14] Cell  43/126  H=0.07  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00140 rough=0.00326)  [13.2s]
+[20:25:27] Cell  44/126  H=0.07  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00107 rough=0.00323)  [12.8s]
+[20:25:39] Cell  45/126  H=0.07  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00089 rough=0.00320)  [12.3s]
+[20:25:41] Cell  46/126  H=0.07  resample=   5 min  move_pct=10%  →  PASS       (active rr25 carry=0.00247 rough=0.00370)  [2.0s]
+[20:25:43] Cell  47/126  H=0.07  resample=   5 min  move_pct=20%  →  PASS       (active rr25 carry=0.00184 rough=0.00354)  [1.9s]
+[20:25:45] Cell  48/126  H=0.07  resample=   5 min  move_pct=30%  →  PASS       (active rr25 carry=0.00151 rough=0.00348)  [1.9s]
+[20:25:46] Cell  49/126  H=0.07  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.7s]
+[20:25:46] Cell  50/126  H=0.07  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00211 rough=0.00429)  [0.6s]
+[20:25:47] Cell  51/126  H=0.07  resample=  15 min  move_pct=30%  →  PASS       (active rr25 carry=0.00253 rough=0.00405)  [0.7s]
+[20:25:47] Cell  52/126  H=0.07  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.5s]
+[20:25:48] Cell  53/126  H=0.07  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:25:48] Cell  54/126  H=0.07  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:25:48] Cell  55/126  H=0.07  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:49] Cell  56/126  H=0.07  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:49] Cell  57/126  H=0.07  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:49] Cell  58/126  H=0.07  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:49] Cell  59/126  H=0.07  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:49] Cell  60/126  H=0.07  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:50] Cell  61/126  H=0.07  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:50] Cell  62/126  H=0.07  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:25:50] Cell  63/126  H=0.07  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:03] Cell  64/126  H=0.10  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00140 rough=0.00318)  [13.3s]
+[20:26:16] Cell  65/126  H=0.10  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00107 rough=0.00314)  [12.7s]
+[20:26:28] Cell  66/126  H=0.10  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00089 rough=0.00311)  [12.4s]
+[20:26:30] Cell  67/126  H=0.10  resample=   5 min  move_pct=10%  →  PASS       (active rr25 carry=0.00247 rough=0.00364)  [2.0s]
+[20:26:32] Cell  68/126  H=0.10  resample=   5 min  move_pct=20%  →  PASS       (active rr25 carry=0.00184 rough=0.00346)  [1.8s]
+[20:26:34] Cell  69/126  H=0.10  resample=   5 min  move_pct=30%  →  PASS       (active rr25 carry=0.00151 rough=0.00339)  [1.9s]
+[20:26:35] Cell  70/126  H=0.10  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.7s]
+[20:26:35] Cell  71/126  H=0.10  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00211 rough=0.00416)  [0.7s]
+[20:26:36] Cell  72/126  H=0.10  resample=  15 min  move_pct=30%  →  PASS       (active rr25 carry=0.00253 rough=0.00398)  [0.7s]
+[20:26:37] Cell  73/126  H=0.10  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:26:37] Cell  74/126  H=0.10  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:26:37] Cell  75/126  H=0.10  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:26:38] Cell  76/126  H=0.10  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.3s]
+[20:26:38] Cell  77/126  H=0.10  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:38] Cell  78/126  H=0.10  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:38] Cell  79/126  H=0.10  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:39] Cell  80/126  H=0.10  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:39] Cell  81/126  H=0.10  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:39] Cell  82/126  H=0.10  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:39] Cell  83/126  H=0.10  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:39] Cell  84/126  H=0.10  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:26:53] Cell  85/126  H=0.15  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00140 rough=0.00306)  [13.2s]
+[20:27:05] Cell  86/126  H=0.15  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00107 rough=0.00300)  [12.7s]
+[20:27:18] Cell  87/126  H=0.15  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00089 rough=0.00296)  [12.5s]
+[20:27:20] Cell  88/126  H=0.15  resample=   5 min  move_pct=10%  →  PASS       (active rr25 carry=0.00247 rough=0.00354)  [2.0s]
+[20:27:22] Cell  89/126  H=0.15  resample=   5 min  move_pct=20%  →  PASS       (active rr25 carry=0.00184 rough=0.00333)  [1.9s]
+[20:27:24] Cell  90/126  H=0.15  resample=   5 min  move_pct=30%  →  PASS       (active rr25 carry=0.00151 rough=0.00324)  [1.9s]
+[20:27:24] Cell  91/126  H=0.15  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.7s]
+[20:27:25] Cell  92/126  H=0.15  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00211 rough=0.00395)  [0.6s]
+[20:27:26] Cell  93/126  H=0.15  resample=  15 min  move_pct=30%  →  PASS       (active rr25 carry=0.00253 rough=0.00386)  [0.8s]
+[20:27:26] Cell  94/126  H=0.15  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:27:27] Cell  95/126  H=0.15  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:27:27] Cell  96/126  H=0.15  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:27:27] Cell  97/126  H=0.15  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:27] Cell  98/126  H=0.15  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:28] Cell  99/126  H=0.15  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:28] Cell 100/126  H=0.15  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:28] Cell 101/126  H=0.15  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:28] Cell 102/126  H=0.15  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:28] Cell 103/126  H=0.15  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:29] Cell 104/126  H=0.15  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:29] Cell 105/126  H=0.15  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:27:42] Cell 106/126  H=0.20  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00140 rough=0.00294)  [13.3s]
+[20:27:55] Cell 107/126  H=0.20  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00107 rough=0.00287)  [12.8s]
+[20:28:07] Cell 108/126  H=0.20  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00089 rough=0.00282)  [12.4s]
+[20:28:09] Cell 109/126  H=0.20  resample=   5 min  move_pct=10%  →  PASS       (active rr25 carry=0.00247 rough=0.00346)  [2.0s]
+[20:28:11] Cell 110/126  H=0.20  resample=   5 min  move_pct=20%  →  PASS       (active rr25 carry=0.00184 rough=0.00322)  [2.0s]
+[20:28:13] Cell 111/126  H=0.20  resample=   5 min  move_pct=30%  →  PASS       (active rr25 carry=0.00151 rough=0.00311)  [1.8s]
+[20:28:14] Cell 112/126  H=0.20  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.8s]
+[20:28:14] Cell 113/126  H=0.20  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00211 rough=0.00375)  [0.6s]
+[20:28:15] Cell 114/126  H=0.20  resample=  15 min  move_pct=30%  →  PASS       (active rr25 carry=0.00253 rough=0.00375)  [0.7s]
+[20:28:16] Cell 115/126  H=0.20  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:28:16] Cell 116/126  H=0.20  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.5s]
+[20:28:16] Cell 117/126  H=0.20  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.4s]
+[20:28:17] Cell 118/126  H=0.20  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:17] Cell 119/126  H=0.20  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:17] Cell 120/126  H=0.20  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:17] Cell 121/126  H=0.20  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:18] Cell 122/126  H=0.20  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:18] Cell 123/126  H=0.20  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:18] Cell 124/126  H=0.20  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:18] Cell 125/126  H=0.20  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:18] Cell 126/126  H=0.20  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.2s]
+[20:28:18] CSV saved → /Users/xiaohao/Effective_Engine/MVP/demo/python/research/conditional_dynamics/output/gate0b_sweep_20260409_182818.csv
+
+Gate 0B Robustness Sweep — move_pct=10% (active = top 10% |Δspot|)
+     H |         1 |         5 |        15 |        30 |        60
+---------------------------------------------------------------------
+  0.03 |      PASS |      PASS |      SKIP |      SKIP |      SKIP
+  0.05 |      PASS |      PASS |      SKIP |      SKIP |      SKIP
+  0.07 |      PASS |      PASS |      SKIP |      SKIP |      SKIP
+  0.10 |      PASS |      PASS |      SKIP |      SKIP |      SKIP
+  0.15 |      PASS |      PASS |      SKIP |      SKIP |      SKIP
+  0.20 |      PASS |      PASS |      SKIP |      SKIP |      SKIP
+---------------------------------------------------------------------
+  12/12 cells PASS (100%)
+
+Gate 0B Robustness Sweep — move_pct=20% (active = top 20% |Δspot|)
+     H |         1 |         5 |        15 |        30 |        60
+---------------------------------------------------------------------
+  0.03 |      PASS |      PASS |      FAIL |      SKIP |      SKIP
+  0.05 |      PASS |      PASS |      FAIL |      SKIP |      SKIP
+  0.07 |      PASS |      PASS |      FAIL |      SKIP |      SKIP
+  0.10 |      PASS |      PASS |      FAIL |      SKIP |      SKIP
+  0.15 |      PASS |      PASS |      FAIL |      SKIP |      SKIP
+  0.20 |      PASS |      PASS |      FAIL |      SKIP |      SKIP
+---------------------------------------------------------------------
+  12/18 cells PASS (67%)
+
+Gate 0B Robustness Sweep — move_pct=30% (active = top 30% |Δspot|)
+     H |         1 |         5 |        15 |        30 |        60
+---------------------------------------------------------------------
+  0.03 |      FAIL |      PASS |      PASS |      SKIP |      SKIP
+  0.05 |      FAIL |      PASS |      PASS |      SKIP |      SKIP
+  0.07 |      FAIL |      PASS |      PASS |      SKIP |      SKIP
+  0.10 |      FAIL |      PASS |      PASS |      SKIP |      SKIP
+  0.15 |      FAIL |      PASS |      PASS |      SKIP |      SKIP
+  0.20 |      FAIL |      PASS |      PASS |      SKIP |      SKIP
+---------------------------------------------------------------------
+  12/18 cells PASS (67%)
+

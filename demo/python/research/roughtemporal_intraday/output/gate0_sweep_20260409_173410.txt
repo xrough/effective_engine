@@ -1,0 +1,75 @@
+
+Gate 0 Robustness Sweep
+  Run:          2026-04-09 17:33:42 UTC
+  Days:         5  |  select=near
+  Workers:      4  |  device=mps
+  H grid:       [0.03, 0.05, 0.07, 0.1, 0.15, 0.2]
+  Resample:     [1, 5, 15, 30, 60, 120, 390] min
+  Total cells:  42
+[19:33:42] Extracting 5 days with 4 workers ...
+[19:33:58] Day   1/  5 — 2025-08-11 — 762 records
+[19:33:58] Day   2/  5 — 2025-08-12 — 762 records
+[19:33:59] Day   3/  5 — 2025-08-08 — 762 records
+[19:33:59] Day   4/  5 — 2025-08-07 — 762 records
+[19:34:07] Day   5/  5 — 2025-08-13 — 762 records
+[19:34:07] Extraction done: 5 days, 3810 records  (elapsed 25s)
+[19:34:07] Cache saved: 3810 records → gate0_days5_farF.pkl
+[19:34:07] Starting sweep: 42 cells (6 H × 7 resample)
+[19:34:08] Cell   1/ 42  H=0.03  resample=   1 min  →  FAIL      (rr25 carry=0.00037 rough=0.00230)  [0.5s]
+[19:34:08] Cell   2/ 42  H=0.03  resample=   5 min  →  PASS      (rr25 carry=0.00063 rough=0.00236)  [0.0s]
+[19:34:08] Cell   3/ 42  H=0.03  resample=  15 min  →  PASS      (rr25 carry=0.00091 rough=0.00241)  [0.0s]
+[19:34:08] Cell   4/ 42  H=0.03  resample=  30 min  →  MARGINAL  (rr25 carry=0.00119 rough=0.00330)  [0.0s]
+[19:34:08] Cell   5/ 42  H=0.03  resample=  60 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:08] Cell   6/ 42  H=0.03  resample= 120 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:08] Cell   7/ 42  H=0.03  resample= 390 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:08] Cell   8/ 42  H=0.05  resample=   1 min  →  FAIL      (rr25 carry=0.00037 rough=0.00225)  [0.4s]
+[19:34:08] Cell   9/ 42  H=0.05  resample=   5 min  →  PASS      (rr25 carry=0.00063 rough=0.00231)  [0.0s]
+[19:34:08] Cell  10/ 42  H=0.05  resample=  15 min  →  PASS      (rr25 carry=0.00091 rough=0.00236)  [0.0s]
+[19:34:08] Cell  11/ 42  H=0.05  resample=  30 min  →  MARGINAL  (rr25 carry=0.00119 rough=0.00322)  [0.0s]
+[19:34:08] Cell  12/ 42  H=0.05  resample=  60 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:08] Cell  13/ 42  H=0.05  resample= 120 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:08] Cell  14/ 42  H=0.05  resample= 390 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:09] Cell  15/ 42  H=0.07  resample=   1 min  →  FAIL      (rr25 carry=0.00037 rough=0.00219)  [0.4s]
+[19:34:09] Cell  16/ 42  H=0.07  resample=   5 min  →  PASS      (rr25 carry=0.00063 rough=0.00225)  [0.0s]
+[19:34:09] Cell  17/ 42  H=0.07  resample=  15 min  →  PASS      (rr25 carry=0.00091 rough=0.00231)  [0.0s]
+[19:34:09] Cell  18/ 42  H=0.07  resample=  30 min  →  MARGINAL  (rr25 carry=0.00119 rough=0.00315)  [0.0s]
+[19:34:09] Cell  19/ 42  H=0.07  resample=  60 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:09] Cell  20/ 42  H=0.07  resample= 120 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:09] Cell  21/ 42  H=0.07  resample= 390 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:09] Cell  22/ 42  H=0.10  resample=   1 min  →  FAIL      (rr25 carry=0.00037 rough=0.00211)  [0.4s]
+[19:34:09] Cell  23/ 42  H=0.10  resample=   5 min  →  PASS      (rr25 carry=0.00063 rough=0.00217)  [0.0s]
+[19:34:09] Cell  24/ 42  H=0.10  resample=  15 min  →  PASS      (rr25 carry=0.00091 rough=0.00223)  [0.0s]
+[19:34:09] Cell  25/ 42  H=0.10  resample=  30 min  →  MARGINAL  (rr25 carry=0.00119 rough=0.00303)  [0.0s]
+[19:34:09] Cell  26/ 42  H=0.10  resample=  60 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:09] Cell  27/ 42  H=0.10  resample= 120 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:09] Cell  28/ 42  H=0.10  resample= 390 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:10] Cell  29/ 42  H=0.15  resample=   1 min  →  FAIL      (rr25 carry=0.00037 rough=0.00198)  [0.4s]
+[19:34:10] Cell  30/ 42  H=0.15  resample=   5 min  →  PASS      (rr25 carry=0.00063 rough=0.00204)  [0.0s]
+[19:34:10] Cell  31/ 42  H=0.15  resample=  15 min  →  PASS      (rr25 carry=0.00091 rough=0.00211)  [0.0s]
+[19:34:10] Cell  32/ 42  H=0.15  resample=  30 min  →  PASS      (rr25 carry=0.00119 rough=0.00285)  [0.0s]
+[19:34:10] Cell  33/ 42  H=0.15  resample=  60 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:10] Cell  34/ 42  H=0.15  resample= 120 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:10] Cell  35/ 42  H=0.15  resample= 390 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:10] Cell  36/ 42  H=0.20  resample=   1 min  →  FAIL      (rr25 carry=0.00037 rough=0.00185)  [0.4s]
+[19:34:10] Cell  37/ 42  H=0.20  resample=   5 min  →  PASS      (rr25 carry=0.00063 rough=0.00192)  [0.0s]
+[19:34:10] Cell  38/ 42  H=0.20  resample=  15 min  →  PASS      (rr25 carry=0.00091 rough=0.00198)  [0.0s]
+[19:34:10] Cell  39/ 42  H=0.20  resample=  30 min  →  PASS      (rr25 carry=0.00119 rough=0.00266)  [0.0s]
+[19:34:10] Cell  40/ 42  H=0.20  resample=  60 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:10] Cell  41/ 42  H=0.20  resample= 120 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:10] Cell  42/ 42  H=0.20  resample= 390 min  →  SKIP      (rr25 carry=nan rough=nan)  [0.0s]
+[19:34:10] CSV saved → /Users/xiaohao/Effective_Engine/MVP/demo/python/research/roughtemporal_intraday/output/gate0_sweep_20260409_173410.csv
+
+Gate 0 Robustness Sweep — verdict grid (PASS/MARGINAL/FAIL)
+     H |         1 |         5 |        15 |        30
+---------------------------------------------------------
+  0.03 |      FAIL |      PASS |      PASS |  MARGINAL
+  0.05 |      FAIL |      PASS |      PASS |  MARGINAL
+  0.07 |      FAIL |      PASS |      PASS |  MARGINAL
+  0.10 |      FAIL |      PASS |      PASS |  MARGINAL
+  0.15 |      FAIL |      PASS |      PASS |      PASS
+  0.20 |      FAIL |      PASS |      PASS |      PASS
+---------------------------------------------------------
+
+Robust region: 14/24 cells PASS (58%)
+→ Edge appears ROBUST across parameter grid (≥50% PASS)
+

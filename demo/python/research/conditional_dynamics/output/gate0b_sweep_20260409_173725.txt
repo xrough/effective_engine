@@ -1,0 +1,182 @@
+
+Gate 0B Robustness Sweep
+  Run:          2026-04-09 17:36:30 UTC
+  Days:         5  |  select=near
+  Workers:      4  |  device=mps
+  H grid:       [0.03, 0.05, 0.07, 0.1, 0.15, 0.2]
+  Resample:     [1, 5, 15, 30, 60, 120, 390] min
+  Move-pct:     [0.1, 0.2, 0.3]
+  Total cells:  126
+[19:36:30] Extracting 5 days with 4 workers ...
+[19:36:55] Day   1/  5 — 2025-08-11 — 4572 records
+[19:36:55] Day   2/  5 — 2025-08-12 — 4572 records
+[19:36:55] Day   3/  5 — 2025-08-08 — 4572 records
+[19:36:56] Day   4/  5 — 2025-08-07 — 4571 records
+[19:37:08] Day   5/  5 — 2025-08-13 — 4572 records
+[19:37:08] Extraction done: 5 days, 22859 records  (elapsed 38s)
+[19:37:08] Cache saved: 22859 records → gate0b_days5_farF.pkl
+[19:37:08] Starting sweep: 126 cells (6 H × 7 resample × 3 move_pct)
+[19:37:09] Cell   1/126  H=0.03  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00075 rough=0.00229)  [0.8s]
+[19:37:10] Cell   2/126  H=0.03  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00059 rough=0.00223)  [0.7s]
+[19:37:10] Cell   3/126  H=0.03  resample=   1 min  move_pct=30%  →  PASS       (active rr25 carry=0.00051 rough=0.00225)  [0.7s]
+[19:37:11] Cell   4/126  H=0.03  resample=   5 min  move_pct=10%  →  MARGINAL   (active rr25 carry=0.00190 rough=0.00355)  [0.1s]
+[19:37:11] Cell   5/126  H=0.03  resample=   5 min  move_pct=20%  →  MARGINAL   (active rr25 carry=0.00105 rough=0.00246)  [0.1s]
+[19:37:11] Cell   6/126  H=0.03  resample=   5 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00087 rough=0.00234)  [0.1s]
+[19:37:11] Cell   7/126  H=0.03  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell   8/126  H=0.03  resample=  15 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell   9/126  H=0.03  resample=  15 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00160 rough=0.00328)  [0.0s]
+[19:37:11] Cell  10/126  H=0.03  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  11/126  H=0.03  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  12/126  H=0.03  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  13/126  H=0.03  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  14/126  H=0.03  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  15/126  H=0.03  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  16/126  H=0.03  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  17/126  H=0.03  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  18/126  H=0.03  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  19/126  H=0.03  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  20/126  H=0.03  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:11] Cell  21/126  H=0.03  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:12] Cell  22/126  H=0.05  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00075 rough=0.00224)  [0.7s]
+[19:37:13] Cell  23/126  H=0.05  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00059 rough=0.00219)  [0.7s]
+[19:37:13] Cell  24/126  H=0.05  resample=   1 min  move_pct=30%  →  PASS       (active rr25 carry=0.00051 rough=0.00220)  [0.7s]
+[19:37:13] Cell  25/126  H=0.05  resample=   5 min  move_pct=10%  →  MARGINAL   (active rr25 carry=0.00190 rough=0.00349)  [0.1s]
+[19:37:13] Cell  26/126  H=0.05  resample=   5 min  move_pct=20%  →  MARGINAL   (active rr25 carry=0.00105 rough=0.00242)  [0.1s]
+[19:37:14] Cell  27/126  H=0.05  resample=   5 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00087 rough=0.00230)  [0.1s]
+[19:37:14] Cell  28/126  H=0.05  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  29/126  H=0.05  resample=  15 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  30/126  H=0.05  resample=  15 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00160 rough=0.00321)  [0.0s]
+[19:37:14] Cell  31/126  H=0.05  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  32/126  H=0.05  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  33/126  H=0.05  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  34/126  H=0.05  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  35/126  H=0.05  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  36/126  H=0.05  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  37/126  H=0.05  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  38/126  H=0.05  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  39/126  H=0.05  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  40/126  H=0.05  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  41/126  H=0.05  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:14] Cell  42/126  H=0.05  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:15] Cell  43/126  H=0.07  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00075 rough=0.00219)  [0.7s]
+[19:37:15] Cell  44/126  H=0.07  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00059 rough=0.00214)  [0.7s]
+[19:37:16] Cell  45/126  H=0.07  resample=   1 min  move_pct=30%  →  PASS       (active rr25 carry=0.00051 rough=0.00215)  [0.7s]
+[19:37:16] Cell  46/126  H=0.07  resample=   5 min  move_pct=10%  →  MARGINAL   (active rr25 carry=0.00190 rough=0.00343)  [0.1s]
+[19:37:16] Cell  47/126  H=0.07  resample=   5 min  move_pct=20%  →  MARGINAL   (active rr25 carry=0.00105 rough=0.00237)  [0.1s]
+[19:37:16] Cell  48/126  H=0.07  resample=   5 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00087 rough=0.00225)  [0.1s]
+[19:37:16] Cell  49/126  H=0.07  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:16] Cell  50/126  H=0.07  resample=  15 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:16] Cell  51/126  H=0.07  resample=  15 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00160 rough=0.00315)  [0.0s]
+[19:37:17] Cell  52/126  H=0.07  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  53/126  H=0.07  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  54/126  H=0.07  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  55/126  H=0.07  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  56/126  H=0.07  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  57/126  H=0.07  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  58/126  H=0.07  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  59/126  H=0.07  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  60/126  H=0.07  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  61/126  H=0.07  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  62/126  H=0.07  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  63/126  H=0.07  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:17] Cell  64/126  H=0.10  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00075 rough=0.00212)  [0.7s]
+[19:37:18] Cell  65/126  H=0.10  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00059 rough=0.00207)  [0.7s]
+[19:37:19] Cell  66/126  H=0.10  resample=   1 min  move_pct=30%  →  PASS       (active rr25 carry=0.00051 rough=0.00208)  [0.7s]
+[19:37:19] Cell  67/126  H=0.10  resample=   5 min  move_pct=10%  →  MARGINAL   (active rr25 carry=0.00190 rough=0.00333)  [0.1s]
+[19:37:19] Cell  68/126  H=0.10  resample=   5 min  move_pct=20%  →  MARGINAL   (active rr25 carry=0.00105 rough=0.00231)  [0.2s]
+[19:37:19] Cell  69/126  H=0.10  resample=   5 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00087 rough=0.00219)  [0.1s]
+[19:37:19] Cell  70/126  H=0.10  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  71/126  H=0.10  resample=  15 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  72/126  H=0.10  resample=  15 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00160 rough=0.00305)  [0.0s]
+[19:37:19] Cell  73/126  H=0.10  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  74/126  H=0.10  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  75/126  H=0.10  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  76/126  H=0.10  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  77/126  H=0.10  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  78/126  H=0.10  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  79/126  H=0.10  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  80/126  H=0.10  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  81/126  H=0.10  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  82/126  H=0.10  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  83/126  H=0.10  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:19] Cell  84/126  H=0.10  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:20] Cell  85/126  H=0.15  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00075 rough=0.00201)  [0.7s]
+[19:37:21] Cell  86/126  H=0.15  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00059 rough=0.00195)  [0.7s]
+[19:37:22] Cell  87/126  H=0.15  resample=   1 min  move_pct=30%  →  PASS       (active rr25 carry=0.00051 rough=0.00196)  [0.7s]
+[19:37:22] Cell  88/126  H=0.15  resample=   5 min  move_pct=10%  →  MARGINAL   (active rr25 carry=0.00190 rough=0.00318)  [0.1s]
+[19:37:22] Cell  89/126  H=0.15  resample=   5 min  move_pct=20%  →  MARGINAL   (active rr25 carry=0.00105 rough=0.00220)  [0.1s]
+[19:37:22] Cell  90/126  H=0.15  resample=   5 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00087 rough=0.00208)  [0.1s]
+[19:37:22] Cell  91/126  H=0.15  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell  92/126  H=0.15  resample=  15 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell  93/126  H=0.15  resample=  15 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00160 rough=0.00290)  [0.0s]
+[19:37:22] Cell  94/126  H=0.15  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell  95/126  H=0.15  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell  96/126  H=0.15  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell  97/126  H=0.15  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell  98/126  H=0.15  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell  99/126  H=0.15  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell 100/126  H=0.15  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell 101/126  H=0.15  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell 102/126  H=0.15  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell 103/126  H=0.15  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell 104/126  H=0.15  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:22] Cell 105/126  H=0.15  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:23] Cell 106/126  H=0.20  resample=   1 min  move_pct=10%  →  PASS       (active rr25 carry=0.00075 rough=0.00190)  [0.7s]
+[19:37:24] Cell 107/126  H=0.20  resample=   1 min  move_pct=20%  →  PASS       (active rr25 carry=0.00059 rough=0.00184)  [0.7s]
+[19:37:24] Cell 108/126  H=0.20  resample=   1 min  move_pct=30%  →  PASS       (active rr25 carry=0.00051 rough=0.00184)  [0.7s]
+[19:37:25] Cell 109/126  H=0.20  resample=   5 min  move_pct=10%  →  MARGINAL   (active rr25 carry=0.00190 rough=0.00304)  [0.1s]
+[19:37:25] Cell 110/126  H=0.20  resample=   5 min  move_pct=20%  →  MARGINAL   (active rr25 carry=0.00105 rough=0.00210)  [0.1s]
+[19:37:25] Cell 111/126  H=0.20  resample=   5 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00087 rough=0.00197)  [0.1s]
+[19:37:25] Cell 112/126  H=0.20  resample=  15 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 113/126  H=0.20  resample=  15 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 114/126  H=0.20  resample=  15 min  move_pct=30%  →  MARGINAL   (active rr25 carry=0.00160 rough=0.00276)  [0.0s]
+[19:37:25] Cell 115/126  H=0.20  resample=  30 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 116/126  H=0.20  resample=  30 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 117/126  H=0.20  resample=  30 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 118/126  H=0.20  resample=  60 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 119/126  H=0.20  resample=  60 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 120/126  H=0.20  resample=  60 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 121/126  H=0.20  resample= 120 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 122/126  H=0.20  resample= 120 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 123/126  H=0.20  resample= 120 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 124/126  H=0.20  resample= 390 min  move_pct=10%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 125/126  H=0.20  resample= 390 min  move_pct=20%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] Cell 126/126  H=0.20  resample= 390 min  move_pct=30%  →  SKIP       (active rr25 carry=nan rough=nan)  [0.0s]
+[19:37:25] CSV saved → /Users/xiaohao/Effective_Engine/MVP/demo/python/research/conditional_dynamics/output/gate0b_sweep_20260409_173725.csv
+
+Gate 0B Robustness Sweep — move_pct=10% (active = top 10% |Δspot|)
+     H |         1 |         5 |        15 |        30
+---------------------------------------------------------
+  0.03 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.05 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.07 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.10 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.15 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.20 |      PASS |  MARGINAL |      SKIP |      SKIP
+---------------------------------------------------------
+  6/12 cells PASS (50%)
+
+Gate 0B Robustness Sweep — move_pct=20% (active = top 20% |Δspot|)
+     H |         1 |         5 |        15 |        30
+---------------------------------------------------------
+  0.03 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.05 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.07 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.10 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.15 |      PASS |  MARGINAL |      SKIP |      SKIP
+  0.20 |      PASS |  MARGINAL |      SKIP |      SKIP
+---------------------------------------------------------
+  6/12 cells PASS (50%)
+
+Gate 0B Robustness Sweep — move_pct=30% (active = top 30% |Δspot|)
+     H |         1 |         5 |        15 |        30
+---------------------------------------------------------
+  0.03 |      PASS |  MARGINAL |  MARGINAL |      SKIP
+  0.05 |      PASS |  MARGINAL |  MARGINAL |      SKIP
+  0.07 |      PASS |  MARGINAL |  MARGINAL |      SKIP
+  0.10 |      PASS |  MARGINAL |  MARGINAL |      SKIP
+  0.15 |      PASS |  MARGINAL |  MARGINAL |      SKIP
+  0.20 |      PASS |  MARGINAL |  MARGINAL |      SKIP
+---------------------------------------------------------
+  6/18 cells PASS (33%)
+

@@ -48,6 +48,7 @@ import math
 import multiprocessing as mp
 import re
 import sys
+import time
 import zipfile
 from collections import defaultdict
 from datetime import date, datetime, timezone
@@ -65,6 +66,10 @@ from smile_pipeline import (
 )
 
 
+def _log(msg: str) -> None:
+    print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
+
+
 # ── parallel worker (module-level for pickling with spawn context) ─────────────
 def _day_worker(args):
     """Open a fresh ZipFile per process — ZipFile handles are not picklable."""
@@ -72,9 +77,10 @@ def _day_worker(args):
     import zipfile as _zf
     try:
         with _zf.ZipFile(zip_path) as zf:
-            return process_day_full(zf, fname, trade_date, H, device, min_dte, max_dte)
+            return (trade_date,
+                    process_day_full(zf, fname, trade_date, H, device, min_dte, max_dte))
     except Exception:
-        return []
+        return (trade_date, [])
 
 # ── paths ──────────────────────────────────────────────────────────────────────
 ROOT     = _HERE.parents[4]   # .../MVP
@@ -437,33 +443,45 @@ def _run(H: float, resample: int, select_far: bool, n_days: int | None,
         for fname, tdate in dates_order
     ]
 
+    total = len(task_args)
+    t0    = time.time()
+    day_map: dict = {}
+
     if workers > 1:
         ctx = mp.get_context("spawn")
+        completed = 0
         with ctx.Pool(workers) as pool:
-            day_results = pool.map(_day_worker, task_args)
+            for tdate, recs in pool.imap_unordered(_day_worker, task_args):
+                completed += 1
+                _log(f"Day {completed:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                day_map[tdate] = recs
     else:
         with zipfile.ZipFile(OPRA_ZIP) as zf:
-            day_results = []
-            for fname, tdate in dates_order:
+            for i, (fname, tdate) in enumerate(dates_order, 1):
                 try:
-                    day_results.append(
-                        process_day_full(zf, fname, tdate, H, device, MIN_DTE, MAX_DTE))
+                    recs = process_day_full(zf, fname, tdate, H, device, MIN_DTE, MAX_DTE)
                 except Exception as e:
-                    print(f"  SKIP {tdate}: {e}")
-                    day_results.append([])
+                    _log(f"Day {i:3d}/{total:3d} — {tdate} — SKIP: {e}")
+                    recs = []
+                else:
+                    _log(f"Day {i:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                day_map[tdate] = recs
+
+    elapsed = time.time() - t0
+    total_extracted = sum(len(v) for v in day_map.values())
+    _log(f"Extraction done: {total} days, {total_extracted} records  (elapsed {elapsed:.0f}s)")
 
     all_expiry_ts: dict[date, list] = defaultdict(list)
     dates_seen = []
     total_raw  = 0
 
-    for (fname, tdate), recs in zip(dates_order, day_results):
+    for fname, tdate in dates_order:
+        recs = day_map.get(tdate, [])
         dates_seen.append(tdate)
-        print(f"  {tdate}: {len(recs)} records", end=" ", flush=True)
 
         # Apply N_EXP selection (near or far) to match intraday benchmark conditions
         # Group by timestamp, then keep only selected N_EXP expiries
         if select_far:
-            # For each timestamp, keep only the N_EXP furthest expiries
             ts_exp: dict = defaultdict(set)
             for r in recs:
                 ts_exp[r["ts"]].add(r["expiry"])
@@ -484,7 +502,6 @@ def _run(H: float, resample: int, select_far: bool, n_days: int | None,
         for r in recs:
             all_expiry_ts[r["expiry"]].append(r)
         total_raw += len(recs)
-        print(f"{len(recs)} bar-expiry records")
 
     if not all_expiry_ts:
         sys.exit("No valid records.")
