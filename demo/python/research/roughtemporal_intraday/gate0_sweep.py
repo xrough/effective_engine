@@ -1,7 +1,7 @@
 #!/Library/Frameworks/Python.framework/Versions/3.12/bin/python3
 """
-Gate 0 Robustness Sweep
-========================
+Gate 2: Temporal Forecast — Robustness Sweep
+=============================================
 Scores rough-vs-carry performance across a grid of H × resample_min.
 
 Workflow

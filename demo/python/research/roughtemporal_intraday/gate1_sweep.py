@@ -1,7 +1,7 @@
 #!/Library/Frameworks/Python.framework/Versions/3.12/bin/python3
 """
-Gate 1 Robustness Sweep
-=======================
+Gate 4: Incremental Edge — Robustness Sweep
+============================================
 Scores whether rough adds incremental information over carry across a grid of
 H x resample_min.
 

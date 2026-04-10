@@ -4,7 +4,7 @@ skew_scaling/benchmark.py
 ==========================
 Experiment: Cross-sectional rr25 maturity power-law scaling
 
-Research question (Gate 0A):
+Research question (Gate 1: Skew Structure):
     Does the short-end SPY smile exhibit the maturity-scaling structure
     predicted by rough-volatility asymptotics?
 

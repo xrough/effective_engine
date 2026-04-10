@@ -1,7 +1,7 @@
 #!/Library/Frameworks/Python.framework/Versions/3.12/bin/python3
 """
-Gate 1B Robustness Sweep
-========================
+Gate 5: Edge Concentration — Robustness Sweep
+==============================================
 Scores whether rough adds incremental information over carry in conditional
 ACTIVE/QUIET regimes across:
 

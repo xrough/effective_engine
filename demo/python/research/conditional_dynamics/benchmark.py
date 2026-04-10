@@ -4,7 +4,7 @@ conditional_dynamics/benchmark.py
 ==================================
 Experiment: Conditional smile response after large spot moves
 
-Research question (Gate 0B):
+Research question (Gate 3: Regime Dynamics):
     Does rough-vol structure add value for 1-step-ahead smile forecasting
     conditional on large spot moves — the regime where rough vol is most
     expected to differ from diffusion?

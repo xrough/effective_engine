@@ -1,7 +1,7 @@
 #!/Library/Frameworks/Python.framework/Versions/3.12/bin/python3
 """
-Gate 0: Rough Model Temporal Forecast Benchmark
-================================================
+Gate 2: Temporal Forecast Benchmark
+=====================================
 Experiment: roughtemporal_intraday
 
 Go/No-Go test. Core question:

@@ -1,7 +1,7 @@
 #!/Library/Frameworks/Python.framework/Versions/3.12/bin/python3
 """
-Gate 0B Robustness Sweep
-=========================
+Gate 3: Regime Dynamics — Robustness Sweep
+==========================================
 Scores rough-vs-carry conditional performance across a grid of
 H × resample_min × move_pct.
 
