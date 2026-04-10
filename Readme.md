@@ -131,7 +131,7 @@ $$
 
 so that the rough enhancement is genuinely concentrated in stressed regimes rather than being a generic carry improvement.
 
-**Result (90-day sweep, move_pct in takes $10\%$ 0/42 PASS at $10\%$ or $20\%$. At $30\%$, 6/42 PASS (5-min bars only). No broad active-vs-quiet separation survives. **Verdict: WEAK.** The Gate 4 $\mathrm{bf25}$ gain is mostly unconditional, with only a narrow regime-specific pocket.
+**Result (90-day sweep, move_pct in takes $10%$ 0/42 PASS at $10\%$ or $20\%$. At $30\%$, 6/42 PASS (5-min bars only). No broad active-vs-quiet separation survives. **Verdict: WEAK.** The Gate 4 $\mathrm{bf25}$ gain is mostly unconditional, with only a narrow regime-specific pocket.
 
 ### Research infrastructure
 
