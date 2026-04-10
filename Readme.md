@@ -68,13 +68,13 @@ $$
 
 **Verdict: WEAK.** A genuine power-law term structure exists ($R^2 = 0.86$, stable), but the slope $\beta \approx +0.21$ is systematically above the rough-Bergomi prior $\beta \approx 0.10$. The scaling shape is confirmed; the exponent does not match the original $H = 0.10$ prior.
 
-### Gate 2: Temporal Forecast (`roughtemporal_intraday/`)
-
+### Gate 2: Temporal Forecast 
+Implemented in (`roughtemporal_intraday/`)
 **Hypothesis:** the rough structural forecast
 
 $$
 \widehat{\mathrm{rr25}}_{t+1}^{\,\mathrm{rough}}
-\;\text{and}\;
+\text{and}
 \widehat{\mathrm{bf25}}_{t+1}^{\,\mathrm{rough}}
 $$
 
@@ -90,28 +90,23 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
 
 **Verdict: 0/30 PASS.** The raw rough forecast underperforms carry at 1–5 min. The gap narrows at coarser bars but never crosses the PASS threshold.
 
-### Gate 3: Regime Dynamics (`conditional_dynamics/`)
-
-**Hypothesis:** any raw rough-vol edge should concentrate in the ACTIVE regime,
+### Gate 3: Regime Dynamics 
+Implemented in (`conditional_dynamics/`). **Hypothesis:** any raw rough-vol edge should concentrate in the ACTIVE regime,
 
 $$
-|r_t| > q_{1-\texttt{move\_pct}}\bigl(|r|\bigr),
-\qquad
-r_t = \log \frac{F_t}{F_{t-1}},
+|r_t| > q_{1-\texttt{move\_pct}}\bigl(|r|\bigr), r_t = \log \frac{F_t}{F_{t-1}},
 $$
 
 and should be absent in QUIET.
 
 **Robustness sweep (90 days, 126 cells: H × resample × move_pct):** All cells FAIL or MARGINAL. No regime-specific advantage detected. **Verdict: FAIL.**
 
-### Gate 4: Incremental Edge (`roughtemporal_intraday/gate1_sweep.py`)
+### Gate 4: Incremental Edge 
 
-**Hypothesis:** rough does not need to replace carry; it only needs to improve it. Gate 4 tests two hybrids:
+Implemented in (`roughtemporal_intraday/gate1_sweep.py`). **Hypothesis:** rough does not need to replace carry; it only needs to improve it. Gate 4 tests two hybrids:
 
 $$
-\widehat{x}_{t+1}^{\,\mathrm{cond}}
-=
-x_t + a + b\bigl(\widehat{x}^{\,\mathrm{rough}}_t - x_t\bigr),
+\widehat{x}_{t+1}^{\,\mathrm{cond}} = x_t + a + b\bigl(\widehat{x}^{\,\mathrm{rough}}_t - x_t\bigr),
 $$
 
 which is the carry-conditioned rough correction, and a recency-weighted rough forecaster built from EWMA estimates of $\alpha_t$ and $\gamma_t$.
@@ -128,14 +123,12 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
 
 **Verdict: PASS — 24/30 cells (80%).** $\mathrm{bf25}$ shows a robust $3\%$ to $8\%$ RMSE improvement over carry across all tested $H$ values and bar sizes from 1 to 60 min. The result is largely $H$-insensitive. The 30-min bar is only marginal ($+0.1\%$).
 
-### Gate 5: Edge Concentration (`conditional_dynamics/gate1b_sweep.py`)
+### Gate 5: Edge Concentration 
 
-**Hypothesis:** the Gate 4 hybrid improvement should satisfy
+Implemented in (`conditional_dynamics/gate1b_sweep.py`). **Hypothesis:** the Gate 4 hybrid improvement should satisfy
 
 $$
-\Delta_{\mathrm{active}} > 0,
-\qquad
-\Delta_{\mathrm{quiet}} \le 0,
+\Delta_{\mathrm{active}} > 0, \Delta_{\mathrm{quiet}} \le 0,
 $$
 
 so that the rough enhancement is genuinely concentrated in stressed regimes rather than being a generic carry improvement.
