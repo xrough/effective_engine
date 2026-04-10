@@ -33,12 +33,12 @@ from robustness_sweeps import (
     DEFAULT_GATE1_METHODS, load_cache, save_cache, extraction_heartbeat,
     resample_panel, pool_by_tenor_bucket, recompute_structural,
     _agg_metrics, _avg_metrics, _best_carry_improvement,
-    classify_gate1b_cell, _log,
+    classify_gate5_cell, _log,
 )
 
 sys.path.insert(0, str(_HERE.parent))
 from benchmark import _day_worker, evaluate_conditional
-from gate0b_sweep import _extract as _extract_gate0b
+from gate3_sweep import _extract as _extract_gate3
 
 
 def _row_with_methods(row: dict, agg: dict, suffix: str) -> None:
@@ -83,7 +83,7 @@ def _evaluate_cell(records: list, H: float, resample: int,
             act_agg, methods=list(DEFAULT_GATE1_METHODS))
         best_qui_imp, best_qui_method, best_qui_feat = _best_carry_improvement(
             qui_agg, methods=list(DEFAULT_GATE1_METHODS))
-        verdict = classify_gate1b_cell(act_agg, qui_agg)
+        verdict = classify_gate5_cell(act_agg, qui_agg)
 
         row = {
             "H": H, "resample_min": resample, "move_pct": move_pct,
@@ -125,7 +125,7 @@ def _evaluate_cell(records: list, H: float, resample: int,
         "best_imp_quiet": best_qui_imp,
         "best_method_quiet": best_qui_method or "",
         "best_feature_quiet": best_qui_feat or "",
-        "verdict": classify_gate1b_cell(avg_act if avg_act else None, avg_qui if avg_qui else None),
+        "verdict": classify_gate5_cell(avg_act if avg_act else None, avg_qui if avg_qui else None),
     }
     _row_with_methods(agg_row, {}, "all")
     _row_with_methods(agg_row, avg_act, "active")
@@ -134,16 +134,16 @@ def _evaluate_cell(records: list, H: float, resample: int,
     return avg_act, avg_qui, rows
 
 
-def format_gate1b_summary(df: pd.DataFrame, move_pct: float) -> str:
+def format_gate5_summary(df: pd.DataFrame, move_pct: float) -> str:
     sub = df[(df["move_pct"] == move_pct) & (df["series_id"] == "ALL")]
     if sub.empty:
-        return f"(no Gate 1B rows for move_pct={move_pct:.0%})"
+        return f"(no Gate 5 rows for move_pct={move_pct:.0%})"
     pivot = sub.pivot_table(index="H", columns="resample_min", values="verdict", aggfunc="first")
     col_w = max(10, *(len(str(c)) for c in pivot.columns))
     h_w = 6
     sep = "-" * (h_w + 3 + (col_w + 3) * len(pivot.columns))
     lines = [
-        f"\nGate 1B Robustness Sweep — move_pct={move_pct:.0%}",
+        f"\nGate 5 Robustness Sweep — move_pct={move_pct:.0%}",
         f"{'H':>{h_w}} | " + " | ".join(f"{c:>{col_w}}" for c in pivot.columns),
         sep,
     ]
@@ -164,7 +164,7 @@ def format_gate1b_summary(df: pd.DataFrame, move_pct: float) -> str:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Gate 1B Robustness Sweep")
+    ap = argparse.ArgumentParser(description="Gate 5 Robustness Sweep")
     ap.add_argument("--days", type=int, default=None)
     ap.add_argument("--far", action="store_true")
     ap.add_argument("--workers", type=int, default=1)
@@ -183,7 +183,7 @@ def main():
     device = get_device(args.device)
 
     cfg = SweepConfig(
-        gate_id="gate0b",  # reuse Gate 0B extraction cache
+        gate_id="gate3",  # reuse Gate 3 extraction cache
         h_grid=h_grid,
         resample_grid=resample_grid,
         move_pct_grid=move_pct_grid,
@@ -208,7 +208,7 @@ def main():
         if buf is not None:
             sys.stdout = sys.__stdout__
             stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-            out_path = OUT_DIR / f"gate1b_sweep_{stamp}.txt"
+            out_path = OUT_DIR / f"gate5_sweep_{stamp}.txt"
             out_path.write_text(buf.getvalue())
             print(f"\nReport saved → {out_path}")
 
@@ -227,7 +227,7 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
         tdate = date(int(ds[:4]), int(ds[4:6]), int(ds[6:]))
         dbn_files.append((fname, tdate))
 
-    print("\nGate 1B Robustness Sweep")
+    print("\nGate 5 Robustness Sweep")
     print(f"  Run:          {run_ts}")
     print(f"  Days:         {len(dbn_files)}  |  select={'far' if cfg.select_far else 'near'}")
     print(f"  Workers:      {cfg.workers}  |  device={cfg.device}")
@@ -239,7 +239,7 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
     records = None if no_cache else load_cache(cfg)
     if records is None:
         _log(f"Extracting {len(dbn_files)} days with {cfg.workers} workers ...")
-        records = _extract_gate0b(cfg, dbn_files)
+        records = _extract_gate3(cfg, dbn_files)
         save_cache(cfg, records)
     if not records:
         sys.exit("No records extracted.")
@@ -254,28 +254,28 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
                 t_cell = time.time()
                 state = {"completed": 0, "current": f"H={H:.2f} resample={resample} move_pct={move_pct:.2f}", "start_ts": t_cell}
                 _log(f"Cell {cell_idx:3d}/{n_cells:3d} — starting  H={H:.2f}  resample={resample:4d} min  move_pct={move_pct:.0%}")
-                with extraction_heartbeat(1, state, label="Evaluating Gate 1B cell", interval_s=5.0):
+                with extraction_heartbeat(1, state, label="Evaluating Gate 5 cell", interval_s=5.0):
                     avg_act, avg_qui, cell_rows = _evaluate_cell(records, H, resample, move_pct, cfg.select_far)
                     state["completed"] = 1
                 best_imp, best_method, best_feat = _best_carry_improvement(
                     avg_act, methods=list(DEFAULT_GATE1_METHODS))
-                verdict = classify_gate1b_cell(avg_act if avg_act else None, avg_qui if avg_qui else None)
+                verdict = classify_gate5_cell(avg_act if avg_act else None, avg_qui if avg_qui else None)
                 _log(f"Cell {cell_idx:3d}/{n_cells:3d}  H={H:.2f}  resample={resample:4d} min  move_pct={move_pct:.0%}  "
                      f"→ {verdict:<8s}  active_best={best_method or 'n/a'}:{best_feat or 'n/a'} "
                      f"({best_imp:+.1%})  [{time.time() - t_cell:.1f}s]")
                 rows.extend(cell_rows)
 
     if not rows:
-        sys.exit("Gate 1B sweep produced no rows.")
+        sys.exit("Gate 5 sweep produced no rows.")
 
     results_df = pd.DataFrame(rows)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    csv_path = OUT_DIR / f"gate1b_sweep_{stamp}.csv"
+    csv_path = OUT_DIR / f"gate5_sweep_{stamp}.csv"
     results_df.to_csv(csv_path, index=False)
     _log(f"CSV saved → {csv_path}")
     for move_pct in cfg.move_pct_grid:
-        print(format_gate1b_summary(results_df, move_pct))
+        print(format_gate5_summary(results_df, move_pct))
     print()
 
 

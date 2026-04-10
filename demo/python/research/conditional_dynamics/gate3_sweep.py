@@ -13,12 +13,12 @@ Workflow
    b. pool_by_tenor_bucket(resampled)   ← follow front/mid/back roles
    c. recompute_structural(pooled, H)
    d. Per tenor series: evaluate_conditional(ts, H, move_pct)
-   e. classify_gate0b_cell(active_agg, quiet_agg) → PASS/MARGINAL/FAIL/SKIP
-3. Write gate0b_sweep_<timestamp>.csv; print summary tables (one per move_pct).
+   e. classify_gate3_cell(active_agg, quiet_agg) → PASS/MARGINAL/FAIL/SKIP
+3. Write gate3_sweep_<timestamp>.csv; print summary tables (one per move_pct).
 
 Usage
 -----
-  python gate0b_sweep.py [--days N] [--far] [--workers N] [--device STR]
+  python gate3_sweep.py [--days N] [--far] [--workers N] [--device STR]
                          [--h-grid "0.05,0.10,0.20"] [--resample-grid "1,30,120"]
                          [--move-pct-grid "0.10,0.20,0.30"] [--no-cache] [--output]
 """
@@ -54,7 +54,7 @@ from robustness_sweeps import (
     extraction_heartbeat,
     resample_panel, pool_by_tenor_bucket, recompute_structural,
     _agg_metrics, _avg_metrics,
-    classify_gate0b_cell, format_gate0b_summary, _log,
+    classify_gate3_cell, format_gate3_summary, _log,
 )
 
 # re-use the extraction worker from the single-run benchmark
@@ -78,7 +78,7 @@ def _extract(cfg: SweepConfig, dbn_files: list[tuple]) -> list:
     day_map: dict = {}
     progress = {"completed": 0, "current": None, "start_ts": t0}
 
-    with extraction_heartbeat(total, progress, label="Extracting Gate 0B days"):
+    with extraction_heartbeat(total, progress, label="Extracting Gate 3 days"):
         if cfg.workers > 1:
             ctx = mp.get_context("spawn")
             with ctx.Pool(cfg.workers) as pool:
@@ -153,7 +153,7 @@ def _evaluate_cell(records: list, H: float, resample: int,
         if qui_agg:
             quiet_metrics.append(qui_agg)
 
-        verdict = classify_gate0b_cell(act_agg, qui_agg)
+        verdict = classify_gate3_cell(act_agg, qui_agg)
 
         row: dict = {
             "H": H, "resample_min": resample, "move_pct": move_pct,
@@ -177,7 +177,7 @@ def _evaluate_cell(records: list, H: float, resample: int,
 
     avg_act = _avg_metrics(active_metrics) if active_metrics else {}
     avg_qui = _avg_metrics(quiet_metrics)  if quiet_metrics  else {}
-    overall_verdict = classify_gate0b_cell(
+    overall_verdict = classify_gate3_cell(
         avg_act if avg_act else None,
         avg_qui if avg_qui else None,
     )
@@ -207,7 +207,7 @@ def _evaluate_cell(records: list, H: float, resample: int,
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main():
-    ap = argparse.ArgumentParser(description="Gate 0B Robustness Sweep")
+    ap = argparse.ArgumentParser(description="Gate 3 Robustness Sweep")
     ap.add_argument("--days",           type=int,   default=None)
     ap.add_argument("--far",            action="store_true")
     ap.add_argument("--workers",        type=int,   default=1)
@@ -222,7 +222,7 @@ def main():
     ap.add_argument("--no-cache",       action="store_true",
                     help="Force re-extraction even if cache exists")
     ap.add_argument("--output",         action="store_true",
-                    help="Save report to output/gate0b_sweep_<timestamp>.txt")
+                    help="Save report to output/gate3_sweep_<timestamp>.txt")
     args = ap.parse_args()
 
     h_grid = ([float(x) for x in args.h_grid.split(",")]
@@ -234,7 +234,7 @@ def main():
     device = get_device(args.device)
 
     cfg = SweepConfig(
-        gate_id="gate0b",
+        gate_id="gate3",
         h_grid=h_grid,
         resample_grid=resample_grid,
         move_pct_grid=move_pct_grid,
@@ -259,7 +259,7 @@ def main():
         if buf is not None:
             sys.stdout = sys.__stdout__
             stamp    = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-            out_path = OUT_DIR / f"gate0b_sweep_{stamp}.txt"
+            out_path = OUT_DIR / f"gate3_sweep_{stamp}.txt"
             out_path.write_text(buf.getvalue())
             print(f"\nReport saved → {out_path}")
 
@@ -283,7 +283,7 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
     sel_label = "far" if cfg.select_far else "near"
     n_cells   = len(cfg.h_grid) * len(cfg.resample_grid) * len(cfg.move_pct_grid)
 
-    print(f"\nGate 0B Robustness Sweep")
+    print(f"\nGate 3 Robustness Sweep")
     print(f"  Run:          {run_ts}")
     print(f"  Days:         {len(dbn_files)}  |  select={sel_label}")
     print(f"  Workers:      {cfg.workers}  |  device={cfg.device}")
@@ -323,14 +323,14 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
                 _log(f"Cell {cell_idx:3d}/{n_cells:3d} — starting  H={H:.2f}  "
                      f"resample={resample:4d} min  move_pct={move_pct:.0%}")
                 with extraction_heartbeat(1, cell_state,
-                                          label="Evaluating Gate 0B cell",
+                                          label="Evaluating Gate 3 cell",
                                           interval_s=5.0):
                     avg_act, avg_qui, rows = _evaluate_cell(
                         records, H, resample, move_pct, cfg.select_far)
                     cell_state["completed"] = 1
                 elapsed_c = time.time() - t_cell
 
-                verdict = classify_gate0b_cell(
+                verdict = classify_gate3_cell(
                     avg_act if avg_act else None,
                     avg_qui if avg_qui else None,
                 )
@@ -355,13 +355,13 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
     # ── CSV output ────────────────────────────────────────────────────────────
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     stamp    = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    csv_path = OUT_DIR / f"gate0b_sweep_{stamp}.csv"
+    csv_path = OUT_DIR / f"gate3_sweep_{stamp}.csv"
     results_df.to_csv(csv_path, index=False)
     _log(f"CSV saved → {csv_path}")
 
     # ── summary tables (one per move_pct) ─────────────────────────────────────
     for move_pct in cfg.move_pct_grid:
-        print(format_gate0b_summary(results_df, move_pct))
+        print(format_gate3_summary(results_df, move_pct))
     print()
 
 

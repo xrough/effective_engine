@@ -1,7 +1,7 @@
-#include "LiftedHestonSim.hpp"
-#include "NpyWriter.hpp"
+#include "analytics/LiftedHestonSim.hpp"
+#include "utils/NpyWriter.hpp"
 #ifdef BUILD_ONNX_DEMO
-#include "OnnxInference.hpp"
+#include "execution/OnnxInference.hpp"
 #endif
 
 #include <iostream>

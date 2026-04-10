@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 主可执行文件：路径生成 + 可选ONNX推理
 add_executable(demo_runner
     cpp/main.cpp
-    cpp/LiftedHestonSim.cpp
+    cpp/analytics/LiftedHestonSim.cpp
 )
 
 target_include_directories(demo_runner PRIVATE cpp)
@@ -15,7 +15,7 @@ target_include_directories(demo_runner PRIVATE cpp)
 option(BUILD_ONNX_DEMO "Enable ONNX Runtime inference benchmark" OFF)
 
 if(BUILD_ONNX_DEMO)
-    target_sources(demo_runner PRIVATE cpp/OnnxInference.cpp)
+    target_sources(demo_runner PRIVATE cpp/execution/OnnxInference.cpp)
 
     find_path(ORT_INCLUDE_DIR "onnxruntime_cxx_api.h"
         HINTS
@@ -60,7 +60,7 @@ target_include_directories(alpha_runner PRIVATE
 
 # 当 BUILD_ONNX_DEMO=ON 时，为 alpha_runner 链接 ONNX Runtime + NeuralBSDEHedger
 if(BUILD_ONNX_DEMO)
-    target_sources(alpha_runner PRIVATE cpp/OnnxInference.cpp)
+    target_sources(alpha_runner PRIVATE cpp/execution/OnnxInference.cpp)
     if(ORT_INCLUDE_DIR AND ORT_LIB)
         target_include_directories(alpha_runner PRIVATE ${ORT_INCLUDE_DIR})
         target_link_libraries(alpha_runner PRIVATE ${ORT_LIB})
@@ -72,6 +72,29 @@ if(BUILD_ONNX_DEMO)
     endif()
 endif()
 
+# ── Alpha PnL Test (skew+curvature signal, dual-hedger comparison) ──
+add_executable(alpha_pnl_test_runner
+    cpp/alpha_pnl_test.cpp
+    ${ALPHA_CORE_SRCS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/modules/seller/DeltaHedger.cpp
+)
+
+target_include_directories(alpha_pnl_test_runner PRIVATE
+    cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
+
+if(BUILD_ONNX_DEMO)
+    target_sources(alpha_pnl_test_runner PRIVATE cpp/execution/OnnxInference.cpp)
+    if(ORT_INCLUDE_DIR AND ORT_LIB)
+        target_include_directories(alpha_pnl_test_runner PRIVATE ${ORT_INCLUDE_DIR})
+        target_link_libraries(alpha_pnl_test_runner PRIVATE ${ORT_LIB})
+        target_compile_definitions(alpha_pnl_test_runner PRIVATE BUILD_ONNX_DEMO)
+        message(STATUS "[alpha_pnl_test_runner] NeuralBSDEHedger 已启用")
+    endif()
+endif()
+
 # artifacts目录输出路径（运行时相对路径提示）
 message(STATUS "构建完成后请在 demo/ 目录下运行: ./build/demo_runner")
 message(STATUS "Alpha pipeline: ./build/alpha_runner")
+message(STATUS "Alpha PnL test: ./build/alpha_pnl_test_runner")

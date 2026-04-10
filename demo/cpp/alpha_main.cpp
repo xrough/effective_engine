@@ -35,18 +35,18 @@
 #include "modules/seller/DeltaHedger.hpp"
 
 // Demo-local files (same directory)
-#include "SyntheticOptionFeed.hpp"
-#include "SimpleExecSim.hpp"
-#include "AlphaPnLTracker.hpp"
-#include "VarianceAlphaSignal.hpp"
-#include "StrategyController.hpp"
-#include "RoughVolCalibrator.hpp"
-#include "LiftedHestonStateEstimator.hpp"
-#include "NeuralBSDEHedger.hpp"
-#include "HistoricalChainAdapter.hpp"
+#include "feed/SyntheticOptionFeed.hpp"
+#include "execution/SimpleExecSim.hpp"
+#include "pnl/AlphaPnLTracker.hpp"
+#include "signal/VarianceAlphaSignal.hpp"
+#include "strategy/StrategyController.hpp"
+#include "analytics/RoughVolCalibrator.hpp"
+#include "analytics/LiftedHestonStateEstimator.hpp"
+#include "strategy/NeuralBSDEHedger.hpp"
+#include "feed/HistoricalChainAdapter.hpp"
 
 #ifdef BUILD_ONNX_DEMO
-#include "OnnxInference.hpp"
+#include "execution/OnnxInference.hpp"
 #endif
 
 int main() {

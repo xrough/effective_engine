@@ -1,7 +1,7 @@
 """
 shared/robustness_sweeps.py
 ============================
-Shared helpers for Gate 0 and Gate 0B robustness sweeps.
+Shared helpers for Gate 2 and Gate 3 robustness sweeps.
 
 Public API
 ----------
@@ -12,10 +12,10 @@ resample_panel       — downsample a 1-min flat record list to N-min bars
 apply_n_exp_selection — filter to N nearest/farthest expiries per timestamp
 pool_by_tenor_bucket — collapse exact expiries into longer-lived tenor roles
 recompute_structural — recompute alpha/gamma for a new H without re-running IV
-classify_gate0_cell  — PASS/MARGINAL/FAIL verdict for a (H, resample) cell
-classify_gate0b_cell — PASS/MARGINAL/FAIL/SKIP verdict for a (H, resample, move_pct) cell
-format_gate0_summary — text pivot table (rows=H, cols=resample)
-format_gate0b_summary — text pivot table for a fixed move_pct slice
+classify_gate2_cell  — PASS/MARGINAL/FAIL verdict for a (H, resample) cell
+classify_gate3_cell — PASS/MARGINAL/FAIL/SKIP verdict for a (H, resample, move_pct) cell
+format_gate2_summary — text pivot table (rows=H, cols=resample)
+format_gate3_summary — text pivot table for a fixed move_pct slice
 """
 
 from __future__ import annotations
@@ -91,7 +91,7 @@ def extraction_heartbeat(total: int,
 
 @dataclass
 class SweepConfig:
-    gate_id: str                            # "gate0" | "gate0b"
+    gate_id: str                            # "gate2" | "gate3"
     h_grid: list[float] = field(
         default_factory=lambda: list(DEFAULT_H_GRID))
     resample_grid: list[int] = field(
@@ -174,8 +174,8 @@ def apply_n_exp_selection(records: list, n_exp: int = 2,
     """
     Per timestamp, keep the n_exp nearest (or farthest) expiries by DTE.
 
-    Mirrors the N_EXP selection in process_day(). Used after loading Gate 0B
-    cache (which stores all expiries) to make it comparable with Gate 0.
+    Mirrors the N_EXP selection in process_day(). Used after loading Gate 3
+    cache (which stores all expiries) to make it comparable with Gate 2.
     """
     ts_exp: dict = defaultdict(set)
     for r in records:
@@ -198,7 +198,7 @@ def pool_by_tenor_bucket(records: list,
     Collapse exact expiries into longer-lived tenor-role series.
 
     For each timestamp and tenor bucket, choose the record whose DTE is closest
-    to the bucket midpoint. This lets Gate 0B follow "front" / "mid" / "back"
+    to the bucket midpoint. This lets Gate 3 follow "front" / "mid" / "back"
     roles through time instead of restarting on every calendar expiry.
     """
     if bucket_defs is None:
@@ -320,7 +320,7 @@ def _avg_metrics(metric_list: list[dict]) -> dict:
 
 # ── Cell classification ───────────────────────────────────────────────────────
 
-def classify_gate0_cell(agg: dict) -> str:
+def classify_gate2_cell(agg: dict) -> str:
     """
     Verdict for one (H, resample) cell based on averaged metrics across expiries.
 
@@ -354,7 +354,7 @@ def classify_gate0_cell(agg: dict) -> str:
     return "FAIL"
 
 
-def classify_gate0b_cell(agg_active: dict | None,
+def classify_gate3_cell(agg_active: dict | None,
                          agg_quiet:  dict | None) -> str:
     """
     Verdict for one (H, resample, move_pct) cell.
@@ -432,14 +432,14 @@ def _best_carry_improvement(agg: dict | None,
     return best_imp, best_method, best_feat
 
 
-def classify_gate1_cell(agg: dict,
+def classify_gate4_cell(agg: dict,
                         methods: list[str] | None = None) -> str:
     """
-    Verdict for one Gate 1 cell (incremental value over carry).
+    Verdict for one Gate 4 cell (incremental value over carry).
 
-    PASS     — a Gate 1 method improves on carry by >2%
-    MARGINAL — a Gate 1 method improves on carry by >0%
-    FAIL     — best Gate 1 method does not improve on carry
+    PASS     — a Gate 4 method improves on carry by >2%
+    MARGINAL — a Gate 4 method improves on carry by >0%
+    FAIL     — best Gate 4 method does not improve on carry
     SKIP     — insufficient data
     """
     best_imp, _, _ = _best_carry_improvement(agg, methods=methods)
@@ -452,13 +452,13 @@ def classify_gate1_cell(agg: dict,
     return "FAIL"
 
 
-def classify_gate1b_cell(agg_active: dict | None,
+def classify_gate5_cell(agg_active: dict | None,
                          agg_quiet: dict | None,
                          methods: list[str] | None = None) -> str:
     """
-    Verdict for one conditional Gate 1 cell.
+    Verdict for one conditional Gate 4 cell.
 
-    PASS     — best Gate 1 method improves on carry by >2% in ACTIVE and does
+    PASS     — best Gate 4 method improves on carry by >2% in ACTIVE and does
                not improve in QUIET.
     MARGINAL — positive active improvement, but not regime-specific enough.
     FAIL     — no positive active improvement over carry.
@@ -484,7 +484,7 @@ def classify_gate1b_cell(agg_active: dict | None,
 _VERDICT_ORDER = {"PASS": 0, "MARGINAL": 1, "FAIL": 2, "SKIP": 3}
 
 
-def format_gate0_summary(results_df: pd.DataFrame) -> str:
+def format_gate2_summary(results_df: pd.DataFrame) -> str:
     """
     Pivot table: rows=H, cols=resample_min, cell=verdict.
 
@@ -511,7 +511,7 @@ def format_gate0_summary(results_df: pd.DataFrame) -> str:
     h_w    = 6
     sep    = "-" * (h_w + 3 + (col_w + 3) * len(pivot.columns))
 
-    lines = ["\nGate 0 Robustness Sweep — verdict grid (PASS/MARGINAL/FAIL)",
+    lines = ["\nGate 2 Robustness Sweep — verdict grid (PASS/MARGINAL/FAIL)",
              f"{'H':>{h_w}} | " + " | ".join(f"{c:>{col_w}}" for c in pivot.columns),
              sep]
 
@@ -540,9 +540,9 @@ def format_gate0_summary(results_df: pd.DataFrame) -> str:
     return "\n".join(lines)
 
 
-def format_gate0b_summary(results_df: pd.DataFrame,
+def format_gate3_summary(results_df: pd.DataFrame,
                            move_pct: float) -> str:
-    """Same as format_gate0_summary but for a fixed move_pct slice of Gate 0B results."""
+    """Same as format_gate2_summary but for a fixed move_pct slice of Gate 3 results."""
     if results_df.empty:
         return f"(no results for move_pct={move_pct})"
 
@@ -564,7 +564,7 @@ def format_gate0b_summary(results_df: pd.DataFrame,
     h_w   = 6
     sep   = "-" * (h_w + 3 + (col_w + 3) * len(pivot.columns))
 
-    lines = [f"\nGate 0B Robustness Sweep — move_pct={move_pct:.0%} "
+    lines = [f"\nGate 3 Robustness Sweep — move_pct={move_pct:.0%} "
              f"(active = top {move_pct:.0%} |Δspot|)",
              f"{'H':>{h_w}} | " + " | ".join(f"{c:>{col_w}}" for c in pivot.columns),
              sep]

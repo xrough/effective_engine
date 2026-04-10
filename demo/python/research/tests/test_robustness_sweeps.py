@@ -28,9 +28,9 @@ from robustness_sweeps import (
     _cache_path, load_cache, save_cache,
     resample_panel, apply_n_exp_selection, pool_by_tenor_bucket, recompute_structural,
     _agg_metrics, _avg_metrics,
-    classify_gate0_cell, classify_gate0b_cell,
-    classify_gate1_cell, classify_gate1b_cell,
-    format_gate0_summary,
+    classify_gate2_cell, classify_gate3_cell,
+    classify_gate4_cell, classify_gate5_cell,
+    format_gate2_summary,
 )
 
 
@@ -121,13 +121,13 @@ def _make_ev(rr25_carry: float, rr25_rough: float,
     }
 
 
-def _make_gate1_agg(rr25_carry: float,
+def _make_gate4_agg(rr25_carry: float,
                     rr25_cond: float,
                     rr25_recent: float,
                     bf25_carry: float,
                     bf25_cond: float,
                     bf25_recent: float) -> dict:
-    """Minimal aggregated metrics dict for Gate 1 classification tests."""
+    """Minimal aggregated metrics dict for Gate 4 classification tests."""
     return {
         "rr25_rmse_carry": rr25_carry,
         "rr25_rmse_rough_cond_carry": rr25_cond,
@@ -247,68 +247,68 @@ def test_agg_metrics_keys():
     assert math.isfinite(agg["rr25_rmse_rough"])
 
 
-def test_classify_gate0_cell_pass():
+def test_classify_gate2_cell_pass():
     """PASS when rough beats carry by >5% on rr25."""
     agg = _agg_metrics(_make_ev(rr25_carry=0.010, rr25_rough=0.009,   # 10% improvement
                                 bf25_carry=0.002, bf25_rough=0.0021))  # slightly worse
-    verdict = classify_gate0_cell(agg)
+    verdict = classify_gate2_cell(agg)
     assert verdict == "PASS", f"Expected PASS, got {verdict}"
 
 
-def test_classify_gate0_cell_marginal():
+def test_classify_gate2_cell_marginal():
     """MARGINAL when rough is within ±5% of carry."""
     agg = _agg_metrics(_make_ev(rr25_carry=0.010, rr25_rough=0.0097,  # ~3% improvement
                                 bf25_carry=0.002, bf25_rough=0.0021))
-    verdict = classify_gate0_cell(agg)
+    verdict = classify_gate2_cell(agg)
     assert verdict == "MARGINAL", f"Expected MARGINAL, got {verdict}"
 
 
-def test_classify_gate0_cell_fail():
+def test_classify_gate2_cell_fail():
     """FAIL when rough is worse than carry by >5% on both features."""
     agg = _agg_metrics(_make_ev(rr25_carry=0.010, rr25_rough=0.0115,  # 15% worse
                                 bf25_carry=0.002, bf25_rough=0.0023))
-    verdict = classify_gate0_cell(agg)
+    verdict = classify_gate2_cell(agg)
     assert verdict == "FAIL", f"Expected FAIL, got {verdict}"
 
 
-def test_classify_gate0b_cell_pass():
+def test_classify_gate3_cell_pass():
     """PASS when active regime beats carry, quiet does not."""
     active_ev = _make_ev(0.010, 0.0088, 0.002, 0.0017)  # rough beats carry by >5%
     quiet_ev  = _make_ev(0.010, 0.0115, 0.002, 0.0023)  # rough loses
 
     agg_act = _agg_metrics(active_ev)
     agg_qui = _agg_metrics(quiet_ev)
-    verdict = classify_gate0b_cell(agg_act, agg_qui)
+    verdict = classify_gate3_cell(agg_act, agg_qui)
     assert verdict == "PASS", f"Expected PASS, got {verdict}"
 
 
-def test_classify_gate0b_cell_fail():
+def test_classify_gate3_cell_fail():
     """FAIL when rough loses in active regime."""
     active_ev = _make_ev(0.010, 0.0115, 0.002, 0.0023)  # rough worse
     quiet_ev  = _make_ev(0.010, 0.0115, 0.002, 0.0023)
-    verdict = classify_gate0b_cell(_agg_metrics(active_ev), _agg_metrics(quiet_ev))
+    verdict = classify_gate3_cell(_agg_metrics(active_ev), _agg_metrics(quiet_ev))
     assert verdict == "FAIL", f"Expected FAIL, got {verdict}"
 
 
-def test_classify_gate0b_cell_skip():
+def test_classify_gate3_cell_skip():
     """SKIP when active partition is None."""
     qui_ev = _make_ev(0.010, 0.009, 0.002, 0.0018)
-    verdict = classify_gate0b_cell(None, _agg_metrics(qui_ev))
+    verdict = classify_gate3_cell(None, _agg_metrics(qui_ev))
     assert verdict == "SKIP", f"Expected SKIP, got {verdict}"
 
 
-def test_classify_gate1_cell_pass():
-    """PASS when a Gate 1 method improves on carry by >2%."""
-    agg = _make_gate1_agg(0.010, 0.0096, 0.0101, 0.0020, 0.0021, 0.0018)
-    verdict = classify_gate1_cell(agg)
+def test_classify_gate4_cell_pass():
+    """PASS when a Gate 4 method improves on carry by >2%."""
+    agg = _make_gate4_agg(0.010, 0.0096, 0.0101, 0.0020, 0.0021, 0.0018)
+    verdict = classify_gate4_cell(agg)
     assert verdict == "PASS", f"Expected PASS, got {verdict}"
 
 
-def test_classify_gate1b_cell_pass():
+def test_classify_gate5_cell_pass():
     """PASS when active improves and quiet does not."""
-    agg_act = _make_gate1_agg(0.010, 0.0097, 0.0102, 0.0020, 0.0021, 0.0020)
-    agg_qui = _make_gate1_agg(0.010, 0.0102, 0.0101, 0.0020, 0.0021, 0.0020)
-    verdict = classify_gate1b_cell(agg_act, agg_qui)
+    agg_act = _make_gate4_agg(0.010, 0.0097, 0.0102, 0.0020, 0.0021, 0.0020)
+    agg_qui = _make_gate4_agg(0.010, 0.0102, 0.0101, 0.0020, 0.0021, 0.0020)
+    verdict = classify_gate5_cell(agg_act, agg_qui)
     assert verdict == "PASS", f"Expected PASS, got {verdict}"
 
 
@@ -317,7 +317,7 @@ def test_cache_roundtrip():
     records = _make_panel(n_bars=20)
 
     with tempfile.TemporaryDirectory() as tmp:
-        cfg = SweepConfig(gate_id="gate0", n_days=5, cache_dir=Path(tmp))
+        cfg = SweepConfig(gate_id="gate2", n_days=5, cache_dir=Path(tmp))
         save_cache(cfg, records)
         loaded = load_cache(cfg)
 
@@ -326,15 +326,15 @@ def test_cache_roundtrip():
     assert loaded[0]["rr25"] == records[0]["rr25"]
 
 
-def test_format_gate0_summary_shape():
-    """format_gate0_summary produces a non-empty string with expected labels."""
+def test_format_gate2_summary_shape():
+    """format_gate2_summary produces a non-empty string with expected labels."""
     rows = []
     for H in [0.05, 0.10]:
         for res in [1, 30]:
             rows.append({"H": H, "resample_min": res, "expiry": "ALL",
                          "n_bars": 100, "verdict": "PASS"})
     df = pd.DataFrame(rows)
-    text = format_gate0_summary(df)
+    text = format_gate2_summary(df)
     assert "PASS" in text
     assert "0.05" in text
     assert "0.10" in text
@@ -356,16 +356,16 @@ def main():
         ("apply_n_exp_selection_far",         test_apply_n_exp_selection_far),
         ("recompute_structural_H_change",     test_recompute_structural_H_change),
         ("agg_metrics_keys",                  test_agg_metrics_keys),
-        ("classify_gate0_cell_pass",          test_classify_gate0_cell_pass),
-        ("classify_gate0_cell_marginal",      test_classify_gate0_cell_marginal),
-        ("classify_gate0_cell_fail",          test_classify_gate0_cell_fail),
-        ("classify_gate0b_cell_pass",         test_classify_gate0b_cell_pass),
-        ("classify_gate0b_cell_fail",         test_classify_gate0b_cell_fail),
-        ("classify_gate0b_cell_skip",         test_classify_gate0b_cell_skip),
-        ("classify_gate1_cell_pass",          test_classify_gate1_cell_pass),
-        ("classify_gate1b_cell_pass",         test_classify_gate1b_cell_pass),
+        ("classify_gate2_cell_pass",          test_classify_gate2_cell_pass),
+        ("classify_gate2_cell_marginal",      test_classify_gate2_cell_marginal),
+        ("classify_gate2_cell_fail",          test_classify_gate2_cell_fail),
+        ("classify_gate3_cell_pass",         test_classify_gate3_cell_pass),
+        ("classify_gate3_cell_fail",         test_classify_gate3_cell_fail),
+        ("classify_gate3_cell_skip",         test_classify_gate3_cell_skip),
+        ("classify_gate4_cell_pass",          test_classify_gate4_cell_pass),
+        ("classify_gate5_cell_pass",         test_classify_gate5_cell_pass),
         ("cache_roundtrip",                   test_cache_roundtrip),
-        ("format_gate0_summary_shape",        test_format_gate0_summary_shape),
+        ("format_gate2_summary_shape",        test_format_gate2_summary_shape),
     ]
 
     print(f"\nrobustness_sweeps unit tests ({len(tests)} tests)")

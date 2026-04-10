@@ -30,8 +30,8 @@
 #include "core/events/Events.hpp"
 #include "core/domain/PositionManager.hpp"
 #include "core/analytics/RoughVolPricingEngine.hpp"
-#include "OnnxInference.hpp"
-#include "LiftedHestonStateEstimator.hpp"
+#include "execution/OnnxInference.hpp"
+#include "analytics/LiftedHestonStateEstimator.hpp"
 
 namespace omm::demo {
 

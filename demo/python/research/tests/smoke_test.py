@@ -222,12 +222,12 @@ def test_fit_skew_scaling_requires_negative_rr25():
     assert fit_skew_scaling(recs) is None
 
 
-def test_gate0a_parse_dte_grid_and_subperiods():
-    """Gate 0A sweep helpers should parse DTE windows and split dates cleanly."""
+def test_gate1_parse_dte_grid_and_subperiods():
+    """Gate 4 sweep helpers should parse DTE windows and split dates cleanly."""
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "_gate0a_sweep",
-        str(_HERE.parents[1] / "skew_scaling" / "gate0a_sweep.py"))
+        "_gate4_sweep",
+        str(_HERE.parents[1] / "skew_scaling" / "gate4_sweep.py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
@@ -248,12 +248,12 @@ def test_gate0a_parse_dte_grid_and_subperiods():
     assert len(slices[1]["dates"]) == 2 and len(slices[2]["dates"]) == 2
 
 
-def test_gate0a_synthetic_cell_runs():
-    """Gate 0A sweep cell should evaluate on synthetic records with enough expiries."""
+def test_gate1_synthetic_cell_runs():
+    """Gate 4 sweep cell should evaluate on synthetic records with enough expiries."""
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "_gate0a_sweep_eval",
-        str(_HERE.parents[1] / "skew_scaling" / "gate0a_sweep.py"))
+        "_gate4_sweep_eval",
+        str(_HERE.parents[1] / "skew_scaling" / "gate4_sweep.py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
@@ -266,9 +266,9 @@ def test_gate0a_synthetic_cell_runs():
     _, _, records = generate_rough_synthetic_records(cfg)
     assert records, "Synthetic records unexpectedly empty"
 
-    result = mod.evaluate_gate0a_cell(records, H=cfg.H, dte_window=(7, 60))
-    assert result["n_ts_total"] > 0, "Expected timestamps in Gate 0A cell"
-    assert result["n_ts_fitted"] > 0, "Expected qualifying timestamp fits in Gate 0A cell"
+    result = mod.evaluate_gate4_cell(records, H=cfg.H, dte_window=(7, 60))
+    assert result["n_ts_total"] > 0, "Expected timestamps in Gate 4 cell"
+    assert result["n_ts_fitted"] > 0, "Expected qualifying timestamp fits in Gate 4 cell"
     assert result["status"] in {"PROCEED", "WEAK", "ABORT"}
     assert 0.0 <= result["coverage"] <= 1.0
 
@@ -347,8 +347,8 @@ def test_carry_conditioned_forecast_improves_when_spread_is_predictive():
     )
 
 
-def test_evaluate_forecasts_exposes_gate1_methods():
-    """evaluate_forecasts should include Gate 1 forecast methods in its output."""
+def test_evaluate_forecasts_exposes_gate4_methods():
+    """evaluate_forecasts should include Gate 4 forecast methods in its output."""
     import pandas as pd
 
     H = 0.10
@@ -439,8 +439,8 @@ def test_synthetic_generator_produces_records():
     assert math.isfinite(rec["atm_iv"]) and rec["atm_iv"] > 0.01
 
 
-def test_synthetic_gate0_recovers_rough_edge():
-    """On a rough-structured synthetic world, Gate 0 should beat carry on average."""
+def test_synthetic_gate2_recovers_rough_edge():
+    """On a rough-structured synthetic world, Gate 2 should beat carry on average."""
     cfg = SyntheticRoughConfig(
         seed=7,
         n_bars=120,
@@ -474,8 +474,8 @@ def test_synthetic_gate0_recovers_rough_edge():
          f"bf Δ={np.mean(bf_carry) - np.mean(bf_rough):+.6f}")
 
 
-def test_synthetic_gate0b_recovers_active_regime_edge():
-    """Synthetic stressed regimes should still surface a rough edge in Gate 0B."""
+def test_synthetic_gate3_recovers_active_regime_edge():
+    """Synthetic stressed regimes should still surface a rough edge in Gate 3."""
     import importlib.util
 
     spec = importlib.util.spec_from_file_location(
@@ -654,16 +654,16 @@ NO_DATA_TESTS = [
     ("_extract_features_from_ivs flat smile",   test_extract_features_from_ivs),
     ("fit_skew_scaling recovers beta",          test_fit_skew_scaling_synthetic),
     ("fit_skew_scaling requires negative rr25", test_fit_skew_scaling_requires_negative_rr25),
-    ("Gate 0A helper parsing/splits",           test_gate0a_parse_dte_grid_and_subperiods),
-    ("Gate 0A synthetic cell",                  test_gate0a_synthetic_cell_runs),
+    ("Gate 4 helper parsing/splits",           test_gate1_parse_dte_grid_and_subperiods),
+    ("Gate 4 synthetic cell",                  test_gate1_synthetic_cell_runs),
     ("tag_move_regime basic",                   test_tag_move_regime_basic),
     ("expanding AR1 matches OLS",               test_ar1_expanding_matches_lstsq_definition),
     ("carry-conditioned forecast improves",     test_carry_conditioned_forecast_improves_when_spread_is_predictive),
-    ("evaluate_forecasts exposes Gate 1 methods", test_evaluate_forecasts_exposes_gate1_methods),
+    ("evaluate_forecasts exposes Gate 4 methods", test_evaluate_forecasts_exposes_gate4_methods),
     ("masked scoring keeps full history",       test_masked_forecast_scoring_keeps_full_history),
     ("synthetic generator roundtrip",          test_synthetic_generator_produces_records),
-    ("synthetic Gate 0 rough edge",            test_synthetic_gate0_recovers_rough_edge),
-    ("synthetic Gate 0B active edge",          test_synthetic_gate0b_recovers_active_regime_edge),
+    ("synthetic Gate 2 rough edge",            test_synthetic_gate2_recovers_rough_edge),
+    ("synthetic Gate 3 active edge",          test_synthetic_gate3_recovers_active_regime_edge),
     ("worker functions picklable",              test_day_worker_picklable),
 ]
 

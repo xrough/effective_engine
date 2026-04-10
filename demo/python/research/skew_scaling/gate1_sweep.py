@@ -1,6 +1,6 @@
 #!/Library/Frameworks/Python.framework/Versions/3.12/bin/python3
 """
-Gate 0A Robustness Sweep
+Gate 4 Robustness Sweep
 ========================
 Scores cross-sectional rr25 maturity scaling across a grid of:
 
@@ -15,11 +15,11 @@ Workflow
 3. For each H in the grid:
    a. score the fit distribution against theory beta = H
    b. classify the cell as PROCEED / WEAK / ABORT
-4. Write gate0a_sweep_<timestamp>.csv and print summary grids.
+4. Write gate4_sweep_<timestamp>.csv and print summary grids.
 
 Usage
 -----
-  python gate0a_sweep.py [--days N] [--workers N] [--device STR]
+  python gate4_sweep.py [--days N] [--workers N] [--device STR]
                          [--h-grid "0.05,0.10,0.20"]
                          [--dte-grid "7-21,14-30,21-45,30-60,7-60"]
                          [--subperiod-mode none|halves]
@@ -148,7 +148,7 @@ def _extract(cfg: SweepConfig,
     day_map: dict[date, list[dict]] = {}
     progress = {"completed": 0, "current": None, "start_ts": t0}
 
-    with extraction_heartbeat(total, progress, label="Extracting Gate 0A days"):
+    with extraction_heartbeat(total, progress, label="Extracting Gate 4 days"):
         if cfg.workers > 1:
             ctx = mp.get_context("spawn")
             with ctx.Pool(cfg.workers) as pool:
@@ -194,11 +194,11 @@ def _fit_filtered_records(filtered_records: list[dict]) -> tuple[int, list[dict]
     return len(by_ts), fit_results
 
 
-def evaluate_gate0a_cell(records: list[dict],
+def evaluate_gate4_cell(records: list[dict],
                          H: float,
                          dte_window: tuple[int, int],
                          allowed_dates: set[date] | None = None) -> dict:
-    """Evaluate one Gate 0A sweep cell."""
+    """Evaluate one Gate 4 sweep cell."""
     filtered_records = [
         rec for rec in records
         if (allowed_dates is None or rec["ts"].date() in allowed_dates)
@@ -206,7 +206,7 @@ def evaluate_gate0a_cell(records: list[dict],
     ]
     n_ts_total, fit_results = _fit_filtered_records(filtered_records)
     summary = summarize_skew_fits(fit_results, n_ts_total, H)
-    summary["status"] = gate0a_status(summary.get("verdict", "ABORT"))
+    summary["status"] = gate1_status(summary.get("verdict", "ABORT"))
     summary["coverage"] = (
         summary["n_ts_fitted"] / summary["n_ts_total"]
         if summary.get("n_ts_total", 0) else 0.0
@@ -218,7 +218,7 @@ def evaluate_gate0a_cell(records: list[dict],
     return summary
 
 
-def gate0a_status(verdict: str) -> str:
+def gate1_status(verdict: str) -> str:
     if "PROCEED" in verdict:
         return "PROCEED"
     if "WEAK" in verdict:
@@ -226,11 +226,11 @@ def gate0a_status(verdict: str) -> str:
     return "ABORT"
 
 
-def format_gate0a_summary(results_df: pd.DataFrame, subperiod: str) -> str:
+def format_gate4_summary(results_df: pd.DataFrame, subperiod: str) -> str:
     """Render one verdict grid for a chosen subperiod."""
     df = results_df[results_df["subperiod"] == subperiod]
     if df.empty:
-        return f"(no Gate 0A rows for subperiod={subperiod})"
+        return f"(no Gate 4 rows for subperiod={subperiod})"
 
     pivot = df.pivot_table(
         index="H", columns="dte_window", values="status", aggfunc="first"
@@ -240,7 +240,7 @@ def format_gate0a_summary(results_df: pd.DataFrame, subperiod: str) -> str:
     sep = "-" * (h_w + 3 + (col_w + 3) * len(pivot.columns))
 
     lines = [
-        f"\nGate 0A Robustness Sweep — {subperiod}",
+        f"\nGate 4 Robustness Sweep — {subperiod}",
         f"{'H':>{h_w}} | " + " | ".join(f"{c:>{col_w}}" for c in pivot.columns),
         sep,
     ]
@@ -270,7 +270,7 @@ def format_gate0a_summary(results_df: pd.DataFrame, subperiod: str) -> str:
     return "\n".join(lines)
 
 
-def format_gate0a_subperiod_consistency(results_df: pd.DataFrame) -> str:
+def format_gate1_subperiod_consistency(results_df: pd.DataFrame) -> str:
     """Summarize whether full-sample PROCEED cells survive both half-sample splits."""
     needed = {"full", "first_half", "second_half"}
     if not needed.issubset(set(results_df["subperiod"].unique())):
@@ -304,7 +304,7 @@ def format_gate0a_subperiod_consistency(results_df: pd.DataFrame) -> str:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Gate 0A Robustness Sweep")
+    ap = argparse.ArgumentParser(description="Gate 4 Robustness Sweep")
     ap.add_argument("--days", type=int, default=None)
     ap.add_argument("--workers", type=int, default=1)
     ap.add_argument("--device", type=str, default="auto",
@@ -318,7 +318,7 @@ def main():
     ap.add_argument("--no-cache", action="store_true",
                     help="Force re-extraction even if cache exists")
     ap.add_argument("--output", action="store_true",
-                    help="Save report to output/gate0a_sweep_<timestamp>.txt")
+                    help="Save report to output/gate4_sweep_<timestamp>.txt")
     args = ap.parse_args()
 
     h_grid = ([float(x) for x in args.h_grid.split(",")]
@@ -328,7 +328,7 @@ def main():
     device = get_device(args.device)
 
     cfg = SweepConfig(
-        gate_id=f"gate0a_{dte_envelope[0]}_{dte_envelope[1]}",
+        gate_id=f"gate1_{dte_envelope[0]}_{dte_envelope[1]}",
         h_grid=h_grid,
         n_days=args.days,
         workers=args.workers,
@@ -351,7 +351,7 @@ def main():
         if buf is not None:
             sys.stdout = sys.__stdout__
             stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-            out_path = OUT_DIR / f"gate0a_sweep_{stamp}.txt"
+            out_path = OUT_DIR / f"gate4_sweep_{stamp}.txt"
             out_path.write_text(buf.getvalue())
             print(f"\nReport saved → {out_path}")
 
@@ -376,7 +376,7 @@ def _run(cfg: SweepConfig,
     n_sub = 1 if subperiod_mode == "none" else 3
     n_cells = len(cfg.h_grid) * len(dte_grid) * n_sub
 
-    print("\nGate 0A Robustness Sweep")
+    print("\nGate 4 Robustness Sweep")
     print(f"  Run:          {run_ts}")
     print(f"  Days:         {len(dbn_files)}")
     print(f"  Workers:      {cfg.workers}  |  device={cfg.device}")
@@ -397,7 +397,7 @@ def _run(cfg: SweepConfig,
         sys.exit("No records extracted. Check data path and DTE selection.")
 
     slices = build_subperiod_slices(records, subperiod_mode)
-    _log(f"Starting Gate 0A sweep: {n_cells} cells "
+    _log(f"Starting Gate 4 sweep: {n_cells} cells "
          f"({len(cfg.h_grid)} H × {len(dte_grid)} DTE × {len(slices)} subperiods)")
 
     all_rows: list[dict] = []
@@ -427,13 +427,13 @@ def _run(cfg: SweepConfig,
                 _log(f"Cell {cell_idx:3d}/{n_cells:3d} — starting  "
                      f"subperiod={sub['label']:<11s}  dte={lo:2d}-{hi:2d}  H={H:.2f}")
                 with extraction_heartbeat(1, cell_state,
-                                          label="Evaluating Gate 0A cell",
+                                          label="Evaluating Gate 4 cell",
                                           interval_s=5.0):
                     summary = summarize_skew_fits(fit_results, n_ts_total, H)
                     cell_state["completed"] = 1
                 elapsed_c = time.time() - t_cell
 
-                summary["status"] = gate0a_status(summary.get("verdict", "ABORT"))
+                summary["status"] = gate1_status(summary.get("verdict", "ABORT"))
                 summary["coverage"] = (
                     summary["n_ts_fitted"] / summary["n_ts_total"]
                     if summary.get("n_ts_total", 0) else 0.0
@@ -465,21 +465,21 @@ def _run(cfg: SweepConfig,
                      f"[{elapsed_c:.1f}s]")
 
     if not all_rows:
-        sys.exit("Sweep produced no Gate 0A rows.")
+        sys.exit("Sweep produced no Gate 4 rows.")
 
     results_df = pd.DataFrame(all_rows)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    csv_path = OUT_DIR / f"gate0a_sweep_{stamp}.csv"
+    csv_path = OUT_DIR / f"gate4_sweep_{stamp}.csv"
     results_df.to_csv(csv_path, index=False)
     _log(f"CSV saved → {csv_path}")
 
-    print(format_gate0a_summary(results_df, "full"))
+    print(format_gate4_summary(results_df, "full"))
     if subperiod_mode != "none":
         for label in ["first_half", "second_half"]:
-            print(format_gate0a_summary(results_df, label))
-        print(format_gate0a_subperiod_consistency(results_df))
+            print(format_gate4_summary(results_df, label))
+        print(format_gate1_subperiod_consistency(results_df))
     print()
 
 

@@ -7,7 +7,7 @@
 #include "core/events/Events.hpp"
 #include "core/domain/RiskMetrics.hpp"
 #include "core/interfaces/IEntryPolicy.hpp"
-#include "VarianceAlphaSignal.hpp"
+#include "signal/VarianceAlphaSignal.hpp"
 
 // ============================================================
 // 文件：StrategyController.hpp  (demo/cpp/)

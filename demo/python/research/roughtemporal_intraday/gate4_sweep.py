@@ -5,7 +5,7 @@ Gate 4: Incremental Edge — Robustness Sweep
 Scores whether rough adds incremental information over carry across a grid of
 H x resample_min.
 
-Gate 1 methods
+Gate 4 methods
 --------------
 - rough_cond_carry : carry corrected by the rough-vs-carry spread
 - rough_recent     : recency-weighted rough coefficients (EWMA alpha/gamma)
@@ -35,7 +35,7 @@ from robustness_sweeps import (
     SweepConfig, DEFAULT_H_GRID, DEFAULT_RESAMPLE_GRID, DEFAULT_GATE1_METHODS,
     load_cache, save_cache, extraction_heartbeat, resample_panel,
     recompute_structural, _agg_metrics, _avg_metrics,
-    _best_carry_improvement, classify_gate1_cell, _log,
+    _best_carry_improvement, classify_gate4_cell, _log,
 )
 
 sys.path.insert(0, str(_HERE.parent))
@@ -50,7 +50,7 @@ def _extract(cfg: SweepConfig, dbn_files: list[tuple]) -> list:
     day_map = {}
     progress = {"completed": 0, "current": None, "start_ts": t0}
 
-    with extraction_heartbeat(total, progress, label="Extracting Gate 1 days"):
+    with extraction_heartbeat(total, progress, label="Extracting Gate 4 days"):
         if cfg.workers > 1:
             ctx = mp.get_context("spawn")
             with ctx.Pool(cfg.workers) as pool:
@@ -106,7 +106,7 @@ def _evaluate_cell(records: list, H: float, resample: int) -> tuple[dict, list]:
         row["best_imp"] = best_imp
         row["best_method"] = best_method or ""
         row["best_feature"] = best_feat or ""
-        row["verdict"] = classify_gate1_cell(agg)
+        row["verdict"] = classify_gate4_cell(agg)
         rows.append(row)
 
     if not expiry_metrics:
@@ -121,21 +121,21 @@ def _evaluate_cell(records: list, H: float, resample: int) -> tuple[dict, list]:
     agg_row["best_imp"] = best_imp
     agg_row["best_method"] = best_method or ""
     agg_row["best_feature"] = best_feat or ""
-    agg_row["verdict"] = classify_gate1_cell(avg)
+    agg_row["verdict"] = classify_gate4_cell(avg)
     rows.append(agg_row)
     return avg, rows
 
 
-def format_gate1_summary(df: pd.DataFrame) -> str:
+def format_gate4_summary(df: pd.DataFrame) -> str:
     if df.empty:
-        return "(no Gate 1 results)"
+        return "(no Gate 4 results)"
     agg = df[df["expiry"] == "ALL"] if "expiry" in df.columns else df
     pivot = agg.pivot_table(index="H", columns="resample_min", values="verdict", aggfunc="first")
     col_w = max(10, *(len(str(c)) for c in pivot.columns))
     h_w = 6
     sep = "-" * (h_w + 3 + (col_w + 3) * len(pivot.columns))
     lines = [
-        "\nGate 1 Robustness Sweep — incremental over carry",
+        "\nGate 4 Robustness Sweep — incremental over carry",
         f"{'H':>{h_w}} | " + " | ".join(f"{c:>{col_w}}" for c in pivot.columns),
         sep,
     ]
@@ -156,7 +156,7 @@ def format_gate1_summary(df: pd.DataFrame) -> str:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Gate 1 Robustness Sweep")
+    ap = argparse.ArgumentParser(description="Gate 4 Robustness Sweep")
     ap.add_argument("--days", type=int, default=None)
     ap.add_argument("--far", action="store_true")
     ap.add_argument("--workers", type=int, default=1)
@@ -173,7 +173,7 @@ def main():
     device = get_device(args.device)
 
     cfg = SweepConfig(
-        gate_id="gate0",  # reuse Gate 0 extraction cache
+        gate_id="gate2",  # reuse Gate 2 extraction cache
         h_grid=h_grid,
         resample_grid=resample_grid,
         n_days=args.days,
@@ -197,7 +197,7 @@ def main():
         if buf is not None:
             sys.stdout = sys.__stdout__
             stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-            out_path = OUT_DIR / f"gate1_sweep_{stamp}.txt"
+            out_path = OUT_DIR / f"gate4_sweep_{stamp}.txt"
             out_path.write_text(buf.getvalue())
             print(f"\nReport saved → {out_path}")
 
@@ -216,7 +216,7 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
         tdate = date(int(ds[:4]), int(ds[4:6]), int(ds[6:]))
         dbn_files.append((fname, tdate))
 
-    print("\nGate 1 Robustness Sweep")
+    print("\nGate 4 Robustness Sweep")
     print(f"  Run:          {run_ts}")
     print(f"  Days:         {len(dbn_files)}")
     print(f"  Workers:      {cfg.workers}  |  device={cfg.device}")
@@ -241,27 +241,27 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
             t_cell = time.time()
             state = {"completed": 0, "current": f"H={H:.2f} resample={resample}", "start_ts": t_cell}
             _log(f"Cell {cell_idx:3d}/{n_cells:3d} — starting  H={H:.2f}  resample={resample:4d} min")
-            with extraction_heartbeat(1, state, label="Evaluating Gate 1 cell", interval_s=5.0):
+            with extraction_heartbeat(1, state, label="Evaluating Gate 4 cell", interval_s=5.0):
                 agg, cell_rows = _evaluate_cell(records, H, resample)
                 state["completed"] = 1
             best_imp, best_method, best_feat = _best_carry_improvement(
                 agg, methods=list(DEFAULT_GATE1_METHODS))
-            verdict = classify_gate1_cell(agg) if agg else "SKIP"
+            verdict = classify_gate4_cell(agg) if agg else "SKIP"
             _log(f"Cell {cell_idx:3d}/{n_cells:3d}  H={H:.2f}  resample={resample:4d} min  "
                  f"→ {verdict:<8s}  best={best_method or 'n/a'}:{best_feat or 'n/a'} "
                  f"({best_imp:+.1%})  [{time.time() - t_cell:.1f}s]")
             rows.extend(cell_rows)
 
     if not rows:
-        sys.exit("Gate 1 sweep produced no rows.")
+        sys.exit("Gate 4 sweep produced no rows.")
 
     results_df = pd.DataFrame(rows)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    csv_path = OUT_DIR / f"gate1_sweep_{stamp}.csv"
+    csv_path = OUT_DIR / f"gate4_sweep_{stamp}.csv"
     results_df.to_csv(csv_path, index=False)
     _log(f"CSV saved → {csv_path}")
-    print(format_gate1_summary(results_df))
+    print(format_gate4_summary(results_df))
     print()
 
 
