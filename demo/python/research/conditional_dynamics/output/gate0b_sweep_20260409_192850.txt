@@ -1,0 +1,11 @@
+
+Gate 0B Robustness Sweep
+  Run:          2026-04-09 19:25:52 UTC
+  Days:         90  |  select=near
+  Workers:      4  |  device=mps
+  H grid:       [0.03, 0.05, 0.07, 0.1, 0.15, 0.2]
+  Resample:     [1, 5, 15, 30, 60, 120, 390] min
+  Move-pct:     [0.1, 0.2, 0.3]
+  Total cells:  126
+[21:25:53] Cache hit: loaded 380857 records from gate0b_days90_farF.pkl
+[21:25:53] Starting sweep: 126 cells (6 H × 7 resample × 3 move_pct)

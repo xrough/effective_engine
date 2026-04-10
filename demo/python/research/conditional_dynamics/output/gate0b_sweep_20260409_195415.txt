@@ -1,0 +1,33 @@
+
+Gate 0B Robustness Sweep
+  Run:          2026-04-09 19:31:38 UTC
+  Days:         90  |  select=near
+  Workers:      4  |  device=mps
+  H grid:       [0.03, 0.05, 0.07, 0.1, 0.15, 0.2]
+  Resample:     [1, 5, 15, 30, 60, 120, 390] min
+  Move-pct:     [0.1, 0.2, 0.3]
+  Total cells:  126
+[21:31:38] Cache hit: loaded 380857 records from gate0b_days90_farF.pkl
+[21:31:38] Starting sweep: 126 cells (6 H × 7 resample × 3 move_pct)
+[21:36:54] Cell   1/126  H=0.03  resample=   1 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00176 rough=0.00764 | bf25 carry=0.00183 rough=0.00320)  [315.5s]
+[21:42:40] Cell   2/126  H=0.03  resample=   1 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00129 rough=0.00731 | bf25 carry=0.00156 rough=0.00322)  [346.6s]
+[21:47:16] Cell   3/126  H=0.03  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00107 rough=0.00707 | bf25 carry=0.00142 rough=0.00323)  [275.7s]
+[21:47:31] Cell   4/126  H=0.03  resample=   5 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00302 rough=0.00790 | bf25 carry=0.00205 rough=0.00311)  [14.8s]
+[21:47:45] Cell   5/126  H=0.03  resample=   5 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00216 rough=0.00735 | bf25 carry=0.00184 rough=0.00317)  [13.9s]
+[21:47:58] Cell   6/126  H=0.03  resample=   5 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00173 rough=0.00709 | bf25 carry=0.00172 rough=0.00319)  [13.1s]
+[21:48:00] Cell   7/126  H=0.03  resample=  15 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00510 rough=0.00827 | bf25 carry=0.00220 rough=0.00303)  [2.1s]
+[21:48:02] Cell   8/126  H=0.03  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00370 rough=0.00746 | bf25 carry=0.00209 rough=0.00303)  [2.1s]
+[21:48:04] Cell   9/126  H=0.03  resample=  15 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00293 rough=0.00720 | bf25 carry=0.00196 rough=0.00306)  [1.9s]
+[21:48:05] Cell  10/126  H=0.03  resample=  30 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00744 rough=0.00926 | bf25 carry=0.00193 rough=0.00304)  [0.8s]
+[21:48:06] Cell  11/126  H=0.03  resample=  30 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00511 rough=0.00809 | bf25 carry=0.00201 rough=0.00292)  [0.8s]
+[21:48:06] Cell  12/126  H=0.03  resample=  30 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00426 rough=0.00770 | bf25 carry=0.00199 rough=0.00295)  [0.8s]
+[21:48:07] Cell  13/126  H=0.03  resample=  60 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00956 rough=0.01005 | bf25 carry=0.00224 rough=0.00289)  [0.4s]
+[21:48:07] Cell  14/126  H=0.03  resample=  60 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00704 rough=0.00853 | bf25 carry=0.00211 rough=0.00291)  [0.4s]
+[21:48:08] Cell  15/126  H=0.03  resample=  60 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00551 rough=0.00799 | bf25 carry=0.00220 rough=0.00301)  [0.5s]
+[21:48:08] Cell  16/126  H=0.03  resample= 120 min  move_pct=10%  →  PASS       (active rr25 carry=0.01201 rough=0.01158 | bf25 carry=0.00214 rough=0.00331)  [0.3s]
+[21:48:08] Cell  17/126  H=0.03  resample= 120 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00899 rough=0.00946 | bf25 carry=0.00235 rough=0.00320)  [0.3s]
+[21:48:09] Cell  18/126  H=0.03  resample= 120 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00761 rough=0.00887 | bf25 carry=0.00226 rough=0.00291)  [0.3s]
+[21:48:09] Cell  19/126  H=0.03  resample= 390 min  move_pct=10%  →  PASS       (active rr25 carry=0.01509 rough=0.01384 | bf25 carry=0.00199 rough=0.00384)  [0.2s]
+[21:48:09] Cell  20/126  H=0.03  resample= 390 min  move_pct=20%  →  PASS       (active rr25 carry=0.01416 rough=0.01221 | bf25 carry=0.00225 rough=0.00325)  [0.2s]
+[21:48:09] Cell  21/126  H=0.03  resample= 390 min  move_pct=30%  →  PASS       (active rr25 carry=0.01050 rough=0.01016 | bf25 carry=0.00237 rough=0.00308)  [0.2s]
+[21:53:34] Cell  22/126  H=0.05  resample=   1 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00176 rough=0.00762 | bf25 carry=0.00183 rough=0.00320)  [325.2s]

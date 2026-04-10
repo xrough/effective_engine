@@ -643,33 +643,170 @@ def process_panel_df(panel_df, H: float) -> list:
 # Forecast evaluation (temporal)
 # ─────────────────────────────────────────────────────────────────────────────
 def ar1_forecast(history: list) -> float:
+    """
+    Expanding AR(1) forecast using closed-form OLS.
+
+    Model: y_t = a + b * y_{t-1} + eps_t
+    Forecast: y_{n+1|n} = a + b * y_n
+    """
     if len(history) < 30:
         return history[-1]
-    y = np.array(history)
-    X = np.column_stack([np.ones(len(y)-1), y[:-1]])
-    try:
-        beta = np.linalg.lstsq(X, y[1:], rcond=None)[0]
-        return float(beta[0] + beta[1]*y[-1])
-    except Exception:
+    n_pairs = len(history) - 1
+    x = np.asarray(history[:-1], dtype=float)
+    y = np.asarray(history[1:], dtype=float)
+    sum_x = float(np.sum(x))
+    sum_y = float(np.sum(y))
+    sum_xx = float(np.dot(x, x))
+    sum_xy = float(np.dot(x, y))
+    denom = n_pairs * sum_xx - sum_x * sum_x
+    if abs(denom) < 1e-12:
         return history[-1]
+    slope = (n_pairs * sum_xy - sum_x * sum_y) / denom
+    intercept = (sum_y - slope * sum_x) / n_pairs
+    return float(intercept + slope * history[-1])
 
 
-def evaluate_forecasts(ts_data: list, H: float) -> dict:
+def ar1_expanding_forecasts(series: list, min_history: int = 30) -> list:
+    """
+    1-step-ahead expanding AR(1) forecasts for a whole series.
+
+    This matches repeatedly calling ar1_forecast(series[:i+1]) for i=0..n-2,
+    but updates the OLS sufficient statistics incrementally.
+    """
+    n = len(series)
+    if n <= 1:
+        return []
+
+    forecasts: list[float] = []
+    n_pairs = 0
+    sum_x = 0.0
+    sum_y = 0.0
+    sum_xx = 0.0
+    sum_xy = 0.0
+
+    for i in range(n - 1):
+        if i >= 1:
+            x_new = float(series[i - 1])
+            y_new = float(series[i])
+            n_pairs += 1
+            sum_x += x_new
+            sum_y += y_new
+            sum_xx += x_new * x_new
+            sum_xy += x_new * y_new
+
+        if i + 1 < min_history:
+            forecasts.append(float(series[i]))
+            continue
+
+        denom = n_pairs * sum_xx - sum_x * sum_x
+        if abs(denom) < 1e-12:
+            forecasts.append(float(series[i]))
+            continue
+
+        slope = (n_pairs * sum_xy - sum_x * sum_y) / denom
+        intercept = (sum_y - slope * sum_x) / n_pairs
+        forecasts.append(float(intercept + slope * float(series[i])))
+
+    return forecasts
+
+
+def carry_conditioned_forecasts(actual: list[float],
+                                rough_fc: list[float],
+                                min_history: int = 30) -> list[float]:
+    """
+    Expanding OLS of next carry error on the rough-vs-carry spread.
+
+    We model:
+      (x_{t+1} - x_t) = a + b * (rough_t - x_t) + eps_t
+
+    and forecast:
+      xhat_{t+1} = x_t + a + b * (rough_t - x_t)
+
+    This is the Gate 1 "rough-conditioned carry" test: rough only helps if the
+    rough spread contains incremental information beyond carry.
+    """
+    n = len(actual)
+    if n <= 1:
+        return []
+
+    forecasts: list[float] = []
+    n_pairs = 0
+    sum_x = 0.0
+    sum_y = 0.0
+    sum_xx = 0.0
+    sum_xy = 0.0
+
+    for i in range(n - 1):
+        x_i = float(rough_fc[i]) - float(actual[i])
+
+        if n_pairs < min_history:
+            forecasts.append(float(actual[i]))
+        else:
+            denom = n_pairs * sum_xx - sum_x * sum_x
+            if abs(denom) < 1e-12:
+                forecasts.append(float(actual[i]))
+            else:
+                slope = (n_pairs * sum_xy - sum_x * sum_y) / denom
+                intercept = (sum_y - slope * sum_x) / n_pairs
+                delta_hat = intercept + slope * x_i
+                fc = float(actual[i]) + float(delta_hat)
+                forecasts.append(fc if math.isfinite(fc) else float(actual[i]))
+
+        y_i = float(actual[i + 1]) - float(actual[i])
+        if math.isfinite(x_i) and math.isfinite(y_i):
+            n_pairs += 1
+            sum_x += x_i
+            sum_y += y_i
+            sum_xx += x_i * x_i
+            sum_xy += x_i * y_i
+
+    return forecasts
+
+
+def _ewma_update(prev: float | None, x: float, decay: float) -> float:
+    """One-step EWMA update with NaN safety."""
+    if not math.isfinite(x):
+        return prev if prev is not None else float("nan")
+    if prev is None or not math.isfinite(prev):
+        return float(x)
+    return float(decay * prev + (1.0 - decay) * x)
+
+
+def evaluate_forecasts(ts_data: list, H: float,
+                       score_mask: list[bool] | None = None,
+                       recent_halflife_bars: int = 20,
+                       cond_min_history: int = 30) -> dict:
     """
     1-step-ahead forecast evaluation for one expiry time series.
 
-    Forecasters: carry, rough-structural (α/γ rolling median), AR(1)
+    Forecasters:
+      carry               - last value
+      rough               - full-history median alpha/gamma
+      rough_cond_carry    - carry corrected by the rough spread
+      rough_recent        - exponentially weighted rough coefficients
+      ar1                 - expanding AR(1)
     Metrics: RMSE, directional accuracy, residual ACF(1), structural stability
 
     Returns nested dict with keys:
-      atm_total_var / rr25 / bf25 → {carry/rough/ar1 → {rmse, dir}}
-      _meta → {n_bars, rr25_resid_acf, rr25_resid_pval, bf25_resid_acf,
-                bf25_resid_pval, alpha_mean, alpha_std, alpha_cv,
-                gamma_mean, gamma_std, gamma_cv}
-      _dist_{feat} → {n, mean, std, min, p25, p50, p75, max}
+      atm_total_var / rr25 / bf25 ->
+          {carry/rough/rough_cond_carry/rough_recent/ar1 -> {rmse, dir}}
+      _meta -> {n_bars, n_bars_full, rr25_resid_acf, rr25_resid_pval,
+                bf25_resid_acf, bf25_resid_pval, alpha_mean, alpha_std,
+                alpha_cv, gamma_mean, gamma_std, gamma_cv}
+      _dist_{feat} -> {n, mean, std, min, p25, p50, p75, max}
+
+    Optional score_mask:
+      Boolean mask aligned to ts_data. Forecasts are formed on the full time
+      series, but metrics are scored only on target bars whose mask entry is
+      True. This is used by Gate 0B so active/quiet scoring does not discard
+      the quiet-bar history that rough forecasts need.
     """
     ts_data.sort(key=lambda r: r["ts"])
     n = len(ts_data)
+    if score_mask is not None and len(score_mask) != n:
+        raise ValueError(
+            f"score_mask length {len(score_mask)} does not match ts_data length {n}"
+        )
 
     atv  = [r["atm_total_var"] for r in ts_data]
     rr25 = [r["rr25"]          for r in ts_data]
@@ -679,16 +816,22 @@ def evaluate_forecasts(ts_data: list, H: float) -> dict:
     alph = [r["alpha"]         for r in ts_data]
     gamm = [r["gamma"]         for r in ts_data]
 
-    fc  = {m: {f: [] for f in ["atm_total_var","rr25","bf25"]}
-           for m in ["carry","rough","ar1"]}
-    act = {f: [] for f in ["atm_total_var","rr25","bf25"]}
+    methods = ["carry", "rough", "rough_cond_carry", "rough_recent", "ar1"]
+    fc  = {m: {f: [] for f in ["atm_total_var", "rr25", "bf25"]}
+           for m in methods}
+    act = {f: [] for f in ["atm_total_var", "rr25", "bf25"]}
 
     alpha_hist, gamma_hist = [], []
+    ew_alpha = None
+    ew_gamma = None
+    if recent_halflife_bars <= 0:
+        recent_halflife_bars = 1
+    decay = math.exp(-math.log(2.0) / float(recent_halflife_bars))
 
     for i in range(n - 1):
-        act["atm_total_var"].append(atv[i+1])
-        act["rr25"].append(rr25[i+1])
-        act["bf25"].append(bf25[i+1])
+        act["atm_total_var"].append(atv[i + 1])
+        act["rr25"].append(rr25[i + 1])
+        act["bf25"].append(bf25[i + 1])
 
         fc["carry"]["atm_total_var"].append(atv[i])
         fc["carry"]["rr25"].append(rr25[i])
@@ -698,19 +841,46 @@ def evaluate_forecasts(ts_data: list, H: float) -> dict:
             alpha_hist.append(alph[i])
         if math.isfinite(gamm[i]):
             gamma_hist.append(gamm[i])
+        ew_alpha = _ewma_update(ew_alpha, alph[i], decay)
+        ew_gamma = _ewma_update(ew_gamma, gamm[i], decay)
 
         Ti = T_[i]
         fc["rough"]["atm_total_var"].append(atv[i])
         fc["rough"]["rr25"].append(
-            np.median(alpha_hist) * Ti**(H-0.5) * aiv[i]
-            if alpha_hist else rr25[i])
+            np.median(alpha_hist) * Ti**(H - 0.5) * aiv[i]
+            if alpha_hist else rr25[i]
+        )
         fc["rough"]["bf25"].append(
-            np.median(gamma_hist) * Ti**(2*H-1) * atv[i]
-            if gamma_hist else bf25[i])
+            np.median(gamma_hist) * Ti**(2 * H - 1) * atv[i]
+            if gamma_hist else bf25[i]
+        )
+        fc["rough_recent"]["atm_total_var"].append(atv[i])
+        fc["rough_recent"]["rr25"].append(
+            float(ew_alpha) * Ti**(H - 0.5) * aiv[i]
+            if ew_alpha is not None and math.isfinite(ew_alpha) else rr25[i]
+        )
+        fc["rough_recent"]["bf25"].append(
+            float(ew_gamma) * Ti**(2 * H - 1) * atv[i]
+            if ew_gamma is not None and math.isfinite(ew_gamma) else bf25[i]
+        )
 
-        fc["ar1"]["atm_total_var"].append(ar1_forecast(atv[:i+1]))
-        fc["ar1"]["rr25"].append(ar1_forecast(rr25[:i+1]))
-        fc["ar1"]["bf25"].append(ar1_forecast(bf25[:i+1]))
+    fc["ar1"]["atm_total_var"] = ar1_expanding_forecasts(atv)
+    fc["ar1"]["rr25"] = ar1_expanding_forecasts(rr25)
+    fc["ar1"]["bf25"] = ar1_expanding_forecasts(bf25)
+    fc["rough_cond_carry"]["atm_total_var"] = carry_conditioned_forecasts(
+        atv, fc["rough"]["atm_total_var"], min_history=cond_min_history)
+    fc["rough_cond_carry"]["rr25"] = carry_conditioned_forecasts(
+        rr25, fc["rough"]["rr25"], min_history=cond_min_history)
+    fc["rough_cond_carry"]["bf25"] = carry_conditioned_forecasts(
+        bf25, fc["rough"]["bf25"], min_history=cond_min_history)
+
+    if score_mask is None:
+        score_idx = list(range(n - 1))
+    else:
+        score_idx = [i for i in range(n - 1) if bool(score_mask[i + 1])]
+
+    def _select(seq: list) -> list:
+        return [seq[i] for i in score_idx]
 
     def rmse(errs):
         return float(np.sqrt(np.mean(np.array(errs)**2))) if errs else float("nan")
@@ -718,8 +888,8 @@ def evaluate_forecasts(ts_data: list, H: float) -> dict:
     def dir_acc(actual_list, forecast_list):
         correct = tot = 0
         for i in range(1, len(actual_list)):
-            da = actual_list[i] - actual_list[i-1]
-            df = forecast_list[i-1] - actual_list[i-1]
+            da = actual_list[i] - actual_list[i - 1]
+            df = forecast_list[i - 1] - actual_list[i - 1]
             if abs(da) < 1e-9 or abs(df) < 1e-9:
                 continue
             correct += int((da > 0) == (df > 0))
@@ -727,18 +897,20 @@ def evaluate_forecasts(ts_data: list, H: float) -> dict:
         return correct / tot if tot else float("nan")
 
     out = {}
-    for feat in ["atm_total_var","rr25","bf25"]:
-        a_arr = np.array(act[feat])
+    for feat in ["atm_total_var", "rr25", "bf25"]:
+        act_sel = _select(act[feat])
+        a_arr = np.array(act_sel)
         out[feat] = {
             m: {
-                "rmse": rmse((np.array(fc[m][feat]) - a_arr).tolist()),
-                "dir":  dir_acc(act[feat], fc[m][feat]),
+                "rmse": rmse((np.array(_select(fc[m][feat])) - a_arr).tolist()),
+                "dir":  dir_acc(act_sel, _select(fc[m][feat])),
             }
-            for m in ["carry","rough","ar1"]
+            for m in methods
         }
 
     def acf1(x):
-        x = np.array(x); x = x[np.isfinite(x)]
+        x = np.array(x)
+        x = x[np.isfinite(x)]
         if len(x) < 10:
             return float("nan"), float("nan")
         with warnings.catch_warnings():
@@ -746,17 +918,27 @@ def evaluate_forecasts(ts_data: list, H: float) -> dict:
             r, p = pearsonr(x[:-1], x[1:])
         return float(r), float(p)
 
-    rr_resid = np.array(act["rr25"]) - np.array(fc["rough"]["rr25"])
-    bf_resid = np.array(act["bf25"]) - np.array(fc["rough"]["bf25"])
+    rr_resid = np.array(_select(act["rr25"])) - np.array(_select(fc["rough"]["rr25"]))
+    bf_resid = np.array(_select(act["bf25"])) - np.array(_select(fc["rough"]["bf25"]))
     rr_acf, rr_p = acf1(rr_resid)
     bf_acf, bf_p = acf1(bf_resid)
 
-    af = [v for v in alph if math.isfinite(v)]
-    gf = [v for v in gamm if math.isfinite(v)]
-    acv = np.std(af)/abs(np.mean(af)) if af and abs(np.mean(af)) > 1e-8 else float("nan")
-    gcv = np.std(gf)/abs(np.mean(gf)) if gf and abs(np.mean(gf)) > 1e-8 else float("nan")
+    if score_mask is None:
+        af = [v for v in alph if math.isfinite(v)]
+        gf = [v for v in gamm if math.isfinite(v)]
+    else:
+        af = [alph[i + 1] for i in score_idx if math.isfinite(alph[i + 1])]
+        gf = [gamm[i + 1] for i in score_idx if math.isfinite(gamm[i + 1])]
 
-    for feat, vals in [("atm_total_var", atv), ("rr25", rr25), ("bf25", bf25)]:
+    acv = np.std(af) / abs(np.mean(af)) if af and abs(np.mean(af)) > 1e-8 else float("nan")
+    gcv = np.std(gf) / abs(np.mean(gf)) if gf and abs(np.mean(gf)) > 1e-8 else float("nan")
+
+    dist_source = {
+        "atm_total_var": _select(act["atm_total_var"]) if score_mask is not None else atv,
+        "rr25": _select(act["rr25"]) if score_mask is not None else rr25,
+        "bf25": _select(act["bf25"]) if score_mask is not None else bf25,
+    }
+    for feat, vals in dist_source.items():
         arr = np.array([v for v in vals if math.isfinite(v)])
         if len(arr) >= 4:
             out[f"_dist_{feat}"] = {
@@ -771,14 +953,17 @@ def evaluate_forecasts(ts_data: list, H: float) -> dict:
             }
 
     out["_meta"] = {
-        "n_bars":          n,
-        "rr25_resid_acf":  rr_acf,  "rr25_resid_pval": rr_p,
-        "bf25_resid_acf":  bf_acf,  "bf25_resid_pval": bf_p,
+        "n_bars":          len(score_idx) if score_mask is not None else n,
+        "n_bars_full":     n,
+        "rr25_resid_acf":  rr_acf,
+        "rr25_resid_pval": rr_p,
+        "bf25_resid_acf":  bf_acf,
+        "bf25_resid_pval": bf_p,
         "alpha_mean":      float(np.mean(af)) if af else float("nan"),
-        "alpha_std":       float(np.std(af))  if af else float("nan"),
+        "alpha_std":       float(np.std(af)) if af else float("nan"),
         "alpha_cv":        float(acv),
         "gamma_mean":      float(np.mean(gf)) if gf else float("nan"),
-        "gamma_std":       float(np.std(gf))  if gf else float("nan"),
+        "gamma_std":       float(np.std(gf)) if gf else float("nan"),
         "gamma_cv":        float(gcv),
     }
     return out

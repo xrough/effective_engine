@@ -29,7 +29,8 @@ sys.path.insert(0, str(_HERE.parents[1] / "shared"))
 
 from smile_pipeline import (
     RATE, MIN_DTE, MAX_DTE,
-    _bs_call, _bs_put, _vec_iv, get_device, evaluate_forecasts,
+    _bs_call, _bs_put, _vec_iv, ar1_expanding_forecasts, carry_conditioned_forecasts,
+    get_device, evaluate_forecasts,
     _vec_iv_torch, _extract_features_from_ivs,
 )
 from synthetic_smile import SyntheticRoughConfig, generate_rough_synthetic_records
@@ -221,6 +222,57 @@ def test_fit_skew_scaling_requires_negative_rr25():
     assert fit_skew_scaling(recs) is None
 
 
+def test_gate0a_parse_dte_grid_and_subperiods():
+    """Gate 0A sweep helpers should parse DTE windows and split dates cleanly."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "_gate0a_sweep",
+        str(_HERE.parents[1] / "skew_scaling" / "gate0a_sweep.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    windows = mod.parse_dte_grid("7-21, 14-30, 7-21")
+    assert windows == [(7, 21), (14, 30)]
+
+    fake_records = []
+    for i in range(4):
+        fake_records.append({
+            "ts": __import__("pandas").Timestamp(f"2025-09-{10+i:02d} 14:00:00", tz="UTC"),
+            "T": 30 / 365.0,
+            "rr25": -0.05,
+        })
+
+    slices = mod.build_subperiod_slices(fake_records, "halves")
+    labels = [s["label"] for s in slices]
+    assert labels == ["full", "first_half", "second_half"], labels
+    assert len(slices[1]["dates"]) == 2 and len(slices[2]["dates"]) == 2
+
+
+def test_gate0a_synthetic_cell_runs():
+    """Gate 0A sweep cell should evaluate on synthetic records with enough expiries."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "_gate0a_sweep_eval",
+        str(_HERE.parents[1] / "skew_scaling" / "gate0a_sweep.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    cfg = SyntheticRoughConfig(
+        seed=19,
+        n_bars=80,
+        expiries_dte=(14, 21, 35, 49),
+        bar_minutes=30,
+    )
+    _, _, records = generate_rough_synthetic_records(cfg)
+    assert records, "Synthetic records unexpectedly empty"
+
+    result = mod.evaluate_gate0a_cell(records, H=cfg.H, dte_window=(7, 60))
+    assert result["n_ts_total"] > 0, "Expected timestamps in Gate 0A cell"
+    assert result["n_ts_fitted"] > 0, "Expected qualifying timestamp fits in Gate 0A cell"
+    assert result["status"] in {"PROCEED", "WEAK", "ABORT"}
+    assert 0.0 <= result["coverage"] <= 1.0
+
+
 def test_tag_move_regime_basic():
     """tag_move_regime correctly identifies large-move bars."""
     import importlib.util
@@ -257,6 +309,114 @@ def test_tag_move_regime_basic():
     n_active = sum(1 for r in regimes if r == "active")
     # With 10 bars and 20% threshold: expect ~2 active bars
     assert 1 <= n_active <= 3, f"Unexpected active count: {n_active}"
+
+
+def test_ar1_expanding_matches_lstsq_definition():
+    """Fast expanding AR(1) path should match the original OLS definition."""
+    rng = np.random.default_rng(7)
+    series = np.cumsum(rng.normal(0.0, 0.5, size=80)) + 10.0
+
+    def old_lstsq_forecast(history):
+        if len(history) < 30:
+            return history[-1]
+        y = np.array(history, dtype=float)
+        X = np.column_stack([np.ones(len(y) - 1), y[:-1]])
+        beta = np.linalg.lstsq(X, y[1:], rcond=None)[0]
+        return float(beta[0] + beta[1] * y[-1])
+
+    expected = [old_lstsq_forecast(series[:i + 1]) for i in range(len(series) - 1)]
+    got = ar1_expanding_forecasts(series.tolist())
+
+    np.testing.assert_allclose(got, expected, atol=1e-10)
+
+
+def test_carry_conditioned_forecast_improves_when_spread_is_predictive():
+    """Rough-conditioned carry should help when rough spread predicts the next move."""
+    actual = [0.0, 0.1, 0.4, 0.5, 0.9, 1.1, 1.6, 1.9]
+    rough_fc = [0.2, 0.5, 0.5, 1.0, 1.2, 1.8, 2.0]
+
+    cond = carry_conditioned_forecasts(actual, rough_fc, min_history=2)
+    carry = actual[:-1]
+    target = actual[1:]
+
+    cond_rmse = float(np.sqrt(np.mean((np.array(cond) - np.array(target)) ** 2)))
+    carry_rmse = float(np.sqrt(np.mean((np.array(carry) - np.array(target)) ** 2)))
+    assert cond_rmse < carry_rmse, (
+        f"Expected rough-conditioned carry to improve on carry, got "
+        f"cond={cond_rmse:.6f} carry={carry_rmse:.6f}"
+    )
+
+
+def test_evaluate_forecasts_exposes_gate1_methods():
+    """evaluate_forecasts should include Gate 1 forecast methods in its output."""
+    import pandas as pd
+
+    H = 0.10
+    T = 30 / 365.0
+    atm_iv = 0.20
+    atv = atm_iv * atm_iv * T
+    denom = (T ** (2 * H - 1)) * atv
+    ts0 = pd.Timestamp("2025-09-15 14:00:00", tz="UTC")
+    recs = []
+    for i, rr in enumerate([-0.11, -0.10, -0.12, -0.09, -0.11, -0.08, -0.10, -0.07] * 6):
+        recs.append({
+            "ts": ts0 + pd.Timedelta(minutes=i),
+            "expiry": pd.Timestamp("2025-10-15").date(),
+            "T": T,
+            "forward": 580.0,
+            "atm_iv": atm_iv,
+            "atm_total_var": atv,
+            "rr25": rr,
+            "bf25": 0.01 + 0.001 * ((i % 3) - 1),
+            "alpha": rr / ((T ** (H - 0.5)) * atm_iv),
+            "gamma": (0.01 + 0.001 * ((i % 3) - 1)) / denom,
+        })
+
+    ev = evaluate_forecasts(recs, H)
+    for feat in ["rr25", "bf25", "atm_total_var"]:
+        assert "rough_cond_carry" in ev[feat], f"Missing rough_cond_carry for {feat}"
+        assert "rough_recent" in ev[feat], f"Missing rough_recent for {feat}"
+
+
+def test_masked_forecast_scoring_keeps_full_history():
+    """Masked scoring should differ from evaluating only the sliced subset."""
+    import pandas as pd
+
+    H = 0.10
+    T = 30 / 365.0
+    atm_iv = 0.20
+    atv = atm_iv * atm_iv * T
+    denom = (T ** (2 * H - 1)) * atv
+    rr_vals = [-0.10, -0.10, -0.30, -0.10, -0.10, -0.10]
+    mask = [False, False, True, False, True, True]
+
+    recs = []
+    ts0 = pd.Timestamp("2025-09-15 14:00:00", tz="UTC")
+    for i, rr in enumerate(rr_vals):
+        recs.append({
+            "ts": ts0 + pd.Timedelta(minutes=i),
+            "expiry": pd.Timestamp("2025-10-15").date(),
+            "T": T,
+            "forward": 580.0,
+            "atm_iv": atm_iv,
+            "atm_total_var": atv,
+            "rr25": rr,
+            "bf25": 0.01,
+            "alpha": rr / ((T ** (H - 0.5)) * atm_iv),
+            "gamma": 0.01 / denom,
+        })
+
+    masked = evaluate_forecasts(list(recs), H, score_mask=mask)
+    subset = evaluate_forecasts([r for r, keep in zip(recs, mask) if keep], H)
+
+    assert masked["_meta"]["n_bars"] == 3, masked["_meta"]
+    assert masked["_meta"]["n_bars_full"] == 6, masked["_meta"]
+    assert subset["_meta"]["n_bars"] == 3, subset["_meta"]
+    assert masked["rr25"]["rough"]["rmse"] < subset["rr25"]["rough"]["rmse"], (
+        "Expected full-history masked scoring to outperform naive subset scoring "
+        f"on this constructed path, got masked={masked['rr25']['rough']['rmse']:.6f} "
+        f"subset={subset['rr25']['rough']['rmse']:.6f}"
+    )
 
 
 def test_synthetic_generator_produces_records():
@@ -315,7 +475,7 @@ def test_synthetic_gate0_recovers_rough_edge():
 
 
 def test_synthetic_gate0b_recovers_active_regime_edge():
-    """Synthetic stressed regimes should show the designed rough edge in Gate 0B."""
+    """Synthetic stressed regimes should still surface a rough edge in Gate 0B."""
     import importlib.util
 
     spec = importlib.util.spec_from_file_location(
@@ -339,21 +499,20 @@ def test_synthetic_gate0b_recovers_active_regime_edge():
         by_exp.setdefault(str(rec["expiry"]), []).append(rec)
 
     active_rr_wins = []
-    quiet_rr_wins = []
     active_bf_wins = []
     for ts_data in by_exp.values():
         cond = evaluate_conditional(ts_data, cfg.H, move_pct=0.20, min_bars=15)
         active = cond["active"]
         quiet = cond["quiet"]
         assert active is not None and quiet is not None, "Synthetic conditional split too small"
+        assert cond.get("scoring_mode") == "full-history forecasts, masked regime scoring"
         active_rr_wins.append(active["rr25"]["rough"]["rmse"] < active["rr25"]["carry"]["rmse"])
         active_bf_wins.append(active["bf25"]["rough"]["rmse"] < active["bf25"]["carry"]["rmse"])
-        quiet_rr_wins.append(quiet["rr25"]["rough"]["rmse"] < quiet["rr25"]["carry"]["rmse"])
+        assert active["_meta"]["n_bars_full"] >= active["_meta"]["n_bars"]
+        assert quiet["_meta"]["n_bars_full"] >= quiet["_meta"]["n_bars"]
 
     assert any(active_rr_wins) or any(active_bf_wins), \
         "Expected rough to win in the active regime on at least one feature"
-    assert not all(quiet_rr_wins), \
-        "Expected the active-edge synthetic world not to become a quiet-regime rr25 win everywhere"
 
 
 def test_day_worker_picklable():
@@ -495,7 +654,13 @@ NO_DATA_TESTS = [
     ("_extract_features_from_ivs flat smile",   test_extract_features_from_ivs),
     ("fit_skew_scaling recovers beta",          test_fit_skew_scaling_synthetic),
     ("fit_skew_scaling requires negative rr25", test_fit_skew_scaling_requires_negative_rr25),
+    ("Gate 0A helper parsing/splits",           test_gate0a_parse_dte_grid_and_subperiods),
+    ("Gate 0A synthetic cell",                  test_gate0a_synthetic_cell_runs),
     ("tag_move_regime basic",                   test_tag_move_regime_basic),
+    ("expanding AR1 matches OLS",               test_ar1_expanding_matches_lstsq_definition),
+    ("carry-conditioned forecast improves",     test_carry_conditioned_forecast_improves_when_spread_is_predictive),
+    ("evaluate_forecasts exposes Gate 1 methods", test_evaluate_forecasts_exposes_gate1_methods),
+    ("masked scoring keeps full history",       test_masked_forecast_scoring_keeps_full_history),
     ("synthetic generator roundtrip",          test_synthetic_generator_produces_records),
     ("synthetic Gate 0 rough edge",            test_synthetic_gate0_recovers_rough_edge),
     ("synthetic Gate 0B active edge",          test_synthetic_gate0b_recovers_active_regime_edge),

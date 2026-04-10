@@ -48,7 +48,7 @@ from smile_pipeline import (
 from robustness_sweeps import (
     SweepConfig, DEFAULT_H_GRID, DEFAULT_RESAMPLE_GRID,
     load_cache, save_cache,
-    resample_panel, recompute_structural,
+    extraction_heartbeat, resample_panel, recompute_structural,
     _agg_metrics, _avg_metrics, classify_gate0_cell,
     format_gate0_summary, _log,
 )
@@ -74,26 +74,31 @@ def _extract(cfg: SweepConfig, dbn_files: list[tuple]) -> list:
 
     t0    = time.time()
     day_map: dict = {}
+    progress = {"completed": 0, "current": None, "start_ts": t0}
 
-    if cfg.workers > 1:
-        ctx = mp.get_context("spawn")
-        completed = 0
-        with ctx.Pool(cfg.workers) as pool:
-            for tdate, recs in pool.imap_unordered(_gate0_worker, task_args):
-                completed += 1
-                _log(f"Day {completed:3d}/{total:3d} — {tdate} — {len(recs)} records")
-                day_map[tdate] = recs
-    else:
-        with zipfile.ZipFile(OPRA_ZIP) as zf:
-            for i, (fname, tdate) in enumerate(dbn_files, 1):
-                try:
-                    recs = process_day(zf, fname, tdate, 0.10, cfg.select_far)
-                except Exception as e:
-                    _log(f"Day {i:3d}/{total:3d} — {tdate} — SKIP: {e}")
-                    recs = []
-                else:
-                    _log(f"Day {i:3d}/{total:3d} — {tdate} — {len(recs)} records")
-                day_map[tdate] = recs
+    with extraction_heartbeat(total, progress, label="Extracting Gate 0 days"):
+        if cfg.workers > 1:
+            ctx = mp.get_context("spawn")
+            with ctx.Pool(cfg.workers) as pool:
+                for tdate, recs in pool.imap_unordered(_gate0_worker, task_args):
+                    progress["completed"] += 1
+                    _log(f"Day {progress['completed']:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                    day_map[tdate] = recs
+        else:
+            with zipfile.ZipFile(OPRA_ZIP) as zf:
+                for i, (fname, tdate) in enumerate(dbn_files, 1):
+                    progress["current"] = tdate
+                    _log(f"Day {i:3d}/{total:3d} — {tdate} — starting")
+                    try:
+                        recs = process_day(zf, fname, tdate, 0.10, cfg.select_far)
+                    except Exception as e:
+                        _log(f"Day {i:3d}/{total:3d} — {tdate} — SKIP: {e}")
+                        recs = []
+                    else:
+                        _log(f"Day {i:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                    day_map[tdate] = recs
+                    progress["completed"] = i
+                    progress["current"] = None
 
     elapsed = time.time() - t0
     flat = [r for tdate, recs in day_map.items() for r in recs]
@@ -257,7 +262,18 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
         for resample in cfg.resample_grid:
             cell_idx += 1
             t_cell = time.time()
-            agg, rows = _evaluate_cell(records, H, resample)
+            cell_state = {
+                "completed": 0,
+                "current": f"H={H:.2f} resample={resample}",
+                "start_ts": t_cell,
+            }
+            _log(f"Cell {cell_idx:3d}/{n_cells:3d} — starting  H={H:.2f}  "
+                 f"resample={resample:4d} min")
+            with extraction_heartbeat(1, cell_state,
+                                      label="Evaluating Gate 0 cell",
+                                      interval_s=5.0):
+                agg, rows = _evaluate_cell(records, H, resample)
+                cell_state["completed"] = 1
             elapsed_c = time.time() - t_cell
 
             verdict = agg and classify_gate0_cell(agg) or "SKIP"

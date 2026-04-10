@@ -10,6 +10,7 @@ load_cache           — load pickled records from disk (returns None on miss)
 save_cache           — pickle records to disk
 resample_panel       — downsample a 1-min flat record list to N-min bars
 apply_n_exp_selection — filter to N nearest/farthest expiries per timestamp
+pool_by_tenor_bucket — collapse exact expiries into longer-lived tenor roles
 recompute_structural — recompute alpha/gamma for a new H without re-running IV
 classify_gate0_cell  — PASS/MARGINAL/FAIL verdict for a (H, resample) cell
 classify_gate0b_cell — PASS/MARGINAL/FAIL/SKIP verdict for a (H, resample, move_pct) cell
@@ -21,8 +22,10 @@ from __future__ import annotations
 
 import math
 import pickle
+import threading
 import time
 from collections import defaultdict
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -33,6 +36,15 @@ import pandas as pd
 DEFAULT_H_GRID        = [0.03, 0.05, 0.07, 0.10, 0.15, 0.20]
 DEFAULT_RESAMPLE_GRID = [1, 5, 15, 30, 60, 120, 390]   # minutes
 DEFAULT_MOVE_PCT_GRID = [0.10, 0.20, 0.30]
+DEFAULT_GATE1_METHODS = ["rough_cond_carry", "rough_recent"]
+DEFAULT_NEAR_TENOR_BUCKETS = [
+    ("front", 7.0, 21.0),
+    ("mid", 22.0, 45.0),
+]
+DEFAULT_FAR_TENOR_BUCKETS = [
+    ("mid", 22.0, 45.0),
+    ("back", 46.0, 60.0),
+]
 
 _HERE = Path(__file__).resolve()
 _DEFAULT_CACHE_DIR = _HERE.parents[1] / "cache"
@@ -40,6 +52,39 @@ _DEFAULT_CACHE_DIR = _HERE.parents[1] / "cache"
 
 def _log(msg: str) -> None:
     print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
+
+
+@contextmanager
+def extraction_heartbeat(total: int,
+                         state: dict,
+                         label: str = "Extracting",
+                         interval_s: float = 5.0):
+    """
+    Emit periodic progress lines while a long extraction loop is running.
+
+    state is a mutable dict with:
+      completed: int
+      current:   optional current day/date being worked on
+      start_ts:  float epoch seconds (optional; auto-filled if absent)
+    """
+    stop_evt = threading.Event()
+    state.setdefault("start_ts", time.time())
+
+    def _worker():
+        while not stop_evt.wait(interval_s):
+            completed = int(state.get("completed", 0))
+            current = state.get("current")
+            elapsed = time.time() - float(state.get("start_ts", time.time()))
+            cur_str = f"  current={current}" if current else ""
+            _log(f"{label}... {completed}/{total} days complete  (elapsed {elapsed:.0f}s){cur_str}")
+
+    thread = threading.Thread(target=_worker, daemon=True)
+    thread.start()
+    try:
+        yield state
+    finally:
+        stop_evt.set()
+        thread.join(timeout=interval_s)
 
 
 # ── SweepConfig ───────────────────────────────────────────────────────────────
@@ -146,6 +191,63 @@ def apply_n_exp_selection(records: list, n_exp: int = 2,
     return [r for r in records if r["expiry"] in selected.get(r["ts"], set())]
 
 
+def pool_by_tenor_bucket(records: list,
+                         select_far: bool = False,
+                         bucket_defs: list[tuple[str, float, float]] | None = None) -> list:
+    """
+    Collapse exact expiries into longer-lived tenor-role series.
+
+    For each timestamp and tenor bucket, choose the record whose DTE is closest
+    to the bucket midpoint. This lets Gate 0B follow "front" / "mid" / "back"
+    roles through time instead of restarting on every calendar expiry.
+    """
+    if bucket_defs is None:
+        bucket_defs = (DEFAULT_FAR_TENOR_BUCKETS if select_far
+                       else DEFAULT_NEAR_TENOR_BUCKETS)
+
+    midpoints = {name: 0.5 * (lo + hi) for name, lo, hi in bucket_defs}
+    best_by_slot: dict[tuple, tuple[float, object, dict]] = {}
+
+    for r in records:
+        T = r.get("T", float("nan"))
+        if not (math.isfinite(T) and T > 0):
+            continue
+
+        dte = T * 365.0
+        bucket_name = None
+        for name, lo, hi in bucket_defs:
+            if lo <= dte <= hi:
+                bucket_name = name
+                break
+        if bucket_name is None:
+            continue
+
+        score = abs(dte - midpoints[bucket_name])
+        key = (r["ts"], bucket_name)
+        expiry_key = r.get("expiry")
+
+        current = best_by_slot.get(key)
+        if current is not None:
+            cur_score, cur_expiry, _ = current
+            if score > cur_score:
+                continue
+            if score == cur_score and expiry_key is not None and cur_expiry is not None:
+                if expiry_key >= cur_expiry:
+                    continue
+
+        rec = dict(r)
+        rec["series_id"] = bucket_name
+        rec["tenor_bucket"] = bucket_name
+        rec["dte"] = dte
+        best_by_slot[key] = (score, expiry_key, rec)
+
+    out: list[dict] = []
+    for _, _, rec in sorted(best_by_slot.values(),
+                            key=lambda item: (item[2]["ts"], item[2]["series_id"])):
+        out.append(rec)
+    return out
+
+
 def recompute_structural(records: list, H: float) -> list:
     """
     Return a new list with alpha and gamma recomputed for a different H.
@@ -192,13 +294,12 @@ def _agg_metrics(ev: dict) -> dict:
     for feat in ["rr25", "bf25", "atm_total_var"]:
         if feat not in ev:
             continue
-        for method in ["carry", "rough", "ar1"]:
-            md = ev[feat].get(method, {})
+        for method, md in ev[feat].items():
             out[f"{feat}_rmse_{method}"] = md.get("rmse", float("nan"))
             out[f"{feat}_dir_{method}"]  = md.get("dir",  float("nan"))
 
     meta = ev.get("_meta", {})
-    for k in ["n_bars", "rr25_resid_acf", "rr25_resid_pval",
+    for k in ["n_bars", "n_bars_full", "rr25_resid_acf", "rr25_resid_pval",
               "bf25_resid_acf", "bf25_resid_pval",
               "alpha_mean", "alpha_cv", "gamma_mean", "gamma_cv"]:
         out[k] = meta.get(k, float("nan"))
@@ -295,6 +396,85 @@ def classify_gate0b_cell(agg_active: dict | None,
     if math.isfinite(active_imp) and active_imp >= 0.03:
         return "MARGINAL"
     if active_beats:
+        return "MARGINAL"
+    return "FAIL"
+
+
+def _best_carry_improvement(agg: dict | None,
+                            methods: list[str] | None = None,
+                            features: list[str] | None = None) -> tuple[float, str | None, str | None]:
+    """
+    Best % RMSE improvement over carry among the supplied methods/features.
+
+    Returns (improvement, method, feature). improvement is NaN when unavailable.
+    """
+    if agg is None:
+        return float("nan"), None, None
+    methods = methods or list(DEFAULT_GATE1_METHODS)
+    features = features or ["rr25", "bf25"]
+
+    best_imp = float("nan")
+    best_method = None
+    best_feat = None
+    for feat in features:
+        carry = agg.get(f"{feat}_rmse_carry", float("nan"))
+        if not (math.isfinite(carry) and carry > 0):
+            continue
+        for method in methods:
+            model = agg.get(f"{feat}_rmse_{method}", float("nan"))
+            if not math.isfinite(model):
+                continue
+            imp = (carry - model) / carry
+            if not math.isfinite(best_imp) or imp > best_imp:
+                best_imp = imp
+                best_method = method
+                best_feat = feat
+    return best_imp, best_method, best_feat
+
+
+def classify_gate1_cell(agg: dict,
+                        methods: list[str] | None = None) -> str:
+    """
+    Verdict for one Gate 1 cell (incremental value over carry).
+
+    PASS     — a Gate 1 method improves on carry by >2%
+    MARGINAL — a Gate 1 method improves on carry by >0%
+    FAIL     — best Gate 1 method does not improve on carry
+    SKIP     — insufficient data
+    """
+    best_imp, _, _ = _best_carry_improvement(agg, methods=methods)
+    if not math.isfinite(best_imp):
+        return "SKIP"
+    if best_imp > 0.02:
+        return "PASS"
+    if best_imp > 0.0:
+        return "MARGINAL"
+    return "FAIL"
+
+
+def classify_gate1b_cell(agg_active: dict | None,
+                         agg_quiet: dict | None,
+                         methods: list[str] | None = None) -> str:
+    """
+    Verdict for one conditional Gate 1 cell.
+
+    PASS     — best Gate 1 method improves on carry by >2% in ACTIVE and does
+               not improve in QUIET.
+    MARGINAL — positive active improvement, but not regime-specific enough.
+    FAIL     — no positive active improvement over carry.
+    SKIP     — active or quiet partition missing.
+    """
+    if agg_active is None or agg_quiet is None:
+        return "SKIP"
+
+    active_imp, _, _ = _best_carry_improvement(agg_active, methods=methods)
+    quiet_imp, _, _ = _best_carry_improvement(agg_quiet, methods=methods)
+
+    if not math.isfinite(active_imp):
+        return "SKIP"
+    if active_imp > 0.02 and (not math.isfinite(quiet_imp) or quiet_imp <= 0.0):
+        return "PASS"
+    if active_imp > 0.0:
         return "MARGINAL"
     return "FAIL"
 

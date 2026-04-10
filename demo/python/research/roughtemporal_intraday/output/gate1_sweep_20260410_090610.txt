@@ -1,0 +1,108 @@
+
+Gate 1 Robustness Sweep
+  Run:          2026-04-10 09:05:49 UTC
+  Days:         90
+  Workers:      4  |  device=cpu
+  H grid:       [0.03, 0.05, 0.07, 0.1, 0.15, 0.2]
+  Resample:     [1, 5, 15, 30, 60, 120, 390] min
+  Methods:      ['rough_cond_carry', 'rough_recent']
+[11:05:49] Cache hit: loaded 65107 records from gate0_days90_farF.pkl
+[11:05:49] Cell   1/ 42 — starting  H=0.03  resample=   1 min
+[11:05:52] Cell   1/ 42  H=0.03  resample=   1 min  → PASS      best=rough_cond_carry:bf25 (+7.4%)  [2.7s]
+[11:05:52] Cell   2/ 42 — starting  H=0.03  resample=   5 min
+[11:05:52] Cell   2/ 42  H=0.03  resample=   5 min  → PASS      best=rough_cond_carry:bf25 (+7.7%)  [0.5s]
+[11:05:52] Cell   3/ 42 — starting  H=0.03  resample=  15 min
+[11:05:52] Cell   3/ 42  H=0.03  resample=  15 min  → PASS      best=rough_cond_carry:bf25 (+3.4%)  [0.2s]
+[11:05:52] Cell   4/ 42 — starting  H=0.03  resample=  30 min
+[11:05:52] Cell   4/ 42  H=0.03  resample=  30 min  → MARGINAL  best=rough_cond_carry:bf25 (+0.1%)  [0.1s]
+[11:05:52] Cell   5/ 42 — starting  H=0.03  resample=  60 min
+[11:05:52] Cell   5/ 42  H=0.03  resample=  60 min  → PASS      best=rough_recent:bf25 (+4.5%)  [0.0s]
+[11:05:52] Cell   6/ 42 — starting  H=0.03  resample= 120 min
+[11:05:52] Cell   6/ 42  H=0.03  resample= 120 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:05:52] Cell   7/ 42 — starting  H=0.03  resample= 390 min
+[11:05:52] Cell   7/ 42  H=0.03  resample= 390 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:05:52] Cell   8/ 42 — starting  H=0.05  resample=   1 min
+[11:05:55] Cell   8/ 42  H=0.05  resample=   1 min  → PASS      best=rough_cond_carry:bf25 (+7.5%)  [2.7s]
+[11:05:55] Cell   9/ 42 — starting  H=0.05  resample=   5 min
+[11:05:56] Cell   9/ 42  H=0.05  resample=   5 min  → PASS      best=rough_cond_carry:bf25 (+7.7%)  [0.5s]
+[11:05:56] Cell  10/ 42 — starting  H=0.05  resample=  15 min
+[11:05:56] Cell  10/ 42  H=0.05  resample=  15 min  → PASS      best=rough_cond_carry:bf25 (+3.4%)  [0.2s]
+[11:05:56] Cell  11/ 42 — starting  H=0.05  resample=  30 min
+[11:05:56] Cell  11/ 42  H=0.05  resample=  30 min  → MARGINAL  best=rough_cond_carry:bf25 (+0.1%)  [0.1s]
+[11:05:56] Cell  12/ 42 — starting  H=0.05  resample=  60 min
+[11:05:56] Cell  12/ 42  H=0.05  resample=  60 min  → PASS      best=rough_recent:bf25 (+5.1%)  [0.0s]
+[11:05:56] Cell  13/ 42 — starting  H=0.05  resample= 120 min
+[11:05:56] Cell  13/ 42  H=0.05  resample= 120 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:05:56] Cell  14/ 42 — starting  H=0.05  resample= 390 min
+[11:05:56] Cell  14/ 42  H=0.05  resample= 390 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:05:56] Cell  15/ 42 — starting  H=0.07  resample=   1 min
+[11:05:59] Cell  15/ 42  H=0.07  resample=   1 min  → PASS      best=rough_cond_carry:bf25 (+7.5%)  [2.7s]
+[11:05:59] Cell  16/ 42 — starting  H=0.07  resample=   5 min
+[11:05:59] Cell  16/ 42  H=0.07  resample=   5 min  → PASS      best=rough_cond_carry:bf25 (+7.8%)  [0.4s]
+[11:05:59] Cell  17/ 42 — starting  H=0.07  resample=  15 min
+[11:05:59] Cell  17/ 42  H=0.07  resample=  15 min  → PASS      best=rough_cond_carry:bf25 (+3.4%)  [0.2s]
+[11:05:59] Cell  18/ 42 — starting  H=0.07  resample=  30 min
+[11:05:59] Cell  18/ 42  H=0.07  resample=  30 min  → MARGINAL  best=rough_cond_carry:bf25 (+0.1%)  [0.1s]
+[11:05:59] Cell  19/ 42 — starting  H=0.07  resample=  60 min
+[11:05:59] Cell  19/ 42  H=0.07  resample=  60 min  → PASS      best=rough_recent:bf25 (+5.7%)  [0.1s]
+[11:05:59] Cell  20/ 42 — starting  H=0.07  resample= 120 min
+[11:05:59] Cell  20/ 42  H=0.07  resample= 120 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:05:59] Cell  21/ 42 — starting  H=0.07  resample= 390 min
+[11:06:00] Cell  21/ 42  H=0.07  resample= 390 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:06:00] Cell  22/ 42 — starting  H=0.10  resample=   1 min
+[11:06:02] Cell  22/ 42  H=0.10  resample=   1 min  → PASS      best=rough_cond_carry:bf25 (+7.5%)  [2.7s]
+[11:06:02] Cell  23/ 42 — starting  H=0.10  resample=   5 min
+[11:06:03] Cell  23/ 42  H=0.10  resample=   5 min  → PASS      best=rough_cond_carry:bf25 (+7.8%)  [0.5s]
+[11:06:03] Cell  24/ 42 — starting  H=0.10  resample=  15 min
+[11:06:03] Cell  24/ 42  H=0.10  resample=  15 min  → PASS      best=rough_cond_carry:bf25 (+3.4%)  [0.2s]
+[11:06:03] Cell  25/ 42 — starting  H=0.10  resample=  30 min
+[11:06:03] Cell  25/ 42  H=0.10  resample=  30 min  → MARGINAL  best=rough_cond_carry:bf25 (+0.1%)  [0.1s]
+[11:06:03] Cell  26/ 42 — starting  H=0.10  resample=  60 min
+[11:06:03] Cell  26/ 42  H=0.10  resample=  60 min  → PASS      best=rough_recent:bf25 (+6.5%)  [0.0s]
+[11:06:03] Cell  27/ 42 — starting  H=0.10  resample= 120 min
+[11:06:03] Cell  27/ 42  H=0.10  resample= 120 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:06:03] Cell  28/ 42 — starting  H=0.10  resample= 390 min
+[11:06:03] Cell  28/ 42  H=0.10  resample= 390 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:06:03] Cell  29/ 42 — starting  H=0.15  resample=   1 min
+[11:06:06] Cell  29/ 42  H=0.15  resample=   1 min  → PASS      best=rough_cond_carry:bf25 (+7.6%)  [2.7s]
+[11:06:06] Cell  30/ 42 — starting  H=0.15  resample=   5 min
+[11:06:06] Cell  30/ 42  H=0.15  resample=   5 min  → PASS      best=rough_cond_carry:bf25 (+7.9%)  [0.4s]
+[11:06:06] Cell  31/ 42 — starting  H=0.15  resample=  15 min
+[11:06:06] Cell  31/ 42  H=0.15  resample=  15 min  → PASS      best=rough_cond_carry:bf25 (+3.4%)  [0.2s]
+[11:06:06] Cell  32/ 42 — starting  H=0.15  resample=  30 min
+[11:06:07] Cell  32/ 42  H=0.15  resample=  30 min  → MARGINAL  best=rough_cond_carry:bf25 (+0.1%)  [0.1s]
+[11:06:07] Cell  33/ 42 — starting  H=0.15  resample=  60 min
+[11:06:07] Cell  33/ 42  H=0.15  resample=  60 min  → PASS      best=rough_recent:bf25 (+7.6%)  [0.0s]
+[11:06:07] Cell  34/ 42 — starting  H=0.15  resample= 120 min
+[11:06:07] Cell  34/ 42  H=0.15  resample= 120 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:06:07] Cell  35/ 42 — starting  H=0.15  resample= 390 min
+[11:06:07] Cell  35/ 42  H=0.15  resample= 390 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:06:07] Cell  36/ 42 — starting  H=0.20  resample=   1 min
+[11:06:09] Cell  36/ 42  H=0.20  resample=   1 min  → PASS      best=rough_cond_carry:bf25 (+7.6%)  [2.7s]
+[11:06:09] Cell  37/ 42 — starting  H=0.20  resample=   5 min
+[11:06:10] Cell  37/ 42  H=0.20  resample=   5 min  → PASS      best=rough_cond_carry:bf25 (+7.9%)  [0.5s]
+[11:06:10] Cell  38/ 42 — starting  H=0.20  resample=  15 min
+[11:06:10] Cell  38/ 42  H=0.20  resample=  15 min  → PASS      best=rough_cond_carry:bf25 (+3.4%)  [0.2s]
+[11:06:10] Cell  39/ 42 — starting  H=0.20  resample=  30 min
+[11:06:10] Cell  39/ 42  H=0.20  resample=  30 min  → MARGINAL  best=rough_cond_carry:bf25 (+0.1%)  [0.1s]
+[11:06:10] Cell  40/ 42 — starting  H=0.20  resample=  60 min
+[11:06:10] Cell  40/ 42  H=0.20  resample=  60 min  → PASS      best=rough_recent:bf25 (+8.4%)  [0.0s]
+[11:06:10] Cell  41/ 42 — starting  H=0.20  resample= 120 min
+[11:06:10] Cell  41/ 42  H=0.20  resample= 120 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:06:10] Cell  42/ 42 — starting  H=0.20  resample= 390 min
+[11:06:10] Cell  42/ 42  H=0.20  resample= 390 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]
+[11:06:10] CSV saved → /Users/xiaohao/Effective_Engine/MVP/demo/python/research/roughtemporal_intraday/output/gate1_sweep_20260410_090610.csv
+
+Gate 1 Robustness Sweep — incremental over carry
+     H |          1 |          5 |         15 |         30 |         60
+--------------------------------------------------------------------------
+  0.03 |       PASS |       PASS |       PASS |   MARGINAL |       PASS
+  0.05 |       PASS |       PASS |       PASS |   MARGINAL |       PASS
+  0.07 |       PASS |       PASS |       PASS |   MARGINAL |       PASS
+  0.10 |       PASS |       PASS |       PASS |   MARGINAL |       PASS
+  0.15 |       PASS |       PASS |       PASS |   MARGINAL |       PASS
+  0.20 |       PASS |       PASS |       PASS |   MARGINAL |       PASS
+--------------------------------------------------------------------------
+
+PASS cells: 24/30 (80%)
+

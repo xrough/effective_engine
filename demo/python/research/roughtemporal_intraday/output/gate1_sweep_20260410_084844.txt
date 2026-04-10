@@ -1,0 +1,11 @@
+
+Gate 1 Robustness Sweep
+  Run:          2026-04-10 08:48:44 UTC
+  Days:         5
+  Workers:      4  |  device=cpu
+  H grid:       [0.1]
+  Resample:     [390] min
+  Methods:      ['rough_cond_carry', 'rough_recent']
+[10:48:44] Cache hit: loaded 3810 records from gate0_days5_farF.pkl
+[10:48:44] Cell   1/  1 — starting  H=0.10  resample= 390 min
+[10:48:44] Cell   1/  1  H=0.10  resample= 390 min  → SKIP      best=n/a:n/a (+nan%)  [0.0s]

@@ -1,0 +1,21 @@
+
+Gate 1 Robustness Sweep
+  Run:          2026-04-10 08:49:10 UTC
+  Days:         5
+  Workers:      4  |  device=cpu
+  H grid:       [0.1]
+  Resample:     [1] min
+  Methods:      ['rough_cond_carry', 'rough_recent']
+[10:49:10] Cache hit: loaded 3810 records from gate0_days5_farF.pkl
+[10:49:10] Cell   1/  1 — starting  H=0.10  resample=   1 min
+[10:49:10] Cell   1/  1  H=0.10  resample=   1 min  → PASS      best=rough_cond_carry:bf25 (+11.0%)  [0.3s]
+[10:49:10] CSV saved → /Users/xiaohao/Effective_Engine/MVP/demo/python/research/roughtemporal_intraday/output/gate1_sweep_20260410_084910.csv
+
+Gate 1 Robustness Sweep — incremental over carry
+     H |          1
+----------------------
+  0.10 |       PASS
+----------------------
+
+PASS cells: 1/1 (100%)
+

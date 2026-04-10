@@ -1,0 +1,824 @@
+
+Gate 1B Robustness Sweep
+  Run:          2026-04-10 09:06:46 UTC
+  Days:         90  |  select=near
+  Workers:      4  |  device=cpu
+  H grid:       [0.03, 0.05, 0.07, 0.1, 0.15, 0.2]
+  Resample:     [1, 5, 15, 30, 60, 120, 390] min
+  Move-pct:     [0.1, 0.2, 0.3]
+  Methods:      ['rough_cond_carry', 'rough_recent']
+[11:06:46] Cache hit: loaded 380857 records from gate0b_days90_farF.pkl
+[11:06:46] Cell   1/126 — starting  H=0.03  resample=   1 min  move_pct=10%
+[11:06:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=1 move_pct=0.10
+[11:06:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.03 resample=1 move_pct=0.10
+[11:07:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.03 resample=1 move_pct=0.10
+[11:08:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.03 resample=1 move_pct=0.10
+[11:09:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.03 resample=1 move_pct=0.10
+[11:09:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.03 resample=1 move_pct=0.10
+[11:09:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 145s)  current=H=0.03 resample=1 move_pct=0.10
+[11:09:14] Cell   1/126  H=0.03  resample=   1 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+8.6%)  [147.3s]
+[11:09:14] Cell   2/126 — starting  H=0.03  resample=   1 min  move_pct=20%
+[11:09:19] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=1 move_pct=0.20
+[11:09:24] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.03 resample=1 move_pct=0.20
+[11:09:29] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.03 resample=1 move_pct=0.20
+[11:09:34] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.03 resample=1 move_pct=0.20
+[11:09:39] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.03 resample=1 move_pct=0.20
+[11:09:44] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.03 resample=1 move_pct=0.20
+[11:09:49] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.03 resample=1 move_pct=0.20
+[11:09:54] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.03 resample=1 move_pct=0.20
+[11:09:59] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:04] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:09] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:14] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:19] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:24] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:29] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:34] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:39] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:44] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:49] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:54] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.03 resample=1 move_pct=0.20
+[11:10:59] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.03 resample=1 move_pct=0.20
+[11:11:04] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.03 resample=1 move_pct=0.20
+[11:11:09] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.03 resample=1 move_pct=0.20
+[11:11:14] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.03 resample=1 move_pct=0.20
+[11:11:19] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.03 resample=1 move_pct=0.20
+[11:11:24] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.03 resample=1 move_pct=0.20
+[11:11:29] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.03 resample=1 move_pct=0.20
+[11:11:34] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.03 resample=1 move_pct=0.20
+[11:11:37] Cell   2/126  H=0.03  resample=   1 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+4.8%)  [143.3s]
+[11:11:37] Cell   3/126 — starting  H=0.03  resample=   1 min  move_pct=30%
+[11:11:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=1 move_pct=0.30
+[11:11:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.03 resample=1 move_pct=0.30
+[11:11:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.03 resample=1 move_pct=0.30
+[11:11:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.03 resample=1 move_pct=0.30
+[11:12:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.03 resample=1 move_pct=0.30
+[11:13:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.03 resample=1 move_pct=0.30
+[11:14:00] Cell   3/126  H=0.03  resample=   1 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+3.1%)  [143.0s]
+[11:14:00] Cell   4/126 — starting  H=0.03  resample=   5 min  move_pct=10%
+[11:14:05] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=5 move_pct=0.10
+[11:14:07] Cell   4/126  H=0.03  resample=   5 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+11.4%)  [7.4s]
+[11:14:07] Cell   5/126 — starting  H=0.03  resample=   5 min  move_pct=20%
+[11:14:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=5 move_pct=0.20
+[11:14:15] Cell   5/126  H=0.03  resample=   5 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+6.2%)  [7.3s]
+[11:14:15] Cell   6/126 — starting  H=0.03  resample=   5 min  move_pct=30%
+[11:14:20] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=5 move_pct=0.30
+[11:14:22] Cell   6/126  H=0.03  resample=   5 min  move_pct=30%  → PASS      active_best=rough_cond_carry:bf25 (+5.5%)  [7.4s]
+[11:14:22] Cell   7/126 — starting  H=0.03  resample=  15 min  move_pct=10%
+[11:14:23] Cell   7/126  H=0.03  resample=  15 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+16.0%)  [1.3s]
+[11:14:23] Cell   8/126 — starting  H=0.03  resample=  15 min  move_pct=20%
+[11:14:25] Cell   8/126  H=0.03  resample=  15 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+9.7%)  [1.2s]
+[11:14:25] Cell   9/126 — starting  H=0.03  resample=  15 min  move_pct=30%
+[11:14:26] Cell   9/126  H=0.03  resample=  15 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.3%)  [1.3s]
+[11:14:26] Cell  10/126 — starting  H=0.03  resample=  30 min  move_pct=10%
+[11:14:27] Cell  10/126  H=0.03  resample=  30 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.6%)  [0.5s]
+[11:14:27] Cell  11/126 — starting  H=0.03  resample=  30 min  move_pct=20%
+[11:14:27] Cell  11/126  H=0.03  resample=  30 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+10.0%)  [0.5s]
+[11:14:27] Cell  12/126 — starting  H=0.03  resample=  30 min  move_pct=30%
+[11:14:28] Cell  12/126  H=0.03  resample=  30 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:14:28] Cell  13/126 — starting  H=0.03  resample=  60 min  move_pct=10%
+[11:14:28] Cell  13/126  H=0.03  resample=  60 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.9%)  [0.3s]
+[11:14:28] Cell  14/126 — starting  H=0.03  resample=  60 min  move_pct=20%
+[11:14:28] Cell  14/126  H=0.03  resample=  60 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+5.6%)  [0.3s]
+[11:14:28] Cell  15/126 — starting  H=0.03  resample=  60 min  move_pct=30%
+[11:14:29] Cell  15/126  H=0.03  resample=  60 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.9%)  [0.3s]
+[11:14:29] Cell  16/126 — starting  H=0.03  resample= 120 min  move_pct=10%
+[11:14:29] Cell  16/126  H=0.03  resample= 120 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:rr25 (+0.4%)  [0.3s]
+[11:14:29] Cell  17/126 — starting  H=0.03  resample= 120 min  move_pct=20%
+[11:14:29] Cell  17/126  H=0.03  resample= 120 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+1.9%)  [0.3s]
+[11:14:29] Cell  18/126 — starting  H=0.03  resample= 120 min  move_pct=30%
+[11:14:30] Cell  18/126  H=0.03  resample= 120 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.3%)  [0.3s]
+[11:14:30] Cell  19/126 — starting  H=0.03  resample= 390 min  move_pct=10%
+[11:14:30] Cell  19/126  H=0.03  resample= 390 min  move_pct=10%  → MARGINAL  active_best=rough_recent:rr25 (+9.1%)  [0.2s]
+[11:14:30] Cell  20/126 — starting  H=0.03  resample= 390 min  move_pct=20%
+[11:14:30] Cell  20/126  H=0.03  resample= 390 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.4%)  [0.2s]
+[11:14:30] Cell  21/126 — starting  H=0.03  resample= 390 min  move_pct=30%
+[11:14:30] Cell  21/126  H=0.03  resample= 390 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.8%)  [0.2s]
+[11:14:30] Cell  22/126 — starting  H=0.05  resample=   1 min  move_pct=10%
+[11:14:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=1 move_pct=0.10
+[11:14:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.05 resample=1 move_pct=0.10
+[11:14:45] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.05 resample=1 move_pct=0.10
+[11:14:50] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.05 resample=1 move_pct=0.10
+[11:14:55] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:00] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:05] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:10] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:15] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:20] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:25] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:30] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:45] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:50] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.05 resample=1 move_pct=0.10
+[11:15:55] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:00] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:05] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:10] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:15] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:20] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:25] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:30] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:45] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:50] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.05 resample=1 move_pct=0.10
+[11:16:53] Cell  22/126  H=0.05  resample=   1 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+8.6%)  [143.1s]
+[11:16:53] Cell  23/126 — starting  H=0.05  resample=   1 min  move_pct=20%
+[11:16:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:43] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.05 resample=1 move_pct=0.20
+[11:17:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:43] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.05 resample=1 move_pct=0.20
+[11:18:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.05 resample=1 move_pct=0.20
+[11:19:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.05 resample=1 move_pct=0.20
+[11:19:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.05 resample=1 move_pct=0.20
+[11:19:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.05 resample=1 move_pct=0.20
+[11:19:17] Cell  23/126  H=0.05  resample=   1 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+4.8%)  [144.0s]
+[11:19:17] Cell  24/126 — starting  H=0.05  resample=   1 min  move_pct=30%
+[11:19:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=1 move_pct=0.30
+[11:19:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.05 resample=1 move_pct=0.30
+[11:19:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.05 resample=1 move_pct=0.30
+[11:19:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.05 resample=1 move_pct=0.30
+[11:19:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.05 resample=1 move_pct=0.30
+[11:19:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.05 resample=1 move_pct=0.30
+[11:19:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.05 resample=1 move_pct=0.30
+[11:19:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.05 resample=1 move_pct=0.30
+[11:20:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.05 resample=1 move_pct=0.30
+[11:21:41] Cell  24/126  H=0.05  resample=   1 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+3.1%)  [143.6s]
+[11:21:41] Cell  25/126 — starting  H=0.05  resample=   5 min  move_pct=10%
+[11:21:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=5 move_pct=0.10
+[11:21:48] Cell  25/126  H=0.05  resample=   5 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+11.4%)  [7.3s]
+[11:21:48] Cell  26/126 — starting  H=0.05  resample=   5 min  move_pct=20%
+[11:21:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=5 move_pct=0.20
+[11:21:56] Cell  26/126  H=0.05  resample=   5 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+6.2%)  [7.3s]
+[11:21:56] Cell  27/126 — starting  H=0.05  resample=   5 min  move_pct=30%
+[11:22:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=5 move_pct=0.30
+[11:22:03] Cell  27/126  H=0.05  resample=   5 min  move_pct=30%  → PASS      active_best=rough_cond_carry:bf25 (+5.5%)  [7.3s]
+[11:22:03] Cell  28/126 — starting  H=0.05  resample=  15 min  move_pct=10%
+[11:22:04] Cell  28/126  H=0.05  resample=  15 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+15.9%)  [1.3s]
+[11:22:04] Cell  29/126 — starting  H=0.05  resample=  15 min  move_pct=20%
+[11:22:05] Cell  29/126  H=0.05  resample=  15 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+9.6%)  [1.2s]
+[11:22:05] Cell  30/126 — starting  H=0.05  resample=  15 min  move_pct=30%
+[11:22:07] Cell  30/126  H=0.05  resample=  15 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.3%)  [1.3s]
+[11:22:07] Cell  31/126 — starting  H=0.05  resample=  30 min  move_pct=10%
+[11:22:07] Cell  31/126  H=0.05  resample=  30 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.6%)  [0.5s]
+[11:22:07] Cell  32/126 — starting  H=0.05  resample=  30 min  move_pct=20%
+[11:22:08] Cell  32/126  H=0.05  resample=  30 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+10.0%)  [0.5s]
+[11:22:08] Cell  33/126 — starting  H=0.05  resample=  30 min  move_pct=30%
+[11:22:08] Cell  33/126  H=0.05  resample=  30 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:22:08] Cell  34/126 — starting  H=0.05  resample=  60 min  move_pct=10%
+[11:22:09] Cell  34/126  H=0.05  resample=  60 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.9%)  [0.3s]
+[11:22:09] Cell  35/126 — starting  H=0.05  resample=  60 min  move_pct=20%
+[11:22:09] Cell  35/126  H=0.05  resample=  60 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+5.6%)  [0.3s]
+[11:22:09] Cell  36/126 — starting  H=0.05  resample=  60 min  move_pct=30%
+[11:22:09] Cell  36/126  H=0.05  resample=  60 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.9%)  [0.3s]
+[11:22:09] Cell  37/126 — starting  H=0.05  resample= 120 min  move_pct=10%
+[11:22:10] Cell  37/126  H=0.05  resample= 120 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:rr25 (+0.4%)  [0.3s]
+[11:22:10] Cell  38/126 — starting  H=0.05  resample= 120 min  move_pct=20%
+[11:22:10] Cell  38/126  H=0.05  resample= 120 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+1.9%)  [0.3s]
+[11:22:10] Cell  39/126 — starting  H=0.05  resample= 120 min  move_pct=30%
+[11:22:10] Cell  39/126  H=0.05  resample= 120 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.3%)  [0.3s]
+[11:22:10] Cell  40/126 — starting  H=0.05  resample= 390 min  move_pct=10%
+[11:22:10] Cell  40/126  H=0.05  resample= 390 min  move_pct=10%  → MARGINAL  active_best=rough_recent:rr25 (+9.1%)  [0.2s]
+[11:22:10] Cell  41/126 — starting  H=0.05  resample= 390 min  move_pct=20%
+[11:22:11] Cell  41/126  H=0.05  resample= 390 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.4%)  [0.2s]
+[11:22:11] Cell  42/126 — starting  H=0.05  resample= 390 min  move_pct=30%
+[11:22:11] Cell  42/126  H=0.05  resample= 390 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.7%)  [0.2s]
+[11:22:11] Cell  43/126 — starting  H=0.07  resample=   1 min  move_pct=10%
+[11:22:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=1 move_pct=0.10
+[11:22:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.07 resample=1 move_pct=0.10
+[11:22:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.07 resample=1 move_pct=0.10
+[11:22:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.07 resample=1 move_pct=0.10
+[11:22:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.07 resample=1 move_pct=0.10
+[11:22:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.07 resample=1 move_pct=0.10
+[11:22:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.07 resample=1 move_pct=0.10
+[11:22:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.07 resample=1 move_pct=0.10
+[11:22:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.07 resample=1 move_pct=0.10
+[11:23:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.07 resample=1 move_pct=0.10
+[11:24:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.07 resample=1 move_pct=0.10
+[11:24:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.07 resample=1 move_pct=0.10
+[11:24:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.07 resample=1 move_pct=0.10
+[11:24:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.07 resample=1 move_pct=0.10
+[11:24:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.07 resample=1 move_pct=0.10
+[11:24:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.07 resample=1 move_pct=0.10
+[11:24:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.07 resample=1 move_pct=0.10
+[11:24:35] Cell  43/126  H=0.07  resample=   1 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+8.6%)  [143.8s]
+[11:24:35] Cell  44/126 — starting  H=0.07  resample=   1 min  move_pct=20%
+[11:24:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=1 move_pct=0.20
+[11:24:45] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.07 resample=1 move_pct=0.20
+[11:24:50] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.07 resample=1 move_pct=0.20
+[11:24:55] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:00] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:05] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:10] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:15] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:20] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:25] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:30] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:45] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:50] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.07 resample=1 move_pct=0.20
+[11:25:55] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:00] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:05] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:10] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:15] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:20] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:25] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:30] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:45] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:50] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:55] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.07 resample=1 move_pct=0.20
+[11:26:58] Cell  44/126  H=0.07  resample=   1 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+4.8%)  [143.7s]
+[11:26:58] Cell  45/126 — starting  H=0.07  resample=   1 min  move_pct=30%
+[11:27:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:43] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.07 resample=1 move_pct=0.30
+[11:27:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:43] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.07 resample=1 move_pct=0.30
+[11:28:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.07 resample=1 move_pct=0.30
+[11:29:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.07 resample=1 move_pct=0.30
+[11:29:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.07 resample=1 move_pct=0.30
+[11:29:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.07 resample=1 move_pct=0.30
+[11:29:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.07 resample=1 move_pct=0.30
+[11:29:22] Cell  45/126  H=0.07  resample=   1 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+3.1%)  [143.9s]
+[11:29:22] Cell  46/126 — starting  H=0.07  resample=   5 min  move_pct=10%
+[11:29:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=5 move_pct=0.10
+[11:29:30] Cell  46/126  H=0.07  resample=   5 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+11.4%)  [7.4s]
+[11:29:30] Cell  47/126 — starting  H=0.07  resample=   5 min  move_pct=20%
+[11:29:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=5 move_pct=0.20
+[11:29:37] Cell  47/126  H=0.07  resample=   5 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+6.2%)  [7.7s]
+[11:29:37] Cell  48/126 — starting  H=0.07  resample=   5 min  move_pct=30%
+[11:29:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=5 move_pct=0.30
+[11:29:45] Cell  48/126  H=0.07  resample=   5 min  move_pct=30%  → PASS      active_best=rough_cond_carry:bf25 (+5.5%)  [7.4s]
+[11:29:45] Cell  49/126 — starting  H=0.07  resample=  15 min  move_pct=10%
+[11:29:46] Cell  49/126  H=0.07  resample=  15 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+15.9%)  [1.3s]
+[11:29:46] Cell  50/126 — starting  H=0.07  resample=  15 min  move_pct=20%
+[11:29:47] Cell  50/126  H=0.07  resample=  15 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+9.5%)  [1.2s]
+[11:29:47] Cell  51/126 — starting  H=0.07  resample=  15 min  move_pct=30%
+[11:29:49] Cell  51/126  H=0.07  resample=  15 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.3%)  [1.3s]
+[11:29:49] Cell  52/126 — starting  H=0.07  resample=  30 min  move_pct=10%
+[11:29:49] Cell  52/126  H=0.07  resample=  30 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.6%)  [0.5s]
+[11:29:49] Cell  53/126 — starting  H=0.07  resample=  30 min  move_pct=20%
+[11:29:50] Cell  53/126  H=0.07  resample=  30 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:29:50] Cell  54/126 — starting  H=0.07  resample=  30 min  move_pct=30%
+[11:29:50] Cell  54/126  H=0.07  resample=  30 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:29:50] Cell  55/126 — starting  H=0.07  resample=  60 min  move_pct=10%
+[11:29:51] Cell  55/126  H=0.07  resample=  60 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.9%)  [0.3s]
+[11:29:51] Cell  56/126 — starting  H=0.07  resample=  60 min  move_pct=20%
+[11:29:51] Cell  56/126  H=0.07  resample=  60 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+5.6%)  [0.3s]
+[11:29:51] Cell  57/126 — starting  H=0.07  resample=  60 min  move_pct=30%
+[11:29:51] Cell  57/126  H=0.07  resample=  60 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.9%)  [0.3s]
+[11:29:51] Cell  58/126 — starting  H=0.07  resample= 120 min  move_pct=10%
+[11:29:52] Cell  58/126  H=0.07  resample= 120 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:rr25 (+0.4%)  [0.3s]
+[11:29:52] Cell  59/126 — starting  H=0.07  resample= 120 min  move_pct=20%
+[11:29:52] Cell  59/126  H=0.07  resample= 120 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+1.9%)  [0.3s]
+[11:29:52] Cell  60/126 — starting  H=0.07  resample= 120 min  move_pct=30%
+[11:29:52] Cell  60/126  H=0.07  resample= 120 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.3%)  [0.3s]
+[11:29:52] Cell  61/126 — starting  H=0.07  resample= 390 min  move_pct=10%
+[11:29:52] Cell  61/126  H=0.07  resample= 390 min  move_pct=10%  → MARGINAL  active_best=rough_recent:rr25 (+9.1%)  [0.2s]
+[11:29:52] Cell  62/126 — starting  H=0.07  resample= 390 min  move_pct=20%
+[11:29:53] Cell  62/126  H=0.07  resample= 390 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.4%)  [0.2s]
+[11:29:53] Cell  63/126 — starting  H=0.07  resample= 390 min  move_pct=30%
+[11:29:53] Cell  63/126  H=0.07  resample= 390 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.7%)  [0.2s]
+[11:29:53] Cell  64/126 — starting  H=0.10  resample=   1 min  move_pct=10%
+[11:29:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:43] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.10 resample=1 move_pct=0.10
+[11:30:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:43] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.10 resample=1 move_pct=0.10
+[11:31:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.10 resample=1 move_pct=0.10
+[11:32:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.10 resample=1 move_pct=0.10
+[11:32:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.10 resample=1 move_pct=0.10
+[11:32:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.10 resample=1 move_pct=0.10
+[11:32:17] Cell  64/126  H=0.10  resample=   1 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+8.6%)  [144.5s]
+[11:32:17] Cell  65/126 — starting  H=0.10  resample=   1 min  move_pct=20%
+[11:32:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=1 move_pct=0.20
+[11:32:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.10 resample=1 move_pct=0.20
+[11:32:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.10 resample=1 move_pct=0.20
+[11:32:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.10 resample=1 move_pct=0.20
+[11:32:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.10 resample=1 move_pct=0.20
+[11:32:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.10 resample=1 move_pct=0.20
+[11:32:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.10 resample=1 move_pct=0.20
+[11:32:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.10 resample=1 move_pct=0.20
+[11:33:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.10 resample=1 move_pct=0.20
+[11:34:41] Cell  65/126  H=0.10  resample=   1 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+4.8%)  [143.5s]
+[11:34:41] Cell  66/126 — starting  H=0.10  resample=   1 min  move_pct=30%
+[11:34:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=1 move_pct=0.30
+[11:34:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.10 resample=1 move_pct=0.30
+[11:34:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.10 resample=1 move_pct=0.30
+[11:35:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.10 resample=1 move_pct=0.30
+[11:36:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.10 resample=1 move_pct=0.30
+[11:37:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.10 resample=1 move_pct=0.30
+[11:37:04] Cell  66/126  H=0.10  resample=   1 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+3.1%)  [142.9s]
+[11:37:04] Cell  67/126 — starting  H=0.10  resample=   5 min  move_pct=10%
+[11:37:09] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=5 move_pct=0.10
+[11:37:11] Cell  67/126  H=0.10  resample=   5 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+11.3%)  [7.3s]
+[11:37:11] Cell  68/126 — starting  H=0.10  resample=   5 min  move_pct=20%
+[11:37:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=5 move_pct=0.20
+[11:37:18] Cell  68/126  H=0.10  resample=   5 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+6.1%)  [7.3s]
+[11:37:18] Cell  69/126 — starting  H=0.10  resample=   5 min  move_pct=30%
+[11:37:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=5 move_pct=0.30
+[11:37:26] Cell  69/126  H=0.10  resample=   5 min  move_pct=30%  → PASS      active_best=rough_cond_carry:bf25 (+5.5%)  [7.2s]
+[11:37:26] Cell  70/126 — starting  H=0.10  resample=  15 min  move_pct=10%
+[11:37:27] Cell  70/126  H=0.10  resample=  15 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+15.8%)  [1.3s]
+[11:37:27] Cell  71/126 — starting  H=0.10  resample=  15 min  move_pct=20%
+[11:37:28] Cell  71/126  H=0.10  resample=  15 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+9.4%)  [1.2s]
+[11:37:28] Cell  72/126 — starting  H=0.10  resample=  15 min  move_pct=30%
+[11:37:30] Cell  72/126  H=0.10  resample=  15 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.3%)  [1.3s]
+[11:37:30] Cell  73/126 — starting  H=0.10  resample=  30 min  move_pct=10%
+[11:37:30] Cell  73/126  H=0.10  resample=  30 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.6%)  [0.5s]
+[11:37:30] Cell  74/126 — starting  H=0.10  resample=  30 min  move_pct=20%
+[11:37:31] Cell  74/126  H=0.10  resample=  30 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:37:31] Cell  75/126 — starting  H=0.10  resample=  30 min  move_pct=30%
+[11:37:31] Cell  75/126  H=0.10  resample=  30 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:37:31] Cell  76/126 — starting  H=0.10  resample=  60 min  move_pct=10%
+[11:37:32] Cell  76/126  H=0.10  resample=  60 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.8%)  [0.3s]
+[11:37:32] Cell  77/126 — starting  H=0.10  resample=  60 min  move_pct=20%
+[11:37:32] Cell  77/126  H=0.10  resample=  60 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+5.6%)  [0.3s]
+[11:37:32] Cell  78/126 — starting  H=0.10  resample=  60 min  move_pct=30%
+[11:37:32] Cell  78/126  H=0.10  resample=  60 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.9%)  [0.3s]
+[11:37:32] Cell  79/126 — starting  H=0.10  resample= 120 min  move_pct=10%
+[11:37:32] Cell  79/126  H=0.10  resample= 120 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:rr25 (+0.4%)  [0.3s]
+[11:37:32] Cell  80/126 — starting  H=0.10  resample= 120 min  move_pct=20%
+[11:37:33] Cell  80/126  H=0.10  resample= 120 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+1.9%)  [0.3s]
+[11:37:33] Cell  81/126 — starting  H=0.10  resample= 120 min  move_pct=30%
+[11:37:33] Cell  81/126  H=0.10  resample= 120 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.3%)  [0.3s]
+[11:37:33] Cell  82/126 — starting  H=0.10  resample= 390 min  move_pct=10%
+[11:37:33] Cell  82/126  H=0.10  resample= 390 min  move_pct=10%  → MARGINAL  active_best=rough_recent:rr25 (+9.2%)  [0.2s]
+[11:37:33] Cell  83/126 — starting  H=0.10  resample= 390 min  move_pct=20%
+[11:37:33] Cell  83/126  H=0.10  resample= 390 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.4%)  [0.2s]
+[11:37:33] Cell  84/126 — starting  H=0.10  resample= 390 min  move_pct=30%
+[11:37:34] Cell  84/126  H=0.10  resample= 390 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.7%)  [0.2s]
+[11:37:34] Cell  85/126 — starting  H=0.15  resample=   1 min  move_pct=10%
+[11:37:39] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=1 move_pct=0.10
+[11:37:44] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.15 resample=1 move_pct=0.10
+[11:37:49] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.15 resample=1 move_pct=0.10
+[11:37:54] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.15 resample=1 move_pct=0.10
+[11:37:59] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:04] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:09] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:14] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:19] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:24] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:29] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:34] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:39] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:44] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:49] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:54] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.15 resample=1 move_pct=0.10
+[11:38:59] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:04] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:09] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:14] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:19] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:24] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:29] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:34] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:39] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:44] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:49] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:54] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.15 resample=1 move_pct=0.10
+[11:39:57] Cell  85/126  H=0.15  resample=   1 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+8.6%)  [143.2s]
+[11:39:57] Cell  86/126 — starting  H=0.15  resample=   1 min  move_pct=20%
+[11:40:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.15 resample=1 move_pct=0.20
+[11:40:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:22] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:27] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:32] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:42] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:47] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:52] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.15 resample=1 move_pct=0.20
+[11:41:57] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.15 resample=1 move_pct=0.20
+[11:42:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.15 resample=1 move_pct=0.20
+[11:42:07] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.15 resample=1 move_pct=0.20
+[11:42:12] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.15 resample=1 move_pct=0.20
+[11:42:17] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.15 resample=1 move_pct=0.20
+[11:42:20] Cell  86/126  H=0.15  resample=   1 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+4.8%)  [143.0s]
+[11:42:20] Cell  87/126 — starting  H=0.15  resample=   1 min  move_pct=30%
+[11:42:25] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=1 move_pct=0.30
+[11:42:30] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.15 resample=1 move_pct=0.30
+[11:42:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.15 resample=1 move_pct=0.30
+[11:42:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.15 resample=1 move_pct=0.30
+[11:42:45] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.15 resample=1 move_pct=0.30
+[11:42:50] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.15 resample=1 move_pct=0.30
+[11:42:55] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:00] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:05] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:10] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:15] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:20] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:25] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:30] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:45] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:50] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.15 resample=1 move_pct=0.30
+[11:43:55] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:00] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:05] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:10] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:15] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:20] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:25] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:30] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:35] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:40] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.15 resample=1 move_pct=0.30
+[11:44:43] Cell  87/126  H=0.15  resample=   1 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+3.1%)  [142.9s]
+[11:44:43] Cell  88/126 — starting  H=0.15  resample=   5 min  move_pct=10%
+[11:44:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=5 move_pct=0.10
+[11:44:50] Cell  88/126  H=0.15  resample=   5 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+11.2%)  [7.3s]
+[11:44:50] Cell  89/126 — starting  H=0.15  resample=   5 min  move_pct=20%
+[11:44:55] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=5 move_pct=0.20
+[11:44:57] Cell  89/126  H=0.15  resample=   5 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+6.1%)  [7.3s]
+[11:44:57] Cell  90/126 — starting  H=0.15  resample=   5 min  move_pct=30%
+[11:45:02] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=5 move_pct=0.30
+[11:45:05] Cell  90/126  H=0.15  resample=   5 min  move_pct=30%  → PASS      active_best=rough_cond_carry:bf25 (+5.4%)  [7.4s]
+[11:45:05] Cell  91/126 — starting  H=0.15  resample=  15 min  move_pct=10%
+[11:45:06] Cell  91/126  H=0.15  resample=  15 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+15.6%)  [1.3s]
+[11:45:06] Cell  92/126 — starting  H=0.15  resample=  15 min  move_pct=20%
+[11:45:07] Cell  92/126  H=0.15  resample=  15 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+9.2%)  [1.2s]
+[11:45:07] Cell  93/126 — starting  H=0.15  resample=  15 min  move_pct=30%
+[11:45:09] Cell  93/126  H=0.15  resample=  15 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.3%)  [1.3s]
+[11:45:09] Cell  94/126 — starting  H=0.15  resample=  30 min  move_pct=10%
+[11:45:09] Cell  94/126  H=0.15  resample=  30 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.6%)  [0.5s]
+[11:45:09] Cell  95/126 — starting  H=0.15  resample=  30 min  move_pct=20%
+[11:45:10] Cell  95/126  H=0.15  resample=  30 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:45:10] Cell  96/126 — starting  H=0.15  resample=  30 min  move_pct=30%
+[11:45:10] Cell  96/126  H=0.15  resample=  30 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:45:10] Cell  97/126 — starting  H=0.15  resample=  60 min  move_pct=10%
+[11:45:11] Cell  97/126  H=0.15  resample=  60 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.8%)  [0.3s]
+[11:45:11] Cell  98/126 — starting  H=0.15  resample=  60 min  move_pct=20%
+[11:45:11] Cell  98/126  H=0.15  resample=  60 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+5.6%)  [0.3s]
+[11:45:11] Cell  99/126 — starting  H=0.15  resample=  60 min  move_pct=30%
+[11:45:11] Cell  99/126  H=0.15  resample=  60 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.8%)  [0.3s]
+[11:45:11] Cell 100/126 — starting  H=0.15  resample= 120 min  move_pct=10%
+[11:45:12] Cell 100/126  H=0.15  resample= 120 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:rr25 (+0.4%)  [0.3s]
+[11:45:12] Cell 101/126 — starting  H=0.15  resample= 120 min  move_pct=20%
+[11:45:12] Cell 101/126  H=0.15  resample= 120 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+1.9%)  [0.3s]
+[11:45:12] Cell 102/126 — starting  H=0.15  resample= 120 min  move_pct=30%
+[11:45:12] Cell 102/126  H=0.15  resample= 120 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.3%)  [0.3s]
+[11:45:12] Cell 103/126 — starting  H=0.15  resample= 390 min  move_pct=10%
+[11:45:12] Cell 103/126  H=0.15  resample= 390 min  move_pct=10%  → MARGINAL  active_best=rough_recent:rr25 (+9.2%)  [0.2s]
+[11:45:12] Cell 104/126 — starting  H=0.15  resample= 390 min  move_pct=20%
+[11:45:13] Cell 104/126  H=0.15  resample= 390 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.3%)  [0.2s]
+[11:45:13] Cell 105/126 — starting  H=0.15  resample= 390 min  move_pct=30%
+[11:45:13] Cell 105/126  H=0.15  resample= 390 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.7%)  [0.2s]
+[11:45:13] Cell 106/126 — starting  H=0.20  resample=   1 min  move_pct=10%
+[11:45:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=1 move_pct=0.10
+[11:45:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.20 resample=1 move_pct=0.10
+[11:45:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.20 resample=1 move_pct=0.10
+[11:45:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.20 resample=1 move_pct=0.10
+[11:45:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.20 resample=1 move_pct=0.10
+[11:45:43] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.20 resample=1 move_pct=0.10
+[11:45:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.20 resample=1 move_pct=0.10
+[11:45:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.20 resample=1 move_pct=0.10
+[11:45:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:38] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:43] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:48] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:53] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.20 resample=1 move_pct=0.10
+[11:46:58] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.20 resample=1 move_pct=0.10
+[11:47:03] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.20 resample=1 move_pct=0.10
+[11:47:08] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.20 resample=1 move_pct=0.10
+[11:47:13] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.20 resample=1 move_pct=0.10
+[11:47:18] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.20 resample=1 move_pct=0.10
+[11:47:23] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.20 resample=1 move_pct=0.10
+[11:47:28] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.20 resample=1 move_pct=0.10
+[11:47:33] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.20 resample=1 move_pct=0.10
+[11:47:36] Cell 106/126  H=0.20  resample=   1 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+8.5%)  [143.1s]
+[11:47:36] Cell 107/126 — starting  H=0.20  resample=   1 min  move_pct=20%
+[11:47:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=1 move_pct=0.20
+[11:47:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.20 resample=1 move_pct=0.20
+[11:47:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.20 resample=1 move_pct=0.20
+[11:47:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.20 resample=1 move_pct=0.20
+[11:48:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.20 resample=1 move_pct=0.20
+[11:49:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.20 resample=1 move_pct=0.20
+[11:50:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 145s)  current=H=0.20 resample=1 move_pct=0.20
+[11:50:01] Cell 107/126  H=0.20  resample=   1 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+4.7%)  [145.3s]
+[11:50:01] Cell 108/126 — starting  H=0.20  resample=   1 min  move_pct=30%
+[11:50:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 10s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 15s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 20s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 25s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 30s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 35s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 40s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 45s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 50s)  current=H=0.20 resample=1 move_pct=0.30
+[11:50:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 55s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 60s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 65s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 70s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 75s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 80s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:26] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 85s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:31] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 90s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:36] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 95s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:41] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 100s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:46] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 105s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:51] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 110s)  current=H=0.20 resample=1 move_pct=0.30
+[11:51:56] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 115s)  current=H=0.20 resample=1 move_pct=0.30
+[11:52:01] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 120s)  current=H=0.20 resample=1 move_pct=0.30
+[11:52:06] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 125s)  current=H=0.20 resample=1 move_pct=0.30
+[11:52:11] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 130s)  current=H=0.20 resample=1 move_pct=0.30
+[11:52:16] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 135s)  current=H=0.20 resample=1 move_pct=0.30
+[11:52:21] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 140s)  current=H=0.20 resample=1 move_pct=0.30
+[11:52:24] Cell 108/126  H=0.20  resample=   1 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+3.1%)  [142.9s]
+[11:52:24] Cell 109/126 — starting  H=0.20  resample=   5 min  move_pct=10%
+[11:52:29] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=5 move_pct=0.10
+[11:52:31] Cell 109/126  H=0.20  resample=   5 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+11.1%)  [7.3s]
+[11:52:31] Cell 110/126 — starting  H=0.20  resample=   5 min  move_pct=20%
+[11:52:37] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=5 move_pct=0.20
+[11:52:39] Cell 110/126  H=0.20  resample=   5 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+5.9%)  [7.3s]
+[11:52:39] Cell 111/126 — starting  H=0.20  resample=   5 min  move_pct=30%
+[11:52:44] Evaluating Gate 1B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=5 move_pct=0.30
+[11:52:46] Cell 111/126  H=0.20  resample=   5 min  move_pct=30%  → PASS      active_best=rough_cond_carry:bf25 (+5.4%)  [7.4s]
+[11:52:46] Cell 112/126 — starting  H=0.20  resample=  15 min  move_pct=10%
+[11:52:48] Cell 112/126  H=0.20  resample=  15 min  move_pct=10%  → MARGINAL  active_best=rough_recent:bf25 (+15.3%)  [1.3s]
+[11:52:48] Cell 113/126 — starting  H=0.20  resample=  15 min  move_pct=20%
+[11:52:49] Cell 113/126  H=0.20  resample=  15 min  move_pct=20%  → MARGINAL  active_best=rough_recent:bf25 (+9.0%)  [1.2s]
+[11:52:49] Cell 114/126 — starting  H=0.20  resample=  15 min  move_pct=30%
+[11:52:50] Cell 114/126  H=0.20  resample=  15 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.3%)  [1.3s]
+[11:52:50] Cell 115/126 — starting  H=0.20  resample=  30 min  move_pct=10%
+[11:52:51] Cell 115/126  H=0.20  resample=  30 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.7%)  [0.5s]
+[11:52:51] Cell 116/126 — starting  H=0.20  resample=  30 min  move_pct=20%
+[11:52:51] Cell 116/126  H=0.20  resample=  30 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:52:51] Cell 117/126 — starting  H=0.20  resample=  30 min  move_pct=30%
+[11:52:52] Cell 117/126  H=0.20  resample=  30 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+9.9%)  [0.5s]
+[11:52:52] Cell 118/126 — starting  H=0.20  resample=  60 min  move_pct=10%
+[11:52:52] Cell 118/126  H=0.20  resample=  60 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.8%)  [0.3s]
+[11:52:52] Cell 119/126 — starting  H=0.20  resample=  60 min  move_pct=20%
+[11:52:52] Cell 119/126  H=0.20  resample=  60 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+5.7%)  [0.3s]
+[11:52:52] Cell 120/126 — starting  H=0.20  resample=  60 min  move_pct=30%
+[11:52:53] Cell 120/126  H=0.20  resample=  60 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+8.8%)  [0.3s]
+[11:52:53] Cell 121/126 — starting  H=0.20  resample= 120 min  move_pct=10%
+[11:52:53] Cell 121/126  H=0.20  resample= 120 min  move_pct=10%  → MARGINAL  active_best=rough_cond_carry:rr25 (+0.4%)  [0.3s]
+[11:52:53] Cell 122/126 — starting  H=0.20  resample= 120 min  move_pct=20%
+[11:52:53] Cell 122/126  H=0.20  resample= 120 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+1.9%)  [0.3s]
+[11:52:53] Cell 123/126 — starting  H=0.20  resample= 120 min  move_pct=30%
+[11:52:54] Cell 123/126  H=0.20  resample= 120 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+6.3%)  [0.3s]
+[11:52:54] Cell 124/126 — starting  H=0.20  resample= 390 min  move_pct=10%
+[11:52:54] Cell 124/126  H=0.20  resample= 390 min  move_pct=10%  → MARGINAL  active_best=rough_recent:rr25 (+9.2%)  [0.2s]
+[11:52:54] Cell 125/126 — starting  H=0.20  resample= 390 min  move_pct=20%
+[11:52:54] Cell 125/126  H=0.20  resample= 390 min  move_pct=20%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.3%)  [0.2s]
+[11:52:54] Cell 126/126 — starting  H=0.20  resample= 390 min  move_pct=30%
+[11:52:54] Cell 126/126  H=0.20  resample= 390 min  move_pct=30%  → MARGINAL  active_best=rough_cond_carry:bf25 (+12.7%)  [0.2s]
+[11:52:54] CSV saved → /Users/xiaohao/Effective_Engine/MVP/demo/python/research/conditional_dynamics/output/gate1b_sweep_20260410_095254.csv
+
+Gate 1B Robustness Sweep — move_pct=10%
+     H |          1 |          5 |         15 |         30 |         60 |        120 |        390
+----------------------------------------------------------------------------------------------------
+  0.03 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.05 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.07 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.10 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.15 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.20 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+----------------------------------------------------------------------------------------------------
+  0/42 cells PASS (0%)
+
+Gate 1B Robustness Sweep — move_pct=20%
+     H |          1 |          5 |         15 |         30 |         60 |        120 |        390
+----------------------------------------------------------------------------------------------------
+  0.03 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.05 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.07 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.10 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.15 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.20 |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+----------------------------------------------------------------------------------------------------
+  0/42 cells PASS (0%)
+
+Gate 1B Robustness Sweep — move_pct=30%
+     H |          1 |          5 |         15 |         30 |         60 |        120 |        390
+----------------------------------------------------------------------------------------------------
+  0.03 |   MARGINAL |       PASS |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.05 |   MARGINAL |       PASS |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.07 |   MARGINAL |       PASS |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.10 |   MARGINAL |       PASS |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.15 |   MARGINAL |       PASS |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+  0.20 |   MARGINAL |       PASS |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL |   MARGINAL
+----------------------------------------------------------------------------------------------------
+  6/42 cells PASS (14%)
+

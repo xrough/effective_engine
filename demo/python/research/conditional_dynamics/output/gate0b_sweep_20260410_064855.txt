@@ -1,0 +1,22 @@
+
+Gate 0B Robustness Sweep
+  Run:          2026-04-10 06:48:54 UTC
+  Days:         90  |  select=near
+  Workers:      4  |  device=cpu
+  H grid:       [0.1]
+  Resample:     [120] min
+  Move-pct:     [0.1]
+  Total cells:  1
+[08:48:54] Cache hit: loaded 380857 records from gate0b_days90_farF.pkl
+[08:48:54] Starting sweep: 1 cells (1 H × 1 resample × 1 move_pct)
+[08:48:54] Cell   1/  1 — starting  H=0.10  resample= 120 min  move_pct=10%
+[08:48:55] Cell   1/  1  H=0.10  resample= 120 min  move_pct=10%  →  FAIL       (active rr25 carry=0.01127 rough=0.01163 | bf25 carry=0.00183 rough=0.00456)  [0.5s]
+[08:48:55] CSV saved → /Users/xiaohao/Effective_Engine/MVP/demo/python/research/conditional_dynamics/output/gate0b_sweep_20260410_064855.csv
+
+Gate 0B Robustness Sweep — move_pct=10% (active = top 10% |Δspot|)
+     H |       120
+---------------------
+  0.10 |      FAIL
+---------------------
+  0/1 cells PASS (0%)
+

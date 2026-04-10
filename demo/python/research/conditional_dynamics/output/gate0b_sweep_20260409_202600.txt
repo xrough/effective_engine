@@ -1,0 +1,652 @@
+
+Gate 0B Robustness Sweep
+  Run:          2026-04-09 19:54:33 UTC
+  Days:         90  |  select=near
+  Workers:      4  |  device=mps
+  H grid:       [0.03, 0.05, 0.07, 0.1, 0.15, 0.2]
+  Resample:     [1, 5, 15, 30, 60, 120, 390] min
+  Move-pct:     [0.1, 0.2, 0.3]
+  Total cells:  126
+[21:54:33] Cache hit: loaded 380857 records from gate0b_days90_farF.pkl
+[21:54:33] Starting sweep: 126 cells (6 H × 7 resample × 3 move_pct)
+[21:54:33] Cell   1/126 — starting  H=0.03  resample=   1 min  move_pct=10%
+[21:54:38] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=1 move_pct=10%
+[21:54:43] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.03 resample=1 move_pct=10%
+[21:54:48] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.03 resample=1 move_pct=10%
+[21:54:53] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.03 resample=1 move_pct=10%
+[21:54:58] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:03] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:08] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:13] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:18] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:23] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:28] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:33] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:38] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:43] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:48] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:53] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.03 resample=1 move_pct=10%
+[21:55:58] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.03 resample=1 move_pct=10%
+[21:56:03] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.03 resample=1 move_pct=10%
+[21:56:08] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.03 resample=1 move_pct=10%
+[21:56:13] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 100s)  current=H=0.03 resample=1 move_pct=10%
+[21:56:16] Cell   1/126  H=0.03  resample=   1 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00176 rough=0.00764 | bf25 carry=0.00183 rough=0.00320)  [102.6s]
+[21:56:16] Cell   2/126 — starting  H=0.03  resample=   1 min  move_pct=20%
+[21:56:21] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=1 move_pct=20%
+[21:56:26] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.03 resample=1 move_pct=20%
+[21:56:31] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.03 resample=1 move_pct=20%
+[21:56:36] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.03 resample=1 move_pct=20%
+[21:56:41] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.03 resample=1 move_pct=20%
+[21:56:46] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.03 resample=1 move_pct=20%
+[21:56:51] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.03 resample=1 move_pct=20%
+[21:56:56] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:01] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:06] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:11] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:16] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:21] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:26] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:31] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:36] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:41] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:46] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:51] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.03 resample=1 move_pct=20%
+[21:57:54] Cell   2/126  H=0.03  resample=   1 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00129 rough=0.00731 | bf25 carry=0.00156 rough=0.00322)  [98.6s]
+[21:57:54] Cell   3/126 — starting  H=0.03  resample=   1 min  move_pct=30%
+[21:57:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.03 resample=1 move_pct=30%
+[21:58:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.03 resample=1 move_pct=30%
+[21:59:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.03 resample=1 move_pct=30%
+[21:59:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.03 resample=1 move_pct=30%
+[21:59:15] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.03 resample=1 move_pct=30%
+[21:59:20] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.03 resample=1 move_pct=30%
+[21:59:25] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.03 resample=1 move_pct=30%
+[21:59:27] Cell   3/126  H=0.03  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00107 rough=0.00707 | bf25 carry=0.00142 rough=0.00323)  [92.3s]
+[21:59:27] Cell   4/126 — starting  H=0.03  resample=   5 min  move_pct=10%
+[21:59:32] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=5 move_pct=10%
+[21:59:32] Cell   4/126  H=0.03  resample=   5 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00302 rough=0.00790 | bf25 carry=0.00205 rough=0.00311)  [5.5s]
+[21:59:32] Cell   5/126 — starting  H=0.03  resample=   5 min  move_pct=20%
+[21:59:37] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.03 resample=5 move_pct=20%
+[21:59:37] Cell   5/126  H=0.03  resample=   5 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00216 rough=0.00735 | bf25 carry=0.00184 rough=0.00317)  [5.1s]
+[21:59:37] Cell   6/126 — starting  H=0.03  resample=   5 min  move_pct=30%
+[21:59:42] Cell   6/126  H=0.03  resample=   5 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00173 rough=0.00709 | bf25 carry=0.00172 rough=0.00319)  [4.8s]
+[21:59:42] Cell   7/126 — starting  H=0.03  resample=  15 min  move_pct=10%
+[21:59:43] Cell   7/126  H=0.03  resample=  15 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00510 rough=0.00827 | bf25 carry=0.00220 rough=0.00303)  [0.9s]
+[21:59:43] Cell   8/126 — starting  H=0.03  resample=  15 min  move_pct=20%
+[21:59:44] Cell   8/126  H=0.03  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00370 rough=0.00746 | bf25 carry=0.00209 rough=0.00303)  [0.9s]
+[21:59:44] Cell   9/126 — starting  H=0.03  resample=  15 min  move_pct=30%
+[21:59:45] Cell   9/126  H=0.03  resample=  15 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00293 rough=0.00720 | bf25 carry=0.00196 rough=0.00306)  [1.0s]
+[21:59:45] Cell  10/126 — starting  H=0.03  resample=  30 min  move_pct=10%
+[21:59:45] Cell  10/126  H=0.03  resample=  30 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00744 rough=0.00926 | bf25 carry=0.00193 rough=0.00304)  [0.5s]
+[21:59:45] Cell  11/126 — starting  H=0.03  resample=  30 min  move_pct=20%
+[21:59:46] Cell  11/126  H=0.03  resample=  30 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00511 rough=0.00809 | bf25 carry=0.00201 rough=0.00292)  [0.4s]
+[21:59:46] Cell  12/126 — starting  H=0.03  resample=  30 min  move_pct=30%
+[21:59:46] Cell  12/126  H=0.03  resample=  30 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00426 rough=0.00770 | bf25 carry=0.00199 rough=0.00295)  [0.4s]
+[21:59:46] Cell  13/126 — starting  H=0.03  resample=  60 min  move_pct=10%
+[21:59:47] Cell  13/126  H=0.03  resample=  60 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00956 rough=0.01005 | bf25 carry=0.00224 rough=0.00289)  [0.3s]
+[21:59:47] Cell  14/126 — starting  H=0.03  resample=  60 min  move_pct=20%
+[21:59:47] Cell  14/126  H=0.03  resample=  60 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00704 rough=0.00853 | bf25 carry=0.00211 rough=0.00291)  [0.3s]
+[21:59:47] Cell  15/126 — starting  H=0.03  resample=  60 min  move_pct=30%
+[21:59:47] Cell  15/126  H=0.03  resample=  60 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00551 rough=0.00799 | bf25 carry=0.00220 rough=0.00301)  [0.3s]
+[21:59:47] Cell  16/126 — starting  H=0.03  resample= 120 min  move_pct=10%
+[21:59:47] Cell  16/126  H=0.03  resample= 120 min  move_pct=10%  →  PASS       (active rr25 carry=0.01201 rough=0.01158 | bf25 carry=0.00214 rough=0.00331)  [0.2s]
+[21:59:47] Cell  17/126 — starting  H=0.03  resample= 120 min  move_pct=20%
+[21:59:48] Cell  17/126  H=0.03  resample= 120 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00899 rough=0.00946 | bf25 carry=0.00235 rough=0.00320)  [0.3s]
+[21:59:48] Cell  18/126 — starting  H=0.03  resample= 120 min  move_pct=30%
+[21:59:48] Cell  18/126  H=0.03  resample= 120 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00761 rough=0.00887 | bf25 carry=0.00226 rough=0.00291)  [0.2s]
+[21:59:48] Cell  19/126 — starting  H=0.03  resample= 390 min  move_pct=10%
+[21:59:48] Cell  19/126  H=0.03  resample= 390 min  move_pct=10%  →  PASS       (active rr25 carry=0.01509 rough=0.01384 | bf25 carry=0.00199 rough=0.00384)  [0.2s]
+[21:59:48] Cell  20/126 — starting  H=0.03  resample= 390 min  move_pct=20%
+[21:59:48] Cell  20/126  H=0.03  resample= 390 min  move_pct=20%  →  PASS       (active rr25 carry=0.01416 rough=0.01221 | bf25 carry=0.00225 rough=0.00325)  [0.2s]
+[21:59:48] Cell  21/126 — starting  H=0.03  resample= 390 min  move_pct=30%
+[21:59:49] Cell  21/126  H=0.03  resample= 390 min  move_pct=30%  →  PASS       (active rr25 carry=0.01050 rough=0.01016 | bf25 carry=0.00237 rough=0.00308)  [0.2s]
+[21:59:49] Cell  22/126 — starting  H=0.05  resample=   1 min  move_pct=10%
+[21:59:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=1 move_pct=10%
+[21:59:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.05 resample=1 move_pct=10%
+[22:00:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.05 resample=1 move_pct=10%
+[22:01:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.05 resample=1 move_pct=10%
+[22:01:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.05 resample=1 move_pct=10%
+[22:01:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.05 resample=1 move_pct=10%
+[22:01:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.05 resample=1 move_pct=10%
+[22:01:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.05 resample=1 move_pct=10%
+[22:01:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 100s)  current=H=0.05 resample=1 move_pct=10%
+[22:01:33] Cell  22/126  H=0.05  resample=   1 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00176 rough=0.00762 | bf25 carry=0.00183 rough=0.00320)  [103.9s]
+[22:01:33] Cell  23/126 — starting  H=0.05  resample=   1 min  move_pct=20%
+[22:01:38] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=1 move_pct=20%
+[22:01:43] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.05 resample=1 move_pct=20%
+[22:01:48] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.05 resample=1 move_pct=20%
+[22:01:53] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.05 resample=1 move_pct=20%
+[22:01:58] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:03] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:08] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:13] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:18] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:23] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:28] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:33] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:38] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:43] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:48] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:53] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.05 resample=1 move_pct=20%
+[22:02:58] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.05 resample=1 move_pct=20%
+[22:03:03] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.05 resample=1 move_pct=20%
+[22:03:08] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.05 resample=1 move_pct=20%
+[22:03:10] Cell  23/126  H=0.05  resample=   1 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00129 rough=0.00730 | bf25 carry=0.00156 rough=0.00322)  [97.5s]
+[22:03:10] Cell  24/126 — starting  H=0.05  resample=   1 min  move_pct=30%
+[22:03:15] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=1 move_pct=30%
+[22:03:20] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.05 resample=1 move_pct=30%
+[22:03:25] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.05 resample=1 move_pct=30%
+[22:03:30] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.05 resample=1 move_pct=30%
+[22:03:35] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.05 resample=1 move_pct=30%
+[22:03:40] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.05 resample=1 move_pct=30%
+[22:03:45] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.05 resample=1 move_pct=30%
+[22:03:50] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.05 resample=1 move_pct=30%
+[22:03:55] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:00] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:05] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:10] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:15] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:20] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:25] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:30] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:35] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:40] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.05 resample=1 move_pct=30%
+[22:04:42] Cell  24/126  H=0.05  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00107 rough=0.00706 | bf25 carry=0.00142 rough=0.00324)  [92.0s]
+[22:04:42] Cell  25/126 — starting  H=0.05  resample=   5 min  move_pct=10%
+[22:04:47] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=5 move_pct=10%
+[22:04:48] Cell  25/126  H=0.05  resample=   5 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00302 rough=0.00788 | bf25 carry=0.00205 rough=0.00311)  [5.5s]
+[22:04:48] Cell  26/126 — starting  H=0.05  resample=   5 min  move_pct=20%
+[22:04:53] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.05 resample=5 move_pct=20%
+[22:04:53] Cell  26/126  H=0.05  resample=   5 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00216 rough=0.00734 | bf25 carry=0.00184 rough=0.00317)  [5.2s]
+[22:04:53] Cell  27/126 — starting  H=0.05  resample=   5 min  move_pct=30%
+[22:04:57] Cell  27/126  H=0.05  resample=   5 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00173 rough=0.00708 | bf25 carry=0.00172 rough=0.00319)  [4.8s]
+[22:04:57] Cell  28/126 — starting  H=0.05  resample=  15 min  move_pct=10%
+[22:04:58] Cell  28/126  H=0.05  resample=  15 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00510 rough=0.00826 | bf25 carry=0.00220 rough=0.00303)  [1.0s]
+[22:04:58] Cell  29/126 — starting  H=0.05  resample=  15 min  move_pct=20%
+[22:04:59] Cell  29/126  H=0.05  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00370 rough=0.00745 | bf25 carry=0.00209 rough=0.00303)  [0.9s]
+[22:04:59] Cell  30/126 — starting  H=0.05  resample=  15 min  move_pct=30%
+[22:05:00] Cell  30/126  H=0.05  resample=  15 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00293 rough=0.00718 | bf25 carry=0.00196 rough=0.00306)  [1.0s]
+[22:05:00] Cell  31/126 — starting  H=0.05  resample=  30 min  move_pct=10%
+[22:05:01] Cell  31/126  H=0.05  resample=  30 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00744 rough=0.00925 | bf25 carry=0.00193 rough=0.00305)  [0.5s]
+[22:05:01] Cell  32/126 — starting  H=0.05  resample=  30 min  move_pct=20%
+[22:05:01] Cell  32/126  H=0.05  resample=  30 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00511 rough=0.00808 | bf25 carry=0.00201 rough=0.00292)  [0.4s]
+[22:05:01] Cell  33/126 — starting  H=0.05  resample=  30 min  move_pct=30%
+[22:05:02] Cell  33/126  H=0.05  resample=  30 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00426 rough=0.00769 | bf25 carry=0.00199 rough=0.00296)  [0.4s]
+[22:05:02] Cell  34/126 — starting  H=0.05  resample=  60 min  move_pct=10%
+[22:05:02] Cell  34/126  H=0.05  resample=  60 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00956 rough=0.01003 | bf25 carry=0.00224 rough=0.00289)  [0.3s]
+[22:05:02] Cell  35/126 — starting  H=0.05  resample=  60 min  move_pct=20%
+[22:05:02] Cell  35/126  H=0.05  resample=  60 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00704 rough=0.00852 | bf25 carry=0.00211 rough=0.00292)  [0.3s]
+[22:05:02] Cell  36/126 — starting  H=0.05  resample=  60 min  move_pct=30%
+[22:05:03] Cell  36/126  H=0.05  resample=  60 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00551 rough=0.00797 | bf25 carry=0.00220 rough=0.00301)  [0.3s]
+[22:05:03] Cell  37/126 — starting  H=0.05  resample= 120 min  move_pct=10%
+[22:05:03] Cell  37/126  H=0.05  resample= 120 min  move_pct=10%  →  PASS       (active rr25 carry=0.01201 rough=0.01157 | bf25 carry=0.00214 rough=0.00331)  [0.2s]
+[22:05:03] Cell  38/126 — starting  H=0.05  resample= 120 min  move_pct=20%
+[22:05:03] Cell  38/126  H=0.05  resample= 120 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00899 rough=0.00945 | bf25 carry=0.00235 rough=0.00320)  [0.2s]
+[22:05:03] Cell  39/126 — starting  H=0.05  resample= 120 min  move_pct=30%
+[22:05:03] Cell  39/126  H=0.05  resample= 120 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00761 rough=0.00886 | bf25 carry=0.00226 rough=0.00291)  [0.2s]
+[22:05:03] Cell  40/126 — starting  H=0.05  resample= 390 min  move_pct=10%
+[22:05:04] Cell  40/126  H=0.05  resample= 390 min  move_pct=10%  →  PASS       (active rr25 carry=0.01509 rough=0.01383 | bf25 carry=0.00199 rough=0.00385)  [0.2s]
+[22:05:04] Cell  41/126 — starting  H=0.05  resample= 390 min  move_pct=20%
+[22:05:04] Cell  41/126  H=0.05  resample= 390 min  move_pct=20%  →  PASS       (active rr25 carry=0.01416 rough=0.01221 | bf25 carry=0.00225 rough=0.00326)  [0.3s]
+[22:05:04] Cell  42/126 — starting  H=0.05  resample= 390 min  move_pct=30%
+[22:05:04] Cell  42/126  H=0.05  resample= 390 min  move_pct=30%  →  PASS       (active rr25 carry=0.01050 rough=0.01016 | bf25 carry=0.00237 rough=0.00308)  [0.2s]
+[22:05:04] Cell  43/126 — starting  H=0.07  resample=   1 min  move_pct=10%
+[22:05:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.07 resample=1 move_pct=10%
+[22:05:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 100s)  current=H=0.07 resample=1 move_pct=10%
+[22:06:49] Cell  43/126  H=0.07  resample=   1 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00176 rough=0.00760 | bf25 carry=0.00183 rough=0.00320)  [105.1s]
+[22:06:49] Cell  44/126 — starting  H=0.07  resample=   1 min  move_pct=20%
+[22:06:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=1 move_pct=20%
+[22:06:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.07 resample=1 move_pct=20%
+[22:07:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.07 resample=1 move_pct=20%
+[22:08:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.07 resample=1 move_pct=20%
+[22:08:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.07 resample=1 move_pct=20%
+[22:08:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.07 resample=1 move_pct=20%
+[22:08:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.07 resample=1 move_pct=20%
+[22:08:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.07 resample=1 move_pct=20%
+[22:08:26] Cell  44/126  H=0.07  resample=   1 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00129 rough=0.00729 | bf25 carry=0.00156 rough=0.00323)  [96.8s]
+[22:08:26] Cell  45/126 — starting  H=0.07  resample=   1 min  move_pct=30%
+[22:08:31] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=1 move_pct=30%
+[22:08:36] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.07 resample=1 move_pct=30%
+[22:08:41] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.07 resample=1 move_pct=30%
+[22:08:46] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.07 resample=1 move_pct=30%
+[22:08:51] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.07 resample=1 move_pct=30%
+[22:08:56] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:01] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:06] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:11] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:16] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:21] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:26] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:31] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:36] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:41] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:46] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:51] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:56] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.07 resample=1 move_pct=30%
+[22:09:58] Cell  45/126  H=0.07  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00107 rough=0.00704 | bf25 carry=0.00142 rough=0.00324)  [91.8s]
+[22:09:58] Cell  46/126 — starting  H=0.07  resample=   5 min  move_pct=10%
+[22:10:03] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=5 move_pct=10%
+[22:10:03] Cell  46/126  H=0.07  resample=   5 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00302 rough=0.00786 | bf25 carry=0.00205 rough=0.00311)  [5.5s]
+[22:10:03] Cell  47/126 — starting  H=0.07  resample=   5 min  move_pct=20%
+[22:10:08] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.07 resample=5 move_pct=20%
+[22:10:08] Cell  47/126  H=0.07  resample=   5 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00216 rough=0.00732 | bf25 carry=0.00184 rough=0.00317)  [5.1s]
+[22:10:08] Cell  48/126 — starting  H=0.07  resample=   5 min  move_pct=30%
+[22:10:13] Cell  48/126  H=0.07  resample=   5 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00173 rough=0.00706 | bf25 carry=0.00172 rough=0.00319)  [4.9s]
+[22:10:13] Cell  49/126 — starting  H=0.07  resample=  15 min  move_pct=10%
+[22:10:14] Cell  49/126  H=0.07  resample=  15 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00510 rough=0.00824 | bf25 carry=0.00220 rough=0.00303)  [1.0s]
+[22:10:14] Cell  50/126 — starting  H=0.07  resample=  15 min  move_pct=20%
+[22:10:15] Cell  50/126  H=0.07  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00370 rough=0.00743 | bf25 carry=0.00209 rough=0.00303)  [0.9s]
+[22:10:15] Cell  51/126 — starting  H=0.07  resample=  15 min  move_pct=30%
+[22:10:16] Cell  51/126  H=0.07  resample=  15 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00293 rough=0.00717 | bf25 carry=0.00196 rough=0.00306)  [1.0s]
+[22:10:16] Cell  52/126 — starting  H=0.07  resample=  30 min  move_pct=10%
+[22:10:17] Cell  52/126  H=0.07  resample=  30 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00744 rough=0.00925 | bf25 carry=0.00193 rough=0.00305)  [0.5s]
+[22:10:17] Cell  53/126 — starting  H=0.07  resample=  30 min  move_pct=20%
+[22:10:17] Cell  53/126  H=0.07  resample=  30 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00511 rough=0.00807 | bf25 carry=0.00201 rough=0.00293)  [0.5s]
+[22:10:17] Cell  54/126 — starting  H=0.07  resample=  30 min  move_pct=30%
+[22:10:17] Cell  54/126  H=0.07  resample=  30 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00426 rough=0.00768 | bf25 carry=0.00199 rough=0.00296)  [0.4s]
+[22:10:17] Cell  55/126 — starting  H=0.07  resample=  60 min  move_pct=10%
+[22:10:18] Cell  55/126  H=0.07  resample=  60 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00956 rough=0.01002 | bf25 carry=0.00224 rough=0.00289)  [0.3s]
+[22:10:18] Cell  56/126 — starting  H=0.07  resample=  60 min  move_pct=20%
+[22:10:18] Cell  56/126  H=0.07  resample=  60 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00704 rough=0.00852 | bf25 carry=0.00211 rough=0.00292)  [0.3s]
+[22:10:18] Cell  57/126 — starting  H=0.07  resample=  60 min  move_pct=30%
+[22:10:18] Cell  57/126  H=0.07  resample=  60 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00551 rough=0.00796 | bf25 carry=0.00220 rough=0.00301)  [0.3s]
+[22:10:18] Cell  58/126 — starting  H=0.07  resample= 120 min  move_pct=10%
+[22:10:19] Cell  58/126  H=0.07  resample= 120 min  move_pct=10%  →  PASS       (active rr25 carry=0.01201 rough=0.01156 | bf25 carry=0.00214 rough=0.00332)  [0.3s]
+[22:10:19] Cell  59/126 — starting  H=0.07  resample= 120 min  move_pct=20%
+[22:10:19] Cell  59/126  H=0.07  resample= 120 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00899 rough=0.00945 | bf25 carry=0.00235 rough=0.00321)  [0.3s]
+[22:10:19] Cell  60/126 — starting  H=0.07  resample= 120 min  move_pct=30%
+[22:10:19] Cell  60/126  H=0.07  resample= 120 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00761 rough=0.00886 | bf25 carry=0.00226 rough=0.00291)  [0.2s]
+[22:10:19] Cell  61/126 — starting  H=0.07  resample= 390 min  move_pct=10%
+[22:10:19] Cell  61/126  H=0.07  resample= 390 min  move_pct=10%  →  PASS       (active rr25 carry=0.01509 rough=0.01383 | bf25 carry=0.00199 rough=0.00385)  [0.2s]
+[22:10:19] Cell  62/126 — starting  H=0.07  resample= 390 min  move_pct=20%
+[22:10:20] Cell  62/126  H=0.07  resample= 390 min  move_pct=20%  →  PASS       (active rr25 carry=0.01416 rough=0.01221 | bf25 carry=0.00225 rough=0.00326)  [0.2s]
+[22:10:20] Cell  63/126 — starting  H=0.07  resample= 390 min  move_pct=30%
+[22:10:20] Cell  63/126  H=0.07  resample= 390 min  move_pct=30%  →  PASS       (active rr25 carry=0.01050 rough=0.01017 | bf25 carry=0.00237 rough=0.00308)  [0.2s]
+[22:10:20] Cell  64/126 — starting  H=0.10  resample=   1 min  move_pct=10%
+[22:10:25] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=1 move_pct=10%
+[22:10:30] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.10 resample=1 move_pct=10%
+[22:10:35] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.10 resample=1 move_pct=10%
+[22:10:40] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.10 resample=1 move_pct=10%
+[22:10:45] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.10 resample=1 move_pct=10%
+[22:10:50] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.10 resample=1 move_pct=10%
+[22:10:55] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:00] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:05] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:10] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:15] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:20] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:25] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:30] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:35] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:40] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:45] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:50] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.10 resample=1 move_pct=10%
+[22:11:55] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.10 resample=1 move_pct=10%
+[22:12:00] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 100s)  current=H=0.10 resample=1 move_pct=10%
+[22:12:05] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 105s)  current=H=0.10 resample=1 move_pct=10%
+[22:12:09] Cell  64/126  H=0.10  resample=   1 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00176 rough=0.00758 | bf25 carry=0.00183 rough=0.00321)  [108.8s]
+[22:12:09] Cell  65/126 — starting  H=0.10  resample=   1 min  move_pct=20%
+[22:12:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.10 resample=1 move_pct=20%
+[22:12:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 100s)  current=H=0.10 resample=1 move_pct=20%
+[22:13:50] Cell  65/126  H=0.10  resample=   1 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00129 rough=0.00727 | bf25 carry=0.00156 rough=0.00323)  [101.2s]
+[22:13:50] Cell  66/126 — starting  H=0.10  resample=   1 min  move_pct=30%
+[22:13:55] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:00] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:05] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:10] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:15] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:20] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:25] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:30] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:35] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:40] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:45] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:50] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.10 resample=1 move_pct=30%
+[22:14:55] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.10 resample=1 move_pct=30%
+[22:15:00] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.10 resample=1 move_pct=30%
+[22:15:05] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.10 resample=1 move_pct=30%
+[22:15:10] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.10 resample=1 move_pct=30%
+[22:15:15] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.10 resample=1 move_pct=30%
+[22:15:20] Cell  66/126  H=0.10  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00107 rough=0.00702 | bf25 carry=0.00142 rough=0.00324)  [90.0s]
+[22:15:20] Cell  67/126 — starting  H=0.10  resample=   5 min  move_pct=10%
+[22:15:25] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=5 move_pct=10%
+[22:15:25] Cell  67/126  H=0.10  resample=   5 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00302 rough=0.00784 | bf25 carry=0.00205 rough=0.00312)  [5.4s]
+[22:15:25] Cell  68/126 — starting  H=0.10  resample=   5 min  move_pct=20%
+[22:15:30] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.10 resample=5 move_pct=20%
+[22:15:30] Cell  68/126  H=0.10  resample=   5 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00216 rough=0.00730 | bf25 carry=0.00184 rough=0.00317)  [5.0s]
+[22:15:30] Cell  69/126 — starting  H=0.10  resample=   5 min  move_pct=30%
+[22:15:35] Cell  69/126  H=0.10  resample=   5 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00173 rough=0.00704 | bf25 carry=0.00172 rough=0.00319)  [4.8s]
+[22:15:35] Cell  70/126 — starting  H=0.10  resample=  15 min  move_pct=10%
+[22:15:36] Cell  70/126  H=0.10  resample=  15 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00510 rough=0.00822 | bf25 carry=0.00220 rough=0.00303)  [0.9s]
+[22:15:36] Cell  71/126 — starting  H=0.10  resample=  15 min  move_pct=20%
+[22:15:37] Cell  71/126  H=0.10  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00370 rough=0.00742 | bf25 carry=0.00209 rough=0.00304)  [0.9s]
+[22:15:37] Cell  72/126 — starting  H=0.10  resample=  15 min  move_pct=30%
+[22:15:38] Cell  72/126  H=0.10  resample=  15 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00293 rough=0.00716 | bf25 carry=0.00196 rough=0.00306)  [1.0s]
+[22:15:38] Cell  73/126 — starting  H=0.10  resample=  30 min  move_pct=10%
+[22:15:38] Cell  73/126  H=0.10  resample=  30 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00744 rough=0.00923 | bf25 carry=0.00193 rough=0.00306)  [0.5s]
+[22:15:38] Cell  74/126 — starting  H=0.10  resample=  30 min  move_pct=20%
+[22:15:39] Cell  74/126  H=0.10  resample=  30 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00511 rough=0.00805 | bf25 carry=0.00201 rough=0.00293)  [0.4s]
+[22:15:39] Cell  75/126 — starting  H=0.10  resample=  30 min  move_pct=30%
+[22:15:39] Cell  75/126  H=0.10  resample=  30 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00426 rough=0.00766 | bf25 carry=0.00199 rough=0.00296)  [0.4s]
+[22:15:39] Cell  76/126 — starting  H=0.10  resample=  60 min  move_pct=10%
+[22:15:39] Cell  76/126  H=0.10  resample=  60 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00956 rough=0.01000 | bf25 carry=0.00224 rough=0.00289)  [0.3s]
+[22:15:39] Cell  77/126 — starting  H=0.10  resample=  60 min  move_pct=20%
+[22:15:40] Cell  77/126  H=0.10  resample=  60 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00704 rough=0.00850 | bf25 carry=0.00211 rough=0.00293)  [0.3s]
+[22:15:40] Cell  78/126 — starting  H=0.10  resample=  60 min  move_pct=30%
+[22:15:40] Cell  78/126  H=0.10  resample=  60 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00551 rough=0.00794 | bf25 carry=0.00220 rough=0.00302)  [0.3s]
+[22:15:40] Cell  79/126 — starting  H=0.10  resample= 120 min  move_pct=10%
+[22:15:40] Cell  79/126  H=0.10  resample= 120 min  move_pct=10%  →  PASS       (active rr25 carry=0.01201 rough=0.01155 | bf25 carry=0.00214 rough=0.00332)  [0.2s]
+[22:15:40] Cell  80/126 — starting  H=0.10  resample= 120 min  move_pct=20%
+[22:15:41] Cell  80/126  H=0.10  resample= 120 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00899 rough=0.00943 | bf25 carry=0.00235 rough=0.00321)  [0.2s]
+[22:15:41] Cell  81/126 — starting  H=0.10  resample= 120 min  move_pct=30%
+[22:15:41] Cell  81/126  H=0.10  resample= 120 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00761 rough=0.00886 | bf25 carry=0.00226 rough=0.00292)  [0.2s]
+[22:15:41] Cell  82/126 — starting  H=0.10  resample= 390 min  move_pct=10%
+[22:15:41] Cell  82/126  H=0.10  resample= 390 min  move_pct=10%  →  PASS       (active rr25 carry=0.01509 rough=0.01383 | bf25 carry=0.00199 rough=0.00386)  [0.2s]
+[22:15:41] Cell  83/126 — starting  H=0.10  resample= 390 min  move_pct=20%
+[22:15:41] Cell  83/126  H=0.10  resample= 390 min  move_pct=20%  →  PASS       (active rr25 carry=0.01416 rough=0.01222 | bf25 carry=0.00225 rough=0.00327)  [0.2s]
+[22:15:41] Cell  84/126 — starting  H=0.10  resample= 390 min  move_pct=30%
+[22:15:41] Cell  84/126  H=0.10  resample= 390 min  move_pct=30%  →  PASS       (active rr25 carry=0.01050 rough=0.01017 | bf25 carry=0.00237 rough=0.00308)  [0.2s]
+[22:15:41] Cell  85/126 — starting  H=0.15  resample=   1 min  move_pct=10%
+[22:15:46] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=1 move_pct=10%
+[22:15:51] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.15 resample=1 move_pct=10%
+[22:15:56] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:01] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:06] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:12] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:17] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:22] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:27] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:32] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:37] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:42] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:47] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:52] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.15 resample=1 move_pct=10%
+[22:16:57] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.15 resample=1 move_pct=10%
+[22:17:02] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.15 resample=1 move_pct=10%
+[22:17:07] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.15 resample=1 move_pct=10%
+[22:17:12] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.15 resample=1 move_pct=10%
+[22:17:17] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.15 resample=1 move_pct=10%
+[22:17:22] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 100s)  current=H=0.15 resample=1 move_pct=10%
+[22:17:24] Cell  85/126  H=0.15  resample=   1 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00176 rough=0.00754 | bf25 carry=0.00183 rough=0.00321)  [102.6s]
+[22:17:24] Cell  86/126 — starting  H=0.15  resample=   1 min  move_pct=20%
+[22:17:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=1 move_pct=20%
+[22:17:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.15 resample=1 move_pct=20%
+[22:17:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.15 resample=1 move_pct=20%
+[22:17:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.15 resample=1 move_pct=20%
+[22:17:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.15 resample=1 move_pct=20%
+[22:17:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.15 resample=1 move_pct=20%
+[22:17:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.15 resample=1 move_pct=20%
+[22:18:59] Cell  86/126  H=0.15  resample=   1 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00129 rough=0.00723 | bf25 carry=0.00156 rough=0.00324)  [95.0s]
+[22:18:59] Cell  87/126 — starting  H=0.15  resample=   1 min  move_pct=30%
+[22:19:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.15 resample=1 move_pct=30%
+[22:19:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.15 resample=1 move_pct=30%
+[22:20:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.15 resample=1 move_pct=30%
+[22:20:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.15 resample=1 move_pct=30%
+[22:20:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.15 resample=1 move_pct=30%
+[22:20:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.15 resample=1 move_pct=30%
+[22:20:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.15 resample=1 move_pct=30%
+[22:20:29] Cell  87/126  H=0.15  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00107 rough=0.00699 | bf25 carry=0.00142 rough=0.00324)  [89.8s]
+[22:20:29] Cell  88/126 — starting  H=0.15  resample=   5 min  move_pct=10%
+[22:20:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=5 move_pct=10%
+[22:20:34] Cell  88/126  H=0.15  resample=   5 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00302 rough=0.00780 | bf25 carry=0.00205 rough=0.00312)  [5.4s]
+[22:20:34] Cell  89/126 — starting  H=0.15  resample=   5 min  move_pct=20%
+[22:20:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.15 resample=5 move_pct=20%
+[22:20:39] Cell  89/126  H=0.15  resample=   5 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00216 rough=0.00727 | bf25 carry=0.00184 rough=0.00318)  [5.0s]
+[22:20:39] Cell  90/126 — starting  H=0.15  resample=   5 min  move_pct=30%
+[22:20:44] Cell  90/126  H=0.15  resample=   5 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00173 rough=0.00701 | bf25 carry=0.00172 rough=0.00320)  [4.9s]
+[22:20:44] Cell  91/126 — starting  H=0.15  resample=  15 min  move_pct=10%
+[22:20:45] Cell  91/126  H=0.15  resample=  15 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00510 rough=0.00819 | bf25 carry=0.00220 rough=0.00304)  [0.9s]
+[22:20:45] Cell  92/126 — starting  H=0.15  resample=  15 min  move_pct=20%
+[22:20:46] Cell  92/126  H=0.15  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00370 rough=0.00740 | bf25 carry=0.00209 rough=0.00304)  [0.9s]
+[22:20:46] Cell  93/126 — starting  H=0.15  resample=  15 min  move_pct=30%
+[22:20:47] Cell  93/126  H=0.15  resample=  15 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00293 rough=0.00713 | bf25 carry=0.00196 rough=0.00307)  [1.0s]
+[22:20:47] Cell  94/126 — starting  H=0.15  resample=  30 min  move_pct=10%
+[22:20:47] Cell  94/126  H=0.15  resample=  30 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00744 rough=0.00920 | bf25 carry=0.00193 rough=0.00307)  [0.5s]
+[22:20:47] Cell  95/126 — starting  H=0.15  resample=  30 min  move_pct=20%
+[22:20:48] Cell  95/126  H=0.15  resample=  30 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00511 rough=0.00803 | bf25 carry=0.00201 rough=0.00294)  [0.4s]
+[22:20:48] Cell  96/126 — starting  H=0.15  resample=  30 min  move_pct=30%
+[22:20:48] Cell  96/126  H=0.15  resample=  30 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00426 rough=0.00763 | bf25 carry=0.00199 rough=0.00297)  [0.4s]
+[22:20:48] Cell  97/126 — starting  H=0.15  resample=  60 min  move_pct=10%
+[22:20:49] Cell  97/126  H=0.15  resample=  60 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00956 rough=0.00998 | bf25 carry=0.00224 rough=0.00289)  [0.3s]
+[22:20:49] Cell  98/126 — starting  H=0.15  resample=  60 min  move_pct=20%
+[22:20:49] Cell  98/126  H=0.15  resample=  60 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00704 rough=0.00849 | bf25 carry=0.00211 rough=0.00294)  [0.3s]
+[22:20:49] Cell  99/126 — starting  H=0.15  resample=  60 min  move_pct=30%
+[22:20:49] Cell  99/126  H=0.15  resample=  60 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00551 rough=0.00792 | bf25 carry=0.00220 rough=0.00303)  [0.3s]
+[22:20:49] Cell 100/126 — starting  H=0.15  resample= 120 min  move_pct=10%
+[22:20:49] Cell 100/126  H=0.15  resample= 120 min  move_pct=10%  →  PASS       (active rr25 carry=0.01201 rough=0.01152 | bf25 carry=0.00214 rough=0.00332)  [0.2s]
+[22:20:49] Cell 101/126 — starting  H=0.15  resample= 120 min  move_pct=20%
+[22:20:50] Cell 101/126  H=0.15  resample= 120 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00899 rough=0.00942 | bf25 carry=0.00235 rough=0.00322)  [0.2s]
+[22:20:50] Cell 102/126 — starting  H=0.15  resample= 120 min  move_pct=30%
+[22:20:50] Cell 102/126  H=0.15  resample= 120 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00761 rough=0.00886 | bf25 carry=0.00226 rough=0.00293)  [0.2s]
+[22:20:50] Cell 103/126 — starting  H=0.15  resample= 390 min  move_pct=10%
+[22:20:50] Cell 103/126  H=0.15  resample= 390 min  move_pct=10%  →  PASS       (active rr25 carry=0.01509 rough=0.01382 | bf25 carry=0.00199 rough=0.00387)  [0.2s]
+[22:20:50] Cell 104/126 — starting  H=0.15  resample= 390 min  move_pct=20%
+[22:20:50] Cell 104/126  H=0.15  resample= 390 min  move_pct=20%  →  PASS       (active rr25 carry=0.01416 rough=0.01220 | bf25 carry=0.00225 rough=0.00329)  [0.2s]
+[22:20:50] Cell 105/126 — starting  H=0.15  resample= 390 min  move_pct=30%
+[22:20:51] Cell 105/126  H=0.15  resample= 390 min  move_pct=30%  →  PASS       (active rr25 carry=0.01050 rough=0.01018 | bf25 carry=0.00237 rough=0.00308)  [0.2s]
+[22:20:51] Cell 106/126 — starting  H=0.20  resample=   1 min  move_pct=10%
+[22:20:56] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:01] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:06] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:11] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:16] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:21] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:26] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:31] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:36] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:41] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:46] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:51] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.20 resample=1 move_pct=10%
+[22:21:56] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.20 resample=1 move_pct=10%
+[22:22:01] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.20 resample=1 move_pct=10%
+[22:22:06] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.20 resample=1 move_pct=10%
+[22:22:11] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.20 resample=1 move_pct=10%
+[22:22:16] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.20 resample=1 move_pct=10%
+[22:22:21] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.20 resample=1 move_pct=10%
+[22:22:26] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 95s)  current=H=0.20 resample=1 move_pct=10%
+[22:22:31] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 100s)  current=H=0.20 resample=1 move_pct=10%
+[22:22:33] Cell 106/126  H=0.20  resample=   1 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00176 rough=0.00751 | bf25 carry=0.00183 rough=0.00322)  [102.8s]
+[22:22:33] Cell 107/126 — starting  H=0.20  resample=   1 min  move_pct=20%
+[22:22:38] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=1 move_pct=20%
+[22:22:43] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.20 resample=1 move_pct=20%
+[22:22:48] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.20 resample=1 move_pct=20%
+[22:22:53] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.20 resample=1 move_pct=20%
+[22:22:58] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:03] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:08] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:13] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:18] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:23] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:28] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:33] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:38] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:43] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:48] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.20 resample=1 move_pct=20%
+[22:23:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.20 resample=1 move_pct=20%
+[22:24:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 90s)  current=H=0.20 resample=1 move_pct=20%
+[22:24:08] Cell 107/126  H=0.20  resample=   1 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00129 rough=0.00720 | bf25 carry=0.00156 rough=0.00324)  [95.1s]
+[22:24:08] Cell 108/126 — starting  H=0.20  resample=   1 min  move_pct=30%
+[22:24:13] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:18] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 10s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:23] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 15s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 20s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 25s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:39] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 30s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:44] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 35s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 40s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:54] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 45s)  current=H=0.20 resample=1 move_pct=30%
+[22:24:59] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 50s)  current=H=0.20 resample=1 move_pct=30%
+[22:25:04] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 55s)  current=H=0.20 resample=1 move_pct=30%
+[22:25:09] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 60s)  current=H=0.20 resample=1 move_pct=30%
+[22:25:14] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 65s)  current=H=0.20 resample=1 move_pct=30%
+[22:25:19] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 70s)  current=H=0.20 resample=1 move_pct=30%
+[22:25:24] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 75s)  current=H=0.20 resample=1 move_pct=30%
+[22:25:29] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 80s)  current=H=0.20 resample=1 move_pct=30%
+[22:25:34] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 85s)  current=H=0.20 resample=1 move_pct=30%
+[22:25:38] Cell 108/126  H=0.20  resample=   1 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00107 rough=0.00696 | bf25 carry=0.00142 rough=0.00325)  [89.9s]
+[22:25:38] Cell 109/126 — starting  H=0.20  resample=   5 min  move_pct=10%
+[22:25:43] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=5 move_pct=10%
+[22:25:44] Cell 109/126  H=0.20  resample=   5 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00302 rough=0.00778 | bf25 carry=0.00205 rough=0.00313)  [5.4s]
+[22:25:44] Cell 110/126 — starting  H=0.20  resample=   5 min  move_pct=20%
+[22:25:49] Evaluating Gate 0B cell... 0/1 days complete  (elapsed 5s)  current=H=0.20 resample=5 move_pct=20%
+[22:25:49] Cell 110/126  H=0.20  resample=   5 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00216 rough=0.00724 | bf25 carry=0.00184 rough=0.00318)  [5.0s]
+[22:25:49] Cell 111/126 — starting  H=0.20  resample=   5 min  move_pct=30%
+[22:25:54] Cell 111/126  H=0.20  resample=   5 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00173 rough=0.00698 | bf25 carry=0.00172 rough=0.00320)  [4.9s]
+[22:25:54] Cell 112/126 — starting  H=0.20  resample=  15 min  move_pct=10%
+[22:25:55] Cell 112/126  H=0.20  resample=  15 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00510 rough=0.00816 | bf25 carry=0.00220 rough=0.00304)  [0.9s]
+[22:25:55] Cell 113/126 — starting  H=0.20  resample=  15 min  move_pct=20%
+[22:25:56] Cell 113/126  H=0.20  resample=  15 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00370 rough=0.00737 | bf25 carry=0.00209 rough=0.00305)  [0.9s]
+[22:25:56] Cell 114/126 — starting  H=0.20  resample=  15 min  move_pct=30%
+[22:25:57] Cell 114/126  H=0.20  resample=  15 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00293 rough=0.00710 | bf25 carry=0.00196 rough=0.00307)  [1.0s]
+[22:25:57] Cell 115/126 — starting  H=0.20  resample=  30 min  move_pct=10%
+[22:25:57] Cell 115/126  H=0.20  resample=  30 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00744 rough=0.00918 | bf25 carry=0.00193 rough=0.00308)  [0.5s]
+[22:25:57] Cell 116/126 — starting  H=0.20  resample=  30 min  move_pct=20%
+[22:25:57] Cell 116/126  H=0.20  resample=  30 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00511 rough=0.00801 | bf25 carry=0.00201 rough=0.00295)  [0.4s]
+[22:25:57] Cell 117/126 — starting  H=0.20  resample=  30 min  move_pct=30%
+[22:25:58] Cell 117/126  H=0.20  resample=  30 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00426 rough=0.00761 | bf25 carry=0.00199 rough=0.00298)  [0.4s]
+[22:25:58] Cell 118/126 — starting  H=0.20  resample=  60 min  move_pct=10%
+[22:25:58] Cell 118/126  H=0.20  resample=  60 min  move_pct=10%  →  FAIL       (active rr25 carry=0.00956 rough=0.00997 | bf25 carry=0.00224 rough=0.00289)  [0.3s]
+[22:25:58] Cell 119/126 — starting  H=0.20  resample=  60 min  move_pct=20%
+[22:25:58] Cell 119/126  H=0.20  resample=  60 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00704 rough=0.00847 | bf25 carry=0.00211 rough=0.00294)  [0.3s]
+[22:25:58] Cell 120/126 — starting  H=0.20  resample=  60 min  move_pct=30%
+[22:25:59] Cell 120/126  H=0.20  resample=  60 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00551 rough=0.00790 | bf25 carry=0.00220 rough=0.00304)  [0.3s]
+[22:25:59] Cell 121/126 — starting  H=0.20  resample= 120 min  move_pct=10%
+[22:25:59] Cell 121/126  H=0.20  resample= 120 min  move_pct=10%  →  PASS       (active rr25 carry=0.01201 rough=0.01150 | bf25 carry=0.00214 rough=0.00333)  [0.2s]
+[22:25:59] Cell 122/126 — starting  H=0.20  resample= 120 min  move_pct=20%
+[22:25:59] Cell 122/126  H=0.20  resample= 120 min  move_pct=20%  →  FAIL       (active rr25 carry=0.00899 rough=0.00941 | bf25 carry=0.00235 rough=0.00323)  [0.3s]
+[22:25:59] Cell 123/126 — starting  H=0.20  resample= 120 min  move_pct=30%
+[22:26:00] Cell 123/126  H=0.20  resample= 120 min  move_pct=30%  →  FAIL       (active rr25 carry=0.00761 rough=0.00886 | bf25 carry=0.00226 rough=0.00294)  [0.2s]
+[22:26:00] Cell 124/126 — starting  H=0.20  resample= 390 min  move_pct=10%
+[22:26:00] Cell 124/126  H=0.20  resample= 390 min  move_pct=10%  →  PASS       (active rr25 carry=0.01509 rough=0.01382 | bf25 carry=0.00199 rough=0.00389)  [0.2s]
+[22:26:00] Cell 125/126 — starting  H=0.20  resample= 390 min  move_pct=20%
+[22:26:00] Cell 125/126  H=0.20  resample= 390 min  move_pct=20%  →  PASS       (active rr25 carry=0.01416 rough=0.01219 | bf25 carry=0.00225 rough=0.00330)  [0.2s]
+[22:26:00] Cell 126/126 — starting  H=0.20  resample= 390 min  move_pct=30%
+[22:26:00] Cell 126/126  H=0.20  resample= 390 min  move_pct=30%  →  PASS       (active rr25 carry=0.01050 rough=0.01020 | bf25 carry=0.00237 rough=0.00309)  [0.2s]
+[22:26:00] CSV saved → /Users/xiaohao/Effective_Engine/MVP/demo/python/research/conditional_dynamics/output/gate0b_sweep_20260409_202600.csv
+
+Gate 0B Robustness Sweep — move_pct=10% (active = top 10% |Δspot|)
+     H |         1 |         5 |        15 |        30 |        60 |       120 |       390
+---------------------------------------------------------------------------------------------
+  0.03 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS |      PASS
+  0.05 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS |      PASS
+  0.07 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS |      PASS
+  0.10 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS |      PASS
+  0.15 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS |      PASS
+  0.20 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS |      PASS
+---------------------------------------------------------------------------------------------
+  12/42 cells PASS (29%)
+
+Gate 0B Robustness Sweep — move_pct=20% (active = top 20% |Δspot|)
+     H |         1 |         5 |        15 |        30 |        60 |       120 |       390
+---------------------------------------------------------------------------------------------
+  0.03 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.05 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.07 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.10 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.15 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.20 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+---------------------------------------------------------------------------------------------
+  6/42 cells PASS (14%)
+
+Gate 0B Robustness Sweep — move_pct=30% (active = top 30% |Δspot|)
+     H |         1 |         5 |        15 |        30 |        60 |       120 |       390
+---------------------------------------------------------------------------------------------
+  0.03 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.05 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.07 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.10 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.15 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+  0.20 |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      FAIL |      PASS
+---------------------------------------------------------------------------------------------
+  6/42 cells PASS (14%)
+

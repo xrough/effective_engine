@@ -26,9 +26,10 @@ sys.path.insert(0, str(_HERE.parents[1] / "shared"))
 from robustness_sweeps import (
     SweepConfig,
     _cache_path, load_cache, save_cache,
-    resample_panel, apply_n_exp_selection, recompute_structural,
+    resample_panel, apply_n_exp_selection, pool_by_tenor_bucket, recompute_structural,
     _agg_metrics, _avg_metrics,
     classify_gate0_cell, classify_gate0b_cell,
+    classify_gate1_cell, classify_gate1b_cell,
     format_gate0_summary,
 )
 
@@ -120,6 +121,23 @@ def _make_ev(rr25_carry: float, rr25_rough: float,
     }
 
 
+def _make_gate1_agg(rr25_carry: float,
+                    rr25_cond: float,
+                    rr25_recent: float,
+                    bf25_carry: float,
+                    bf25_cond: float,
+                    bf25_recent: float) -> dict:
+    """Minimal aggregated metrics dict for Gate 1 classification tests."""
+    return {
+        "rr25_rmse_carry": rr25_carry,
+        "rr25_rmse_rough_cond_carry": rr25_cond,
+        "rr25_rmse_rough_recent": rr25_recent,
+        "bf25_rmse_carry": bf25_carry,
+        "bf25_rmse_rough_cond_carry": bf25_cond,
+        "bf25_rmse_rough_recent": bf25_recent,
+    }
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Tests
 # ─────────────────────────────────────────────────────────────────────────────
@@ -169,6 +187,27 @@ def test_apply_n_exp_selection_far():
     assert exp2 in expiries_seen
     assert exp3 in expiries_seen
     assert exp1 not in expiries_seen, "Nearest expiry should be excluded"
+
+
+def test_pool_by_tenor_bucket_creates_long_lived_series():
+    """Tenor buckets should collapse exact expiries into front/mid roles."""
+    expiries = [
+        date(2026, 1, 19),  # ~14 DTE from 2026-01-05 -> front
+        date(2026, 2, 2),   # ~28 DTE -> mid
+        date(2026, 2, 20),  # ~46 DTE -> back
+    ]
+    panel = _make_panel(n_bars=8, expiries=expiries)
+
+    pooled = pool_by_tenor_bucket(panel, select_far=False)
+    series_ids = {r["series_id"] for r in pooled}
+    assert series_ids == {"front", "mid"}, f"Unexpected tenor series: {series_ids}"
+
+    by_series = {}
+    for rec in pooled:
+        by_series.setdefault(rec["series_id"], []).append(rec)
+
+    assert len(by_series["front"]) == 8, "Front bucket should keep one record per timestamp"
+    assert len(by_series["mid"]) == 8, "Mid bucket should keep one record per timestamp"
 
 
 def test_recompute_structural_H_change():
@@ -258,6 +297,21 @@ def test_classify_gate0b_cell_skip():
     assert verdict == "SKIP", f"Expected SKIP, got {verdict}"
 
 
+def test_classify_gate1_cell_pass():
+    """PASS when a Gate 1 method improves on carry by >2%."""
+    agg = _make_gate1_agg(0.010, 0.0096, 0.0101, 0.0020, 0.0021, 0.0018)
+    verdict = classify_gate1_cell(agg)
+    assert verdict == "PASS", f"Expected PASS, got {verdict}"
+
+
+def test_classify_gate1b_cell_pass():
+    """PASS when active improves and quiet does not."""
+    agg_act = _make_gate1_agg(0.010, 0.0097, 0.0102, 0.0020, 0.0021, 0.0020)
+    agg_qui = _make_gate1_agg(0.010, 0.0102, 0.0101, 0.0020, 0.0021, 0.0020)
+    verdict = classify_gate1b_cell(agg_act, agg_qui)
+    assert verdict == "PASS", f"Expected PASS, got {verdict}"
+
+
 def test_cache_roundtrip():
     """save_cache → load_cache returns identical list."""
     records = _make_panel(n_bars=20)
@@ -308,6 +362,8 @@ def main():
         ("classify_gate0b_cell_pass",         test_classify_gate0b_cell_pass),
         ("classify_gate0b_cell_fail",         test_classify_gate0b_cell_fail),
         ("classify_gate0b_cell_skip",         test_classify_gate0b_cell_skip),
+        ("classify_gate1_cell_pass",          test_classify_gate1_cell_pass),
+        ("classify_gate1b_cell_pass",         test_classify_gate1b_cell_pass),
         ("cache_roundtrip",                   test_cache_roundtrip),
         ("format_gate0_summary_shape",        test_format_gate0_summary_shape),
     ]

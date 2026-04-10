@@ -149,7 +149,7 @@ def evaluate_skew_scaling(all_ts_records: dict, H: float) -> dict:
     Parameters
     ----------
     all_ts_records : {ts → list of per-expiry records}
-    H              : Hurst exponent (theoretical slope = H − 0.5)
+    H              : Hurst exponent (theoretical slope for rr25 regression = H)
 
     Returns
     -------
@@ -161,7 +161,7 @@ def evaluate_skew_scaling(all_ts_records: dict, H: float) -> dict:
       frac_consistent — fraction of timestamps where |beta − theory| < 0.10
       verdict — PROCEED | WEAK | ABORT
     """
-    betas, r2s, n_exps = [], [], []
+    fit_results = []
     n_total = 0
 
     for ts in sorted(all_ts_records):
@@ -169,15 +169,28 @@ def evaluate_skew_scaling(all_ts_records: dict, H: float) -> dict:
         result = fit_skew_scaling(all_ts_records[ts])
         if result is None:
             continue
-        betas.append(result["beta"])
-        r2s.append(result["r2"])
-        n_exps.append(result["n_exp"])
+        fit_results.append(result)
 
-    if not betas:
-        return {"n_ts_total": n_total, "n_ts_fitted": 0, "verdict": "ABORT"}
+    return summarize_skew_fits(fit_results, n_total, H)
 
-    betas_arr = np.array(betas)
-    r2_arr    = np.array([r for r in r2s if math.isfinite(r)])
+
+def summarize_skew_fits(fit_results: list[dict], n_ts_total: int, H: float) -> dict:
+    """
+    Aggregate per-timestamp skew-scaling fits into one Gate 0A result.
+
+    Parameters
+    ----------
+    fit_results : list of fit_skew_scaling(...) outputs
+    n_ts_total  : total timestamps considered before fit-quality filtering
+    H           : Hurst exponent hypothesis (theory target is beta = H)
+    """
+    if not fit_results:
+        return {"n_ts_total": n_ts_total, "n_ts_fitted": 0, "verdict": "ABORT"}
+
+    betas_arr = np.array([r["beta"] for r in fit_results], dtype=float)
+    r2_arr    = np.array([r["r2"] for r in fit_results if math.isfinite(r.get("r2", float("nan")))],
+                         dtype=float)
+    n_exps    = [r["n_exp"] for r in fit_results if math.isfinite(r.get("n_exp", float("nan")))]
     theory    = H          # rr25 ~ T^H (not T^{H-0.5}; see module docstring)
 
     beta_mean   = float(np.mean(betas_arr))
@@ -201,8 +214,8 @@ def evaluate_skew_scaling(all_ts_records: dict, H: float) -> dict:
         verdict = "ABORT — no power-law scaling consistent with rough vol"
 
     return {
-        "n_ts_total":    n_total,
-        "n_ts_fitted":   len(betas),
+        "n_ts_total":    n_ts_total,
+        "n_ts_fitted":   len(fit_results),
         "beta_mean":     beta_mean,
         "beta_std":      beta_std,
         "beta_median":   beta_median,
@@ -247,7 +260,7 @@ def print_report(result: dict, H: float, run_meta: dict | None = None):
     theory = result.get("theory_beta", H)   # rr25 ~ T^H
 
     print("\n── 1. Slope (beta) distribution ────────────────────────────────\n")
-    print(f"  Theoretical beta (H−0.5):  {theory:+.4f}")
+    print(f"  Theoretical beta (H):      {theory:+.4f}")
     print()
     print(f"  {'Statistic':<20} {'Value':>10}")
     print(f"  {'-'*20} {'-'*10}")

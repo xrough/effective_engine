@@ -18,13 +18,15 @@ Hypothesis:
 Design
 ------
 1. Load data via process_day_full (includes 'forward' field).
-2. For each expiry time series: compute r_t = log(F_t / F_{t-1}).
-3. Tag regime: ACTIVE if |r_t| > top move_pct-percentile threshold; else QUIET.
-4. Run evaluate_forecasts (carry / rough / AR1) on:
+2. Pool exact expiries into tenor-role series (front/mid/back by DTE bucket).
+3. For each tenor series: compute r_t = log(F_t / F_{t-1}).
+4. Tag regime: ACTIVE if |r_t| > top move_pct-percentile threshold; else QUIET.
+5. Run evaluate_forecasts (carry / rough / AR1) on the full series, then
+   score:
    - full sample
-   - quiet subset
-   - active subset
-5. Compare RMSE, directional accuracy, residual ACF across regimes.
+   - quiet target bars
+   - active target bars
+6. Compare RMSE, directional accuracy, residual ACF across regimes.
 
 Success criteria (PROCEED):
   In the ACTIVE regime ONLY:
@@ -64,6 +66,7 @@ from smile_pipeline import (
     RATE, DIV, MIN_DTE, MAX_DTE, MKT_OPEN_UTC, MKT_CLOSE_UTC,
     _Tee, process_day_full, evaluate_forecasts, ar1_forecast, get_device,
 )
+from robustness_sweeps import extraction_heartbeat, resample_panel, pool_by_tenor_bucket
 
 
 def _log(msg: str) -> None:
@@ -136,7 +139,11 @@ def evaluate_conditional(ts_data: list, H: float,
                           move_pct: float = 0.20,
                           min_bars: int = 15) -> dict:
     """
-    Partition ts_data by regime and run evaluate_forecasts on each partition.
+    Tag a full tenor series by regime, then score forecasts on the masked bars.
+
+    Forecasts are always formed on the full series. ACTIVE/QUIET only control
+    which target bars are scored, so the rough forecaster still sees the quiet
+    history needed to stabilize alpha/gamma.
 
     Returns {
         'all':    evaluate_forecasts result or None,
@@ -148,8 +155,8 @@ def evaluate_conditional(ts_data: list, H: float,
     """
     tagged = tag_move_regime(list(ts_data), move_pct)
 
-    quiet  = [r for r in tagged if r.get("regime") == "quiet"]
-    active = [r for r in tagged if r.get("regime") == "active"]
+    quiet_mask  = [r.get("regime") == "quiet" for r in tagged]
+    active_mask = [r.get("regime") == "active" for r in tagged]
 
     # Compute threshold for reporting
     abs_rets = []
@@ -161,38 +168,17 @@ def evaluate_conditional(ts_data: list, H: float,
     finite_rets = [r for r in abs_rets if math.isfinite(r)]
     threshold = float(np.percentile(finite_rets, 100*(1-move_pct))) if finite_rets else float("nan")
 
-    def safe_eval(subset):
-        return evaluate_forecasts(subset, H) if len(subset) >= min_bars else None
+    def safe_eval(mask):
+        return evaluate_forecasts(tagged, H, score_mask=mask) if sum(mask) >= min_bars else None
 
     return {
-        "all":            safe_eval(tagged),
-        "quiet":          safe_eval(quiet),
-        "active":         safe_eval(active),
-        "regime_counts":  {"quiet": len(quiet), "active": len(active)},
+        "all":            evaluate_forecasts(tagged, H),
+        "quiet":          safe_eval(quiet_mask),
+        "active":         safe_eval(active_mask),
+        "regime_counts":  {"quiet": sum(quiet_mask), "active": sum(active_mask)},
         "threshold":      threshold,
+        "scoring_mode":   "full-history forecasts, masked regime scoring",
     }
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Resampling (copied from intraday benchmark — avoids pandas UTC issues)
-# ─────────────────────────────────────────────────────────────────────────────
-
-def resample_expiry(ts_list: list, step_s: int) -> list:
-    key_feat = {"atm_total_var", "rr25", "bf25"}
-    num_feat = ["T","atm_iv","atm_total_var","rr25","bf25","alpha","gamma","forward","expiry"]
-    bucket_map: dict[int, dict] = {}
-    for r in ts_list:
-        epoch  = int(r["ts"].timestamp())
-        bucket = (epoch // step_s) * step_s
-        bucket_map[bucket] = r
-    out = []
-    for bucket_epoch, r in sorted(bucket_map.items()):
-        if not all(math.isfinite(r.get(k, float("nan"))) for k in key_feat):
-            continue
-        rec = {c: r[c] for c in num_feat if c in r}
-        rec["ts"] = pd.Timestamp(bucket_epoch, unit="s", tz="UTC")
-        out.append(rec)
-    return out
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -261,10 +247,10 @@ def print_report(all_cond_results: dict, H: float, resample: int,
         print(f"  Run:              {run_meta.get('run_ts','?')}")
         print(f"  Trading days:     {run_meta.get('days','?')}"
               f"  ({run_meta.get('first_date','?')} → {run_meta.get('last_date','?')})")
-        print(f"  Expiry selection: {run_meta.get('select_mode','?')}")
+        print(f"  Tenor selection:  {run_meta.get('select_mode','?')}")
         print(f"  RATE={RATE:.3f}  DIV={DIV:.3f}")
 
-    print("\n── 1. Per-expiry conditional results ───────────────────────────────\n")
+    print("\n── 1. Per-tenor conditional results ────────────────────────────────\n")
     print("  Hypothesis: rough edge (if any) shows in ACTIVE regime, not QUIET.\n")
 
     # Collect aggregate verdict signals
@@ -276,7 +262,7 @@ def print_report(all_cond_results: dict, H: float, resample: int,
     for exp_str, cond in sorted(all_cond_results.items()):
         rc = cond["regime_counts"]
         thresh = cond.get("threshold", float("nan"))
-        print(f"  Expiry {exp_str}  "
+        print(f"  Series {exp_str}  "
               f"(quiet={rc['quiet']}, active={rc['active']}, "
               f"threshold=|r|>{thresh:.5f})")
 
@@ -322,7 +308,7 @@ def print_report(all_cond_results: dict, H: float, resample: int,
 
     def pct(f): return f"{f*100:.0f}%" if math.isfinite(f) else "n/a"
 
-    print(f"  Expiries evaluated: {n_exp}")
+    print(f"  Tenor series evaluated: {n_exp}")
     print(f"  ACTIVE regime — rough beats carry on rr25:  {pct(frac_act_rr)}")
     print(f"  ACTIVE regime — rough beats carry on bf25:  {pct(frac_act_bf)}")
     print(f"  ACTIVE regime — residuals mean-revert:      {pct(frac_rev)}")
@@ -428,9 +414,9 @@ def _run(H: float, resample: int, select_far: bool, n_days: int | None,
     print(f"\nconditional_dynamics benchmark")
     print(f"  Run:      {run_ts}")
     print(f"  Days:     {len(dbn_files)}  |  H={H}  |  bar={bar_label}")
-    print(f"  Select:   {sel_label}  |  active=top {move_pct*100:.0f}% |Δspot|")
+    print(f"  Select:   {sel_label} tenor buckets  |  active=top {move_pct*100:.0f}% |Δspot|")
     print(f"  Device:   {device}  |  Workers: {workers}")
-    print(f"  DTE:      {MIN_DTE}–{MAX_DTE}  |  N_EXP={N_EXP}\n")
+    print(f"  DTE:      {MIN_DTE}–{MAX_DTE}  |  pooled by tenor role\n")
 
     dates_order = []
     for fname in dbn_files:
@@ -446,93 +432,76 @@ def _run(H: float, resample: int, select_far: bool, n_days: int | None,
     total = len(task_args)
     t0    = time.time()
     day_map: dict = {}
+    progress = {"completed": 0, "current": None, "start_ts": t0}
 
-    if workers > 1:
-        ctx = mp.get_context("spawn")
-        completed = 0
-        with ctx.Pool(workers) as pool:
-            for tdate, recs in pool.imap_unordered(_day_worker, task_args):
-                completed += 1
-                _log(f"Day {completed:3d}/{total:3d} — {tdate} — {len(recs)} records")
-                day_map[tdate] = recs
-    else:
-        with zipfile.ZipFile(OPRA_ZIP) as zf:
-            for i, (fname, tdate) in enumerate(dates_order, 1):
-                try:
-                    recs = process_day_full(zf, fname, tdate, H, device, MIN_DTE, MAX_DTE)
-                except Exception as e:
-                    _log(f"Day {i:3d}/{total:3d} — {tdate} — SKIP: {e}")
-                    recs = []
-                else:
-                    _log(f"Day {i:3d}/{total:3d} — {tdate} — {len(recs)} records")
-                day_map[tdate] = recs
+    with extraction_heartbeat(total, progress, label="Extracting conditional days"):
+        if workers > 1:
+            ctx = mp.get_context("spawn")
+            with ctx.Pool(workers) as pool:
+                for tdate, recs in pool.imap_unordered(_day_worker, task_args):
+                    progress["completed"] += 1
+                    _log(f"Day {progress['completed']:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                    day_map[tdate] = recs
+        else:
+            with zipfile.ZipFile(OPRA_ZIP) as zf:
+                for i, (fname, tdate) in enumerate(dates_order, 1):
+                    progress["current"] = tdate
+                    _log(f"Day {i:3d}/{total:3d} — {tdate} — starting")
+                    try:
+                        recs = process_day_full(zf, fname, tdate, H, device, MIN_DTE, MAX_DTE)
+                    except Exception as e:
+                        _log(f"Day {i:3d}/{total:3d} — {tdate} — SKIP: {e}")
+                        recs = []
+                    else:
+                        _log(f"Day {i:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                    day_map[tdate] = recs
+                    progress["completed"] = i
+                    progress["current"] = None
 
     elapsed = time.time() - t0
     total_extracted = sum(len(v) for v in day_map.values())
     _log(f"Extraction done: {total} days, {total_extracted} records  (elapsed {elapsed:.0f}s)")
 
-    all_expiry_ts: dict[date, list] = defaultdict(list)
+    flat_records: list[dict] = []
     dates_seen = []
-    total_raw  = 0
 
     for fname, tdate in dates_order:
         recs = day_map.get(tdate, [])
         dates_seen.append(tdate)
+        flat_records.extend(recs)
 
-        # Apply N_EXP selection (near or far) to match intraday benchmark conditions
-        # Group by timestamp, then keep only selected N_EXP expiries
-        if select_far:
-            ts_exp: dict = defaultdict(set)
-            for r in recs:
-                ts_exp[r["ts"]].add(r["expiry"])
-            selected_exp: dict[object, list] = {}
-            for ts, exps in ts_exp.items():
-                sorted_exp = sorted(exps)
-                selected_exp[ts] = sorted_exp[-N_EXP:]
-            recs = [r for r in recs if r["expiry"] in selected_exp.get(r["ts"], [])]
-        else:
-            ts_exp = defaultdict(set)
-            for r in recs:
-                ts_exp[r["ts"]].add(r["expiry"])
-            selected_exp = {}
-            for ts, exps in ts_exp.items():
-                selected_exp[ts] = sorted(exps)[:N_EXP]
-            recs = [r for r in recs if r["expiry"] in selected_exp.get(r["ts"], [])]
-
-        for r in recs:
-            all_expiry_ts[r["expiry"]].append(r)
-        total_raw += len(recs)
-
-    if not all_expiry_ts:
+    if not flat_records:
         sys.exit("No valid records.")
 
-    # Resample if needed
+    panel = resample_panel(flat_records, resample)
     if resample > 1:
-        step_s    = resample * 60
-        resampled = defaultdict(list)
-        for exp, ts_list in all_expiry_ts.items():
-            resampled[exp] = resample_expiry(ts_list, step_s)
-        total_res = sum(len(v) for v in resampled.values())
-        print(f"  Resampled to {resample}-min bars: {total_res} bar-expiry records")
-        all_expiry_ts = resampled
+        print(f"  Resampled to {resample}-min bars: {len(panel)} bar-expiry records")
+
+    pooled = pool_by_tenor_bucket(panel, select_far=select_far)
+    if not pooled:
+        sys.exit("No valid tenor-bucket records after pooling.")
+
+    all_series_ts: dict[str, list] = defaultdict(list)
+    for r in pooled:
+        all_series_ts[str(r["series_id"])].append(r)
 
     min_bars = max(20, 60 // max(resample, 1))
-    print(f"\nEvaluating {len(all_expiry_ts)} expiry series "
+    print(f"\nEvaluating {len(all_series_ts)} tenor series "
           f"(min {min_bars} bars, min 15 bars per regime) ...")
 
     all_cond_results = {}
-    for exp, ts in sorted(all_expiry_ts.items()):
+    for series_id, ts in sorted(all_series_ts.items()):
         ts.sort(key=lambda r: r["ts"])
         if len(ts) < min_bars:
             continue
         cond = evaluate_conditional(ts, H, move_pct)
-        all_cond_results[str(exp)] = cond
+        all_cond_results[str(series_id)] = cond
         rc   = cond["regime_counts"]
-        print(f"  {exp}: {len(ts)} bars total  "
+        print(f"  {series_id}: {len(ts)} bars total  "
               f"(quiet={rc['quiet']}, active={rc['active']})")
 
     if not all_cond_results:
-        sys.exit(f"No expiry had ≥{min_bars} bars.")
+        sys.exit(f"No tenor series had ≥{min_bars} bars.")
 
     run_meta = {
         "run_ts":      run_ts,

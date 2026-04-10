@@ -10,9 +10,9 @@ Workflow
 1. Extract 1-min records once (via _day_worker pool); cache to disk.
 2. For each (H, resample, move_pct) cell:
    a. resample_panel(records, resample)
-   b. apply_n_exp_selection(resampled, n_exp=2)   ← mirror Gate 0 selection
-   c. recompute_structural(selected, H)
-   d. Per expiry: evaluate_conditional(ts, H, move_pct)
+   b. pool_by_tenor_bucket(resampled)   ← follow front/mid/back roles
+   c. recompute_structural(pooled, H)
+   d. Per tenor series: evaluate_conditional(ts, H, move_pct)
    e. classify_gate0b_cell(active_agg, quiet_agg) → PASS/MARGINAL/FAIL/SKIP
 3. Write gate0b_sweep_<timestamp>.csv; print summary tables (one per move_pct).
 
@@ -51,7 +51,8 @@ from robustness_sweeps import (
     SweepConfig,
     DEFAULT_H_GRID, DEFAULT_RESAMPLE_GRID, DEFAULT_MOVE_PCT_GRID,
     load_cache, save_cache,
-    resample_panel, apply_n_exp_selection, recompute_structural,
+    extraction_heartbeat,
+    resample_panel, pool_by_tenor_bucket, recompute_structural,
     _agg_metrics, _avg_metrics,
     classify_gate0b_cell, format_gate0b_summary, _log,
 )
@@ -59,8 +60,6 @@ from robustness_sweeps import (
 # re-use the extraction worker from the single-run benchmark
 sys.path.insert(0, str(_HERE.parent))
 from benchmark import _day_worker, evaluate_conditional
-
-N_EXP = 2
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -77,27 +76,32 @@ def _extract(cfg: SweepConfig, dbn_files: list[tuple]) -> list:
 
     t0    = time.time()
     day_map: dict = {}
+    progress = {"completed": 0, "current": None, "start_ts": t0}
 
-    if cfg.workers > 1:
-        ctx = mp.get_context("spawn")
-        completed = 0
-        with ctx.Pool(cfg.workers) as pool:
-            for tdate, recs in pool.imap_unordered(_day_worker, task_args):
-                completed += 1
-                _log(f"Day {completed:3d}/{total:3d} — {tdate} — {len(recs)} records")
-                day_map[tdate] = recs
-    else:
-        with zipfile.ZipFile(OPRA_ZIP) as zf:
-            for i, (fname, tdate) in enumerate(dbn_files, 1):
-                try:
-                    recs = process_day_full(
-                        zf, fname, tdate, 0.10, cfg.device, MIN_DTE, MAX_DTE)
-                except Exception as e:
-                    _log(f"Day {i:3d}/{total:3d} — {tdate} — SKIP: {e}")
-                    recs = []
-                else:
-                    _log(f"Day {i:3d}/{total:3d} — {tdate} — {len(recs)} records")
-                day_map[tdate] = recs
+    with extraction_heartbeat(total, progress, label="Extracting Gate 0B days"):
+        if cfg.workers > 1:
+            ctx = mp.get_context("spawn")
+            with ctx.Pool(cfg.workers) as pool:
+                for tdate, recs in pool.imap_unordered(_day_worker, task_args):
+                    progress["completed"] += 1
+                    _log(f"Day {progress['completed']:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                    day_map[tdate] = recs
+        else:
+            with zipfile.ZipFile(OPRA_ZIP) as zf:
+                for i, (fname, tdate) in enumerate(dbn_files, 1):
+                    progress["current"] = tdate
+                    _log(f"Day {i:3d}/{total:3d} — {tdate} — starting")
+                    try:
+                        recs = process_day_full(
+                            zf, fname, tdate, 0.10, cfg.device, MIN_DTE, MAX_DTE)
+                    except Exception as e:
+                        _log(f"Day {i:3d}/{total:3d} — {tdate} — SKIP: {e}")
+                        recs = []
+                    else:
+                        _log(f"Day {i:3d}/{total:3d} — {tdate} — {len(recs)} records")
+                    day_map[tdate] = recs
+                    progress["completed"] = i
+                    progress["current"] = None
 
     elapsed = time.time() - t0
     flat = [r for recs in day_map.values() for r in recs]
@@ -110,20 +114,22 @@ def _extract(cfg: SweepConfig, dbn_files: list[tuple]) -> list:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _evaluate_cell(records: list, H: float, resample: int,
-                   move_pct: float) -> tuple[dict, dict, list]:
+                   move_pct: float,
+                   select_far: bool) -> tuple[dict, dict, list]:
     """
     Evaluate one (H, resample, move_pct) cell.
 
-    Returns (agg_active, agg_quiet, per_expiry_rows).
-    agg_active / agg_quiet are averaged across expiries; rows go into the CSV.
+    Returns (agg_active, agg_quiet, per_series_rows).
+    agg_active / agg_quiet are averaged across tenor-role series; rows go into
+    the CSV.
     """
     resampled = resample_panel(records, resample)
-    selected  = apply_n_exp_selection(resampled, n_exp=N_EXP, select_far=False)
-    selected  = recompute_structural(selected, H)
+    pooled    = pool_by_tenor_bucket(resampled, select_far=select_far)
+    selected  = recompute_structural(pooled, H)
 
     by_exp: dict = defaultdict(list)
     for r in selected:
-        by_exp[r["expiry"]].append(r)
+        by_exp[r["series_id"]].append(r)
 
     min_bars = max(20, 60 // max(resample, 1))
     active_metrics: list[dict] = []
@@ -151,6 +157,7 @@ def _evaluate_cell(records: list, H: float, resample: int,
 
         row: dict = {
             "H": H, "resample_min": resample, "move_pct": move_pct,
+            "series_id": str(exp),
             "expiry": str(exp),
             "n_bars_all":    len(ts),
             "n_bars_active": rc.get("active", 0),
@@ -177,6 +184,7 @@ def _evaluate_cell(records: list, H: float, resample: int,
 
     agg_row: dict = {
         "H": H, "resample_min": resample, "move_pct": move_pct,
+        "series_id": "ALL",
         "expiry": "ALL",
         "n_bars_all":    sum(r["n_bars_all"]    for r in per_expiry_rows),
         "n_bars_active": sum(r["n_bars_active"] for r in per_expiry_rows),
@@ -307,7 +315,19 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
             for move_pct in cfg.move_pct_grid:
                 cell_idx += 1
                 t_cell = time.time()
-                avg_act, avg_qui, rows = _evaluate_cell(records, H, resample, move_pct)
+                cell_state = {
+                    "completed": 0,
+                    "current": f"H={H:.2f} resample={resample} move_pct={move_pct:.0%}",
+                    "start_ts": t_cell,
+                }
+                _log(f"Cell {cell_idx:3d}/{n_cells:3d} — starting  H={H:.2f}  "
+                     f"resample={resample:4d} min  move_pct={move_pct:.0%}")
+                with extraction_heartbeat(1, cell_state,
+                                          label="Evaluating Gate 0B cell",
+                                          interval_s=5.0):
+                    avg_act, avg_qui, rows = _evaluate_cell(
+                        records, H, resample, move_pct, cfg.select_far)
+                    cell_state["completed"] = 1
                 elapsed_c = time.time() - t_cell
 
                 verdict = classify_gate0b_cell(
@@ -316,10 +336,13 @@ def _run(cfg: SweepConfig, no_cache: bool = False):
                 )
                 act_rr_rough = avg_act.get("rr25_rmse_rough", float("nan")) if avg_act else float("nan")
                 act_rr_carry = avg_act.get("rr25_rmse_carry", float("nan")) if avg_act else float("nan")
+                act_bf_rough = avg_act.get("bf25_rmse_rough", float("nan")) if avg_act else float("nan")
+                act_bf_carry = avg_act.get("bf25_rmse_carry", float("nan")) if avg_act else float("nan")
                 _log(f"Cell {cell_idx:3d}/{n_cells:3d}  H={H:.2f}  "
                      f"resample={resample:4d} min  move_pct={move_pct:.0%}  →  "
                      f"{verdict:<9s}  "
-                     f"(active rr25 carry={act_rr_carry:.5f} rough={act_rr_rough:.5f})  "
+                     f"(active rr25 carry={act_rr_carry:.5f} rough={act_rr_rough:.5f} "
+                     f"| bf25 carry={act_bf_carry:.5f} rough={act_bf_rough:.5f})  "
                      f"[{elapsed_c:.1f}s]")
 
                 all_rows.extend(rows)
