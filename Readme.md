@@ -45,8 +45,9 @@ $$
 
 These quantities are computed per bar and then used as the rough structural state in the forecast gates.
 
-### Gate 1: Skew Structure (`skew_scaling/`)
+### Gate 1: Skew Structure 
 
+Implemented in (`skew_scaling/`)
 **Hypothesis:** the short-end skew follows a rough-style power law across maturities,
 
 $$
