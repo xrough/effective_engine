@@ -3,7 +3,7 @@
 C++ options trading engine. Event-driven, layered DDD architecture. Focus on a buy-side variance alpha demo, with a separate deep BSDE neural hedging demo, while capable also of the seller-side initialization. Built while learning C++, with assistance from Claude Code.
 
 ## Demo (Rough Volatility Models)
-**Buyer — variance alpha demo (`./build/alpha_runner`)**
+**Variance alpha demo (`./build/alpha_runner`)**
 
 Extracts ATM implied variance from synthetic option quotes via BS IV bisection, computes a rolling z-score against the rough-model forward variance forecast $\xi_0 T$, and runs a Flat → Live → Cooldown state machine to trade ATM front straddles when the spread is statistically significant. Delta-hedges the resulting position and reports a PnL breakdown (option MTM, delta hedge PnL, transaction cost).
 
