@@ -92,11 +92,9 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
 
 ### Gate 3: Regime Dynamics 
 Implemented in (`conditional_dynamics/`). **Hypothesis:** any raw rough-vol edge should concentrate in the ACTIVE regime,
-
 $$
 |r_t| > q_{1-\texttt{move\_pct}}\bigl(|r|\bigr), r_t = \log \frac{F_t}{F_{t-1}},
 $$
-
 and should be absent in QUIET.
 
 **Robustness sweep (90 days, 126 cells: H × resample × move_pct):** All cells FAIL or MARGINAL. No regime-specific advantage detected. **Verdict: FAIL.**
