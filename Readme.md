@@ -48,7 +48,7 @@ $$
 
 These are then fed into the temporal and conditional forecast benchmarks.
 
-### Gate 0A: Skew Structure
+### Gate 1: Skew Structure
 
 Implemented in `skew_scaling/`.
 
@@ -76,7 +76,7 @@ above the original $H = 0.10$ prior. So the smile geometry looks rough-like,
 but the fitted exponent is not a clean confirmation of the original parameter
 choice.
 
-### Gate 0: Temporal Forecast
+### Gate 2: Temporal Forecast
 
 Implemented in `roughtemporal_intraday/`.
 
@@ -107,7 +107,7 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
 remains worse on aggregate $\mathrm{rr25}$ RMSE even when the gap narrows at
 coarser bars.
 
-### Gate 0B: Regime Dynamics
+### Gate 3: Regime Dynamics
 
 Implemented in `conditional_dynamics/`.
 
@@ -132,7 +132,7 @@ $$
 present, but a narrow daily-ish skew signal survives at `390m` in stressed
 regimes.
 
-### Gate 1: Incremental Edge Over Carry
+### Gate 4: Incremental Edge Over Carry
 
 Implemented in `roughtemporal_intraday/gate1_sweep.py`.
 
@@ -167,11 +167,11 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
 **Verdict: PASS.** Rough geometry adds useful information to carry, mainly on
 smile curvature rather than skew.
 
-### Gate 1B: Edge Concentration
+### Gate 5: Edge Concentration
 
 Implemented in `conditional_dynamics/gate1b_sweep.py`.
 
-**Hypothesis:** the Gate 1 improvement should be stronger in ACTIVE than in
+**Hypothesis:** the Gate 4 improvement should be stronger in ACTIVE than in
 QUIET, so that the rough enhancement is genuinely concentrated in stressed
 regimes:
 
@@ -194,15 +194,5 @@ $$
   - $\mathrm{bf25}$
 
 **Verdict: WEAK / NARROW SUPPORT.** The regime-specific improvement exists,
-but only in a narrow conditional curvature pocket. Most of the Gate 1 gain
+but only in a narrow conditional curvature pocket. Most of the Gate 4 gain
 appears to be unconditional rather than uniquely stress-driven.
-
-### Research infrastructure
-
-| File | Role |
-|---|---|
-| [demo/python/research/shared/smile_pipeline.py](demo/python/research/shared/smile_pipeline.py) | IV extraction, BS math, `evaluate_forecasts`, GPU bisection |
-| [demo/python/research/shared/robustness_sweeps.py](demo/python/research/shared/robustness_sweeps.py) | Cache, `resample_panel`, `pool_by_tenor_bucket`, cell classifiers |
-| [demo/python/research/shared/synthetic_smile.py](demo/python/research/shared/synthetic_smile.py) | Known-truth rough-smile generator for pipeline validation |
-| [demo/python/research/tests/smoke_test.py](demo/python/research/tests/smoke_test.py) | 14 no-data unit tests + synthetic roundtrip |
-| [demo/python/research/tests/test_robustness_sweeps.py](demo/python/research/tests/test_robustness_sweeps.py) | 13 unit tests for sweep helpers |
