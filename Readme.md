@@ -28,23 +28,20 @@ falsification gates. Each gate tests a different claim about rough-volatility
 smile geometry or rough-volatility alpha on SPY OPRA intraday data.
 
 The shared pipeline recovers the forward from call-put parity, then extracts
-the smile features
+the smile features:
 
-$$
-\mathrm{rr25} = \mathrm{IV}_{25c} - \mathrm{IV}_{25p},
-\qquad
-\mathrm{bf25} = \frac{\mathrm{IV}_{25c} + \mathrm{IV}_{25p}}{2} - \mathrm{IV}_{\mathrm{ATM}},
-$$
+```text
+rr25 = IV_25c - IV_25p
+bf25 = (IV_25c + IV_25p)/2 - IV_ATM
+```
 
-and the rough structural coefficients
+and the rough structural coefficients:
 
-$$
-\alpha = \frac{\mathrm{rr25}}{T^{H-\frac12}\sigma_{\mathrm{ATM}}},
-\qquad
-\gamma = \frac{\mathrm{bf25}}{T^{2H-1}\,\mathrm{ATV}},
-\qquad
-\mathrm{ATV} = \sigma_{\mathrm{ATM}}^2 T.
-$$
+```text
+alpha = rr25 / (T^(H-1/2) * sigma_ATM)
+gamma = bf25 / (T^(2H-1) * ATV)
+ATV   = sigma_ATM^2 * T
+```
 
 These are then fed into the temporal and conditional forecast benchmarks.
 
@@ -54,25 +51,21 @@ Implemented in `skew_scaling/`.
 
 **Hypothesis:** the short-end skew follows a stable power-law term structure
 across maturities, so a cross-sectional regression
-
-$$
-\log |\mathrm{rr25}(T)| = a + \beta \log T
-$$
-
-should reveal a persistent rough-style maturity slope.
+`log |rr25(T)| = a + beta * log(T)` should reveal a persistent rough-style
+maturity slope.
 
 **Latest full benchmark:** 127 days, 44,483 timestamps, mean 11.5 expiries per timestamp.
 
 | Statistic | Value |
 |---|---|
-| Median $\beta$ | +0.2123 |
-| Mean $R^2$ | 0.8606 |
-| Median $R^2$ | 0.9068 |
-| $\beta$ CV | 0.4210 |
+| Median `beta` | +0.2123 |
+| Mean `R^2` | 0.8606 |
+| Median `R^2` | 0.9068 |
+| `beta` CV | 0.4210 |
 
 **Verdict: WEAK / PARTIAL SUPPORT.** The cross-sectional power-law shape is
 clearly present and statistically stable, but the implied slope is materially
-above the original $H = 0.10$ prior. So the smile geometry looks rough-like,
+above the original `H = 0.10` prior. So the smile geometry looks rough-like,
 but the fitted exponent is not a clean confirmation of the original parameter
 choice.
 
@@ -80,21 +73,15 @@ choice.
 
 Implemented in `roughtemporal_intraday/`.
 
-**Hypothesis:** the raw rough structural forecast
-
-$$
-\widehat{\mathrm{rr25}}_{t+1}^{\,\mathrm{rough}},
-\qquad
-\widehat{\mathrm{bf25}}_{t+1}^{\,\mathrm{rough}}
-$$
-
-should beat naive carry on one-step-ahead smile prediction.
+**Hypothesis:** the raw rough structural forecasts
+`rr25_hat_rough(t+1)` and `bf25_hat_rough(t+1)` should beat naive carry on
+one-step-ahead smile prediction.
 
 **Latest robustness sweep:** `gate0_sweep_20260409_174933`
 
 - 127 trading days
-- $H \in \{0.03, 0.05, 0.07, 0.10, 0.15, 0.20\}$
-- resample $\in \{1, 5, 15, 30, 60\}$ min
+- `H in {0.03, 0.05, 0.07, 0.10, 0.15, 0.20}`
+- `resample in {1, 5, 15, 30, 60}` min
 - `0/30` evaluable cells PASS
 
 ```
@@ -104,7 +91,7 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
 ```
 
 **Verdict: REJECTED.** The raw rough forecast loses to carry at 1–5 min and
-remains worse on aggregate $\mathrm{rr25}$ RMSE even when the gap narrows at
+remains worse on aggregate `rr25` RMSE even when the gap narrows at
 coarser bars.
 
 ### Gate 3: Regime Dynamics
@@ -112,17 +99,20 @@ coarser bars.
 Implemented in `conditional_dynamics/`.
 
 **Hypothesis:** even if raw rough loses unconditionally, it may still add value
-after large spot or forward moves. ACTIVE bars are defined by
-$$
-|r_t| > q_{1-\texttt{move\_pct}}\bigl(|r|\bigr), r_t = \log \frac{F_t}{F_{t-1}}.
-$$
+after large spot or forward moves. ACTIVE bars are defined by:
+
+```text
+|r_t| > percentile_{1-move_pct}(|r|)
+r_t  = log(F_t / F_{t-1})
+```
+
 **Latest fair-scoring sweep:** `gate0b_sweep_20260410_082811`
 
 - 90 trading days
 - full-history forecasts with active/quiet masked scoring
 - surviving region: only `390m`
 - surviving `move_pct`: `10%` and `20%`
-- surviving feature: $\mathrm{rr25}$
+- surviving feature: `rr25`
 
 **Verdict: NARROW SUPPORT.** Raw rough conditional alpha is not broadly
 present, but a narrow daily-ish skew signal survives at `390m` in stressed
@@ -133,24 +123,23 @@ regimes.
 Implemented in `roughtemporal_intraday/gate1_sweep.py`.
 
 **Hypothesis:** rough does not need to replace carry; it only needs to improve
-it. Gate 1 tests two hybrids:
+it. Gate 4 tests two hybrids:
 
-$$
-\widehat{x}_{t+1}^{\,\mathrm{cond}}
-=
-x_t + a + b\bigl(\widehat{x}^{\,\mathrm{rough}}_t - x_t\bigr),
-$$
+```text
+x_hat_cond(t+1) = x_t + a + b * (x_hat_rough(t) - x_t)
+```
 
-which is the carry-conditioned rough correction, and a recency-weighted rough
-forecaster built from EWMA estimates of $\alpha_t$ and $\gamma_t$.
+This is the carry-conditioned rough correction. Gate 4 also tests a
+recency-weighted rough forecaster built from EWMA estimates of `alpha_t` and
+`gamma_t`.
 
 **Latest robustness sweep:** `gate1_sweep_20260410_090610`
 
 - 90 trading days
 - `24/30` evaluable cells PASS
-- `1m`, `5m`, `15m`, and `60m` pass across the full $H$ grid
+- `1m`, `5m`, `15m`, and `60m` pass across the full `H` grid
 - `30m` is only marginal
-- the winning feature is overwhelmingly $\mathrm{bf25}$
+- the winning feature is overwhelmingly `bf25`
 - `rough_cond_carry` leads at `1m` to `15m`
 - `rough_recent` leads at `60m`
 
@@ -161,7 +150,7 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
 ```
 
 **Verdict: PASS.** Rough geometry adds useful information to carry, mainly on
-smile curvature rather than skew.
+smile curvature (`bf25`) rather than skew.
 
 ### Gate 5: Edge Concentration
 
@@ -171,11 +160,10 @@ Implemented in `conditional_dynamics/gate1b_sweep.py`.
 QUIET, so that the rough enhancement is genuinely concentrated in stressed
 regimes:
 
-$$
-\Delta_{\mathrm{active}} > 0,
-\qquad
-\Delta_{\mathrm{quiet}} \le 0.
-$$
+```text
+Delta_active > 0
+Delta_quiet <= 0
+```
 
 **Latest sweep:** `gate1b_sweep_20260410_095254`
 
@@ -185,9 +173,9 @@ $$
 - `move_pct = 30\%`: `6/42` PASS
 - all 6 PASS cells are:
   - `5m`
-  - all tested $H$
+  - all tested `H`
   - `rough_cond_carry`
-  - $\mathrm{bf25}$
+  - `bf25`
 
 **Verdict: WEAK / NARROW SUPPORT.** The regime-specific improvement exists,
 but only in a narrow conditional curvature pocket. Most of the Gate 4 gain
