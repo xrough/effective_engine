@@ -98,7 +98,7 @@ def compute_delta_hedge_pnl(
     tau_s   = np.maximum(tau, 1e-8)
 
     d1      = (log_m + (r + 0.5 * sigma_t**2) * tau_s) / (sigma_t * np.sqrt(tau_s))
-    delta_t = norm.cdf(d1)                                       # (n, T+1)
+    delta_t = np.clip(norm.cdf(d1), 0.0, 1.0)                   # (n, T+1)
 
     # Hedge P&L: use delta at t=0..T-1, spot change t=1..T
     dS         = S_t[:, 1:] - S_t[:, :-1]                       # (n, T)
@@ -132,7 +132,7 @@ def compute_bsde_hedge_pnl(
     S_t     = K * np.exp(states[:, :, 1])
     sigma_t = np.sqrt(np.clip(states[:, :, 2], 1e-8, None))
     denom   = np.maximum(sigma_t * S_t, 1e-10)
-    delta_t = Z / denom                                          # (n, T+1)
+    delta_t = np.clip(Z / denom, 0.0, 1.0)                      # (n, T+1)
 
     dS        = S_t[:, 1:] - S_t[:, :-1]
     hedge_pnl = (delta_t[:, :-1] * dS).sum(axis=1)
@@ -162,7 +162,7 @@ def run_bayer_breneis_paths(
     model  = RoughHestonModel(
         hurst=p["H"], lam=p["kappa"], theta=p["theta"],
         nu=p["xi"],   rho=p["rho"],   v0=p["V0"],
-        scheme="bayer-breneis", n_factors=8,
+        scheme="bayer-breneis", n_factors=4,
     )
     market = MarketData(spot=float(p["S0"]), rate=r, div_yield=0.0)
     cfg    = SimConfig(
@@ -171,7 +171,8 @@ def run_bayer_breneis_paths(
     )
 
     print(f"  Simulating {n_paths} Bayer-Breneis paths (n_steps={n_steps})…", flush=True)
-    paths  = model.simulate_paths(market=market, config=cfg)
+    rng    = np.random.default_rng(seed)
+    paths  = model.simulate_paths(market=market, sim=cfg, rng=rng)
     S_arr  = paths.state["spot"].astype(np.float64)  # (n, T+1) or (n, T)
     V_arr  = paths.state["var"].astype(np.float64)
     t_grid = paths.t.astype(np.float64)              # (T+1,) or (T,)
@@ -294,6 +295,9 @@ def main() -> None:
     print("\n── Stage 1: OOS pre-generated paths ──────────────────────")
     states = np.load(BASE / "oos_states_raw.npy").astype(np.float32)  # (2000, 51, 7)
     payoff = np.load(BASE / "oos_payoff.npy").astype(np.float32)       # (2000,)
+    V_frac = (states[:, :, 2] < 1e-4).mean() * 100
+    print(f"  Note: {V_frac:.1f}% of cells have V_t < 1e-4 (CIR absorption at 0).")
+    print("  Delta clamped to [0,1]; V=0 steps produce deterministic drift-only spot moves.")
 
     delta_pnl = compute_delta_hedge_pnl(states, K, r)
     bsde_pnl  = compute_bsde_hedge_pnl(states, sess, norm_mean, norm_std, K)
