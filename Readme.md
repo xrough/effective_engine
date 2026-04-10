@@ -36,9 +36,9 @@ $$
 The rough-vol structural coefficients are then defined as
 
 $$
-\alpha = \frac{\mathrm{rr25}}{T^{H-\frac12}\sigma_{\mathrm{ATM}}},
+\alpha = \frac{\mathrm{rr25}}{T^{H-1/2}\sigma_{\mathrm{ATM}}},
 \qquad
-\gamma = \frac{\mathrm{bf25}}{T^{2H-1}\,\mathrm{ATV}},
+\gamma = \frac{\mathrm{bf25}}{T^{2H-1} \mathrm{ATV}},
 \qquad
 \mathrm{ATV} = \sigma_{\mathrm{ATM}}^2 T.
 $$
