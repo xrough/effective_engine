@@ -113,11 +113,9 @@ Implemented in `conditional_dynamics/`.
 
 **Hypothesis:** even if raw rough loses unconditionally, it may still add value
 after large spot or forward moves. ACTIVE bars are defined by
-
 $$
 |r_t| > q_{1-\texttt{move\_pct}}\bigl(|r|\bigr), r_t = \log \frac{F_t}{F_{t-1}}.
 $$
-
 **Latest fair-scoring sweep:** `gate0b_sweep_20260410_082811`
 
 - 90 trading days
