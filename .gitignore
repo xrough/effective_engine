@@ -25,6 +25,7 @@ market_maker
 # Claude Code 会话目录（本地专用，不提交）
 .claude/
 CLAUDE.md
+AGENTS.md
 
 # Local reference docs (not for version control)
 structure.md

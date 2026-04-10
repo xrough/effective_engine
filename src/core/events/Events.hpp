@@ -132,12 +132,14 @@ struct ParamUpdateEvent {
 // Consumed by: ImpliedVarianceExtractor
 // ============================================================
 struct OptionMidQuoteEvent {
-    std::string instrument_id;  
-    double      mid_price;      // mid price is most relevant for implied volatility extraction
-    double      underlying;     
-    double      strike;         
-    double      time_to_expiry; 
-    bool        is_call;        
+    std::string instrument_id;
+    double      mid_price;      // (bid + ask) / 2 — used for IV extraction and MTM
+    double      bid_price = 0.0;  // best bid from exchange (Databento OPRA)
+    double      ask_price = 0.0;  // best ask from exchange (Databento OPRA)
+    double      underlying;
+    double      strike;
+    double      time_to_expiry;
+    bool        is_call;
     Timestamp   timestamp;
 };
 

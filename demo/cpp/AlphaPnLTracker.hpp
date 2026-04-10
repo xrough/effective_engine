@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <memory>
 #include <string>
 #include <iostream>
@@ -60,7 +61,7 @@ public:
         , engine_(std::move(engine))
         , options_map_(std::move(options_map))
         , extractor_(std::move(extractor))
-        , half_spread_(half_spread)
+        , default_half_spread_(half_spread)
     {}
 
     void register_handlers() {
@@ -91,6 +92,12 @@ public:
 
     void print_summary() const {
         auto b = breakdown();
+
+        // 波动率风险溢价：平均 IV - 平均 RV5
+        double avg_iv  = (iv_obs_count_ > 0)  ? iv_obs_sum_  / iv_obs_count_  : 0.0;
+        double avg_rv5 = (rv5_count_ > 0)      ? rv5_sum_     / rv5_count_     : 0.0;
+        double vrp     = avg_iv - avg_rv5;
+
         std::cout << "\n┌──────────────────────────────────────────────────────────┐\n"
                   << "│  Strategy PnL Attribution (Greeks Decomposition)         │\n"
                   << "└──────────────────────────────────────────────────────────┘\n"
@@ -104,7 +111,13 @@ public:
                   << "  Hedge residual (Δ-capture): $" << b.hedge_resid     << "\n"
                   << "  Transaction cost:          -$" << b.transaction_cost << "\n"
                   << "  ──────────────────────────────────────────────────────\n"
-                  << "  Total PnL:                  $" << b.total_pnl       << "\n\n";
+                  << "  Total PnL:                  $" << b.total_pnl       << "\n\n"
+                  << std::setprecision(4)
+                  << "  Vol Risk Premium (Databento OPRA)\n"
+                  << "  ──────────────────────────────────────────────────────\n"
+                  << "  平均隐含波动率 (IV):         " << avg_iv  * 100.0 << "%\n"
+                  << "  平均已实现波动率 5-bar (RV): " << avg_rv5 * 100.0 << "%\n"
+                  << "  波动率风险溢价 (IV - RV):    " << vrp     * 100.0 << "%\n\n";
     }
 
 private:
@@ -120,16 +133,25 @@ private:
 
         if (e.producer == "hedge_order") {
             delta_hedge_pnl_ -= signed_qty * e.fill_price;
-            transaction_cost_ += half_spread_ * std::abs(e.fill_qty);
+            transaction_cost_ += default_half_spread_ * std::abs(e.fill_qty);
         } else if (e.producer == "alpha_exec") {
             auto& pos = positions_[e.instrument_id];
             pos.qty  += signed_qty;
             pos.cost += signed_qty * e.fill_price;
-            transaction_cost_ += half_spread_ * std::abs(e.fill_qty);
+            // 使用实际买卖价差（来自 Databento 行情），若无则用默认值
+            auto it = half_spread_per_instrument_.find(e.instrument_id);
+            double hs = (it != half_spread_per_instrument_.end())
+                        ? it->second : default_half_spread_;
+            transaction_cost_ += hs * std::abs(e.fill_qty);
         }
     }
 
     void on_quote(const events::OptionMidQuoteEvent& e) {
+        // 更新实际买卖价差（半价差 = (ask - bid) / 2）
+        if (e.ask_price > e.bid_price && e.bid_price > 0.0) {
+            half_spread_per_instrument_[e.instrument_id] = (e.ask_price - e.bid_price) / 2.0;
+        }
+
         auto it = positions_.find(e.instrument_id);
         if (it != positions_.end()) {
             it->second.last_mid = e.mid_price;
@@ -149,6 +171,26 @@ private:
         // 当前 σ_impl（来自 ImpliedVarianceExtractor，保持一致性）
         auto iv = extractor_->last_point();
         double sigma_impl_now = iv.valid ? iv.atm_implied_vol : sigma_impl_prev_;
+
+        // 累计 IV，用于最终报告波动率风险溢价
+        if (iv.valid) {
+            iv_obs_sum_   += sigma_impl_now;
+            iv_obs_count_ += 1;
+        }
+
+        // 滚动已实现波动率（5-bar，年化），用于波动率风险溢价报告
+        if (last_spot_ > 0.0) {
+            double log_ret = std::log(new_spot / last_spot_);
+            rv_ring_[rv_idx_ % 5] = log_ret;
+            ++rv_idx_;
+            if (rv_idx_ >= 5) {
+                double sum_sq = 0.0;
+                for (double r : rv_ring_) sum_sq += r * r;
+                double rv5 = std::sqrt(sum_sq / 5.0 * 252.0 * 390.0);
+                rv5_sum_   += rv5;
+                rv5_count_ += 1;
+            }
+        }
 
         // dt 估算：tick-to-tick（使用固定年化近似，生产环境替换为真实时间差）
         constexpr double DT_ANNUAL = 1.0 / (252.0 * 390.0);  // ~1分钟级tick近似
@@ -181,9 +223,10 @@ private:
     std::shared_ptr<domain::IPricingEngine>              engine_;
     std::vector<OptionEntry>                             options_map_;
     std::shared_ptr<analytics::ImpliedVarianceExtractor> extractor_;
-    double                                               half_spread_;
+    double                                               default_half_spread_;
 
     std::unordered_map<std::string, InstrumentPosition>  positions_;
+    std::unordered_map<std::string, double>              half_spread_per_instrument_;
 
     double option_mtm_        = 0.0;
     double delta_pnl_         = 0.0;
@@ -195,6 +238,14 @@ private:
 
     double last_spot_         = 150.0;
     double sigma_impl_prev_   = 0.25;  // BS vol 初始值（冷启动）
+
+    // 波动率风险溢价跟踪（Databento OPRA 数据支持）
+    double iv_obs_sum_        = 0.0;
+    int    iv_obs_count_      = 0;
+    double rv5_sum_           = 0.0;
+    int    rv5_count_         = 0;
+    double rv_ring_[5]        = {};    // 环形缓冲区：最近 5 bar 对数收益
+    int    rv_idx_            = 0;
 };
 
 } // namespace omm::demo
