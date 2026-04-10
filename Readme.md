@@ -17,6 +17,25 @@ Generates lifted rough Heston paths in C++, trains a shared-weight MLP offline i
 | BS delta (FD bump) | 3.65 | 20.35 | — |
 | Neural BSDE | **3.40** | **19.35** | 3.4 µs |
 
+**BSDE hedger validation (`demo/python/validation/bsde_hedge_validation.py`)**
+
+Controlled out-of-sample test on Rough Heston paths (H=0.1, κ=0.3, θ=0.04, ξ=0.5, ρ=−0.7, T=1yr).
+Compares cumulative delta-hedge P&L against BSDE hedge P&L; hedge error = hedge\_pnl − payoff + Y0.
+
+Two stages:
+
+- **Stage 1 — OOS stored paths (n=2000):** exact U-factor trajectories from the same C++ simulator used for training; no state-estimation noise.
+- **Stage 2 — Bayer-Breneis fresh paths (n=2000):** independent order-2 weak paths from the Python Rough-Pricing library; U factors reconstructed on-the-fly via `BSDEStateEstimator`.
+
+| Stage | Hedger | RMSE ($) | MAE ($) | Improvement |
+|---|---|---|---|---|
+| OOS stored | BS delta | 6.273 | 5.619 | — |
+| OOS stored | Neural BSDE | **4.495** | **3.899** | **+28.3% RMSE** |
+| Bayer-Breneis | BS delta | 4.542 | 3.970 | — |
+| Bayer-Breneis | Neural BSDE | **3.391** | **2.870** | **+25.3% RMSE** |
+
+The ~3 percentage-point drop from Stage 1 to Stage 2 is consistent with state-estimation noise from inverting the OU factor updates. The improvement is stable across all error metrics and both tails (P5/P95).
+
 **Seller — live simulation + calibration (`./build/market_maker`)**
 
 Quotes bid/ask spreads (Rough Bergomi skew), simulates a probabilistic counterparty (30% fill), runs threshold-based delta hedging, enforces live risk limits (max loss $1M, max delta 10,000), then replays on an isolated bus to calibrate implied volatility via golden-section search and hot-inject the result.
@@ -154,7 +173,7 @@ smile curvature (`bf25`) rather than skew.
 
 ### Gate 5: Edge Concentration
 
-Implemented in `conditional_dynamics/gate1b_sweep.py`.
+Implemented in `conditional_dynamics/gate5_sweep.py`.
 
 **Hypothesis:** the Gate 4 improvement should be stronger in ACTIVE than in
 QUIET, so that the rough enhancement is genuinely concentrated in stressed
