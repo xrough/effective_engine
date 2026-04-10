@@ -101,21 +101,3 @@ $PYTHON research/roughtemporal_intraday/gate1_sweep.py --workers 8 --output  # G
 $PYTHON research/conditional_dynamics/gate1b_sweep.py --workers 8 --output   # Gate 1B
 $PYTHON research/tests/smoke_test.py && $PYTHON research/tests/test_robustness_sweeps.py
 ```
-
----
-
-## Key files
-
-| File | Role |
-|---|---|
-| [src/core/events/EventBus.hpp](src/core/events/EventBus.hpp) | Type-erased pub/sub dispatcher |
-| [src/core/analytics/PricingEngine.hpp](src/core/analytics/PricingEngine.hpp) | `IPricingEngine` + BS / intrinsic implementations |
-| [src/core/analytics/RoughVolPricingEngine.hpp](src/core/analytics/RoughVolPricingEngine.hpp) | Rough Bergomi skew with hot parameter injection |
-| [src/core/analytics/ImpliedVarianceExtractor.hpp](src/core/analytics/ImpliedVarianceExtractor.hpp) | BS IV bisection → σ², σ²T |
-| [src/core/interfaces/IEntryPolicy.hpp](src/core/interfaces/IEntryPolicy.hpp) | Trade entry decision interface |
-| [src/modules/buyer/IAlphaSignal.hpp](src/modules/buyer/IAlphaSignal.hpp) | Buyer-local signal interface |
-| [src/modules/buyer/BuyerModule.hpp](src/modules/buyer/BuyerModule.hpp) | Buyer wiring template (injection pattern) |
-| [src/modules/seller/SellerModule.hpp](src/modules/seller/SellerModule.hpp) | Seller composition entry point |
-| [demo/cpp/VarianceAlphaSignal.hpp](demo/cpp/VarianceAlphaSignal.hpp) | Concrete alpha signal (rolling z-score) |
-| [demo/cpp/StrategyController.hpp](demo/cpp/StrategyController.hpp) | Flat/Live/Cooldown state machine |
-| [demo/cpp/AlphaPnLTracker.hpp](demo/cpp/AlphaPnLTracker.hpp) | Per-instrument PnL attribution |
