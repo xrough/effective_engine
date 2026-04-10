@@ -64,12 +64,12 @@ int main() {
     params.K     = 100.0;
     params.T     = 1.0;
     params.r     = 0.05;
-    params.V0    = 0.04;   // 初始方差（对应 σ_0 ≈ 20%）
+    params.V0    = 0.077;  // 初始方差（对应 σ_0 ≈ 27.8%）— 与 ROUGH_HESTON_PARAMS.xi0 对齐
     params.kappa = 0.3;
     params.theta = 0.04;
     params.xi    = 0.5;
-    params.rho   = -0.7;
-    params.H     = 0.1;
+    params.rho   = -0.507; // 与 ROUGH_HESTON_PARAMS.rho 对齐（AAPL 2026-04-08 校准值）
+    params.H     = 0.1;    // LRH 核函数 H=0.1（独立于 Bergomi-Guyon H=0.01 参数）
     params.m     = 4;
 
     const int  N_CAL_PATHS   = 2000;   // 校准数据集（用于归一化）

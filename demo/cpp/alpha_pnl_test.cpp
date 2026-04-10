@@ -64,16 +64,23 @@ static omm::domain::RoughVolParams ROUGH_HESTON_PARAMS = {
     .xi0 = 0.077    // initial forward variance (v0 from calibration, EWMA-updated online)
 };
 
-static const std::string REAL_DATA_CSV  = "../demo/data/spy_atm_chain.csv";
+// Prefer multi-day panel; fall back to legacy single-day ATM CSV
+static const std::string PANEL_CSV      = "../data/spy_chain_panel.csv";
+static const std::string LEGACY_CSV     = "../data/spy_atm_chain.csv";
+static const std::string REAL_DATA_CSV  =
+    std::filesystem::exists(PANEL_CSV) ? PANEL_CSV : LEGACY_CSV;
 static const std::string SYNTH_DATA_CSV = "../data/market_data.csv";
 static const std::string ONNX_PATH      = "artifacts/neural_bsde.onnx";
 static const std::string NORM_PATH      = "artifacts/normalization.json";
 
+// HedgerMode — which hedge strategy to use in this simulation pass.
+enum class HedgerMode { BS_DELTA, ROUGH_DELTA, NEURAL_BSDE };
+
 // ── Single simulation pass ────────────────────────────────────
 // Returns ExtendedPnLBreakdown for the given hedger configuration.
-// All state is fresh per call — safe to call twice with same CSV.
+// All state is fresh per call — safe to call three times with same CSV.
 static omm::demo::ExtendedPnLBreakdown run_simulation(
-    bool        use_neural,
+    HedgerMode  mode,
     const std::string& label,
     bool        use_real_data
 ) {
@@ -146,9 +153,13 @@ static omm::demo::ExtendedPnLBreakdown run_simulation(
 
     auto position_mgr = std::make_shared<omm::domain::PositionManager>();
 
+    // ── Option instruments (needed by both delta hedger and PnL tracker) ──
+    auto call_atm = omm::domain::InstrumentFactory::make_call("AAPL", strike, expiry);
+    auto put_atm  = omm::domain::InstrumentFactory::make_put ("AAPL", strike, expiry);
+
     // ── Hedger ────────────────────────────────────────────────
 #ifdef BUILD_ONNX_DEMO
-    const bool neural_available = use_neural
+    const bool neural_available = (mode == HedgerMode::NEURAL_BSDE)
         && std::filesystem::exists(ONNX_PATH)
         && std::filesystem::exists(NORM_PATH);
     std::shared_ptr<::demo::OnnxInference>       onnx_model;
@@ -171,24 +182,32 @@ static omm::demo::ExtendedPnLBreakdown run_simulation(
         neural_hedger->register_handlers();
         std::cout << "[Hedger] NeuralBSDEHedger active (BSDE + Markovian lift state)\n";
 #endif
-    } else {
-        auto call_atm = omm::domain::InstrumentFactory::make_call("AAPL", strike, expiry);
-        auto put_atm  = omm::domain::InstrumentFactory::make_put ("AAPL", strike, expiry);
-        std::vector<std::shared_ptr<omm::domain::Option>> opts = {call_atm, put_atm};
+    } else if (mode == HedgerMode::ROUGH_DELTA) {
+        std::vector<omm::application::DeltaHedger::OptionEntry> opts = {
+            {"ATM_CALL", call_atm},
+            {"ATM_PUT",  put_atm}
+        };
         delta_hedger = std::make_shared<omm::application::DeltaHedger>(
-            bus, position_mgr, rough_engine, opts, "AAPL", /*threshold=*/0.3
+            bus, position_mgr, rough_engine, opts, "AAPL", /*threshold=*/0.3,
+            omm::application::HedgeMode::ROUGH_DELTA
         );
         delta_hedger->register_handlers();
-        bus->subscribe<omm::events::MarketDataEvent>(
-            [delta_hedger](const omm::events::MarketDataEvent& e) {
-                delta_hedger->update_market_price(e.underlying_price);
-            }
+        std::cout << "[Hedger] RoughVolDelta active (Bergomi-Guyon ∂σ/∂S correction)\n";
+    } else {
+        std::vector<omm::application::DeltaHedger::OptionEntry> opts = {
+            {"ATM_CALL", call_atm},
+            {"ATM_PUT",  put_atm}
+        };
+        delta_hedger = std::make_shared<omm::application::DeltaHedger>(
+            bus, position_mgr, rough_engine, opts, "AAPL", /*threshold=*/0.3,
+            omm::application::HedgeMode::BS_DELTA
         );
-        if (use_neural)
+        delta_hedger->register_handlers();
+        if (mode == HedgerMode::NEURAL_BSDE)
             std::cout << "[Hedger] NeuralBSDEHedger unavailable (no ONNX model), "
-                         "falling back to DeltaHedger\n";
+                         "falling back to BSDelta\n";
         else
-            std::cout << "[Hedger] DeltaHedger active (analytical BS delta)\n";
+            std::cout << "[Hedger] BSDelta active (plain N(d1) at market IV)\n";
     }
 
     // ── Extended PnL tracker ──────────────────────────────────
@@ -199,10 +218,14 @@ static omm::demo::ExtendedPnLBreakdown run_simulation(
         {PUT_ID,  put_pnl}
     };
 
+    std::string tracker_label;
+    if      (neural_available)             tracker_label = "NeuralBSDEHedger";
+    else if (mode == HedgerMode::ROUGH_DELTA) tracker_label = "RoughVolDelta";
+    else                                   tracker_label = "BSDelta";
+
     auto tracker = std::make_shared<omm::demo::ExtendedPnLTracker>(
         bus, rough_engine, pnl_opts, extractor,
-        /*hedger_label=*/neural_available ? "NeuralBSDEHedger" : "DeltaHedger",
-        /*rate=*/0.05
+        tracker_label, /*rate=*/0.05
     );
     tracker->register_handlers();
 
@@ -223,7 +246,10 @@ static omm::demo::ExtendedPnLBreakdown run_simulation(
     // ── Run simulation ────────────────────────────────────────
     std::cout << "── Simulation Start ─────────────────────────────────────\n";
     if (use_real_data) {
-        chain_adapter->run();
+        chain_adapter->run([&](double atm_iv, double T_sim, const std::string& /*date*/) {
+            if (delta_hedger && atm_iv > 0.0 && T_sim > 0.0)
+                delta_hedger->set_market_state(atm_iv, T_sim);
+        });
     } else {
         omm::infrastructure::MarketDataAdapter adapter(bus, SYNTH_DATA_CSV);
         adapter.run();
@@ -250,14 +276,17 @@ int main() {
         ? "Real OPRA chain: " + REAL_DATA_CSV
         : "Synthetic data:  " + SYNTH_DATA_CSV) << "\n\n";
 
-    // ── Pass 1: DeltaHedger ───────────────────────────────────
-    auto delta_result = run_simulation(/*use_neural=*/false, "DeltaHedger", use_real_data);
+    // ── Pass 1: BS Delta ─────────────────────────────────────
+    auto bs_result    = run_simulation(HedgerMode::BS_DELTA,    "BS Delta",         use_real_data);
 
-    // ── Pass 2: NeuralBSDEHedger (or fallback) ────────────────
-    auto bsde_result  = run_simulation(/*use_neural=*/true,  "NeuralBSDEHedger", use_real_data);
+    // ── Pass 2: Rough Vol Delta ───────────────────────────────
+    auto rough_result = run_simulation(HedgerMode::ROUGH_DELTA, "Rough Vol Delta",  use_real_data);
 
-    // ── Comparison table ──────────────────────────────────────
-    omm::demo::ExtendedPnLTracker::print_comparison(delta_result, bsde_result);
+    // ── Pass 3: NeuralBSDEHedger (or fallback to BS) ─────────
+    auto bsde_result  = run_simulation(HedgerMode::NEURAL_BSDE, "NeuralBSDEHedger", use_real_data);
+
+    // ── Three-strategy comparison table ──────────────────────
+    omm::demo::ExtendedPnLTracker::print_comparison(bs_result, rough_result, &bsde_result);
 
     // ── Signal decomposition summary ─────────────────────────
     std::cout << "  Signal Decomposition (Rough Heston gate results)\n"

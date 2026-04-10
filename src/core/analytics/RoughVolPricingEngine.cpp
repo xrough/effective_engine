@@ -140,6 +140,56 @@ PriceResult RoughVolPricingEngine::price(
     return bs_price_and_delta(S, K, T, sigma_k, is_call, sigma_atm);
 }
 
+// ── price_at_iv() ─────────────────────────────────────────────
+// Historical-replay version: accepts explicit T_sim and market IV.
+// Bypasses system_clock::now() and rough-vol sigma forecast.
+PriceResult RoughVolPricingEngine::price_at_iv(
+    double S, double K, double T_sim,
+    double sigma_market, bool is_call) const
+{
+    return bs_price_and_delta(S, K, T_sim, sigma_market, is_call, sigma_market);
+}
+
+// ── price_with_rough_delta() ─────────────────────────────────
+// Bergomi-Guyon minimum-variance delta.
+// When spot moves by dS, log-moneyness k = log(K/S) shifts by −dS/S,
+// carrying the smile with it.  Net delta:
+//   Δ_rough = Δ_BS(σ_K) + Vega(σ_K) · ∂σ_K/∂S
+//   ∂σ_K/∂S = −(ψ(T) + χ(T)·k) / S
+PriceResult RoughVolPricingEngine::price_with_rough_delta(
+    double S, double K, double T_sim, double sigma_atm, bool is_call) const
+{
+    if (T_sim <= 1e-6 || S <= 0.0 || K <= 0.0)
+        return price_at_iv(S, K, T_sim, sigma_atm, is_call);
+
+    RoughVolParams p;
+    { std::lock_guard<std::mutex> lk(params_mutex_); p = params_; }
+
+    // Step 1: skew-adjusted vol at this strike
+    double sigma_k = compute_skew_adjusted_vol(K, S, T_sim);
+
+    // Step 2: BS Greeks at sigma_k (vega needed for correction)
+    PriceResult res = bs_price_and_delta(S, K, T_sim, sigma_k, is_call, sigma_atm);
+
+    // Step 3: smile slope parameters
+    double sigma_ref = (sigma_atm > 1e-4) ? sigma_atm : std::sqrt(p.xi0);
+    double gamma_val = std::tgamma(p.H + 0.5);
+    double psi = p.rho * p.eta * gamma_val
+                 / (2.0 * std::sqrt(M_PI))
+                 * std::pow(T_sim, p.H - 0.5);
+    double chi = psi * psi / sigma_ref;
+
+    // Step 4: ∂σ_K/∂S = −(ψ + χ·k) / S
+    double k          = std::log(K / S);
+    double dsigma_dS  = -(psi + chi * k) / S;
+
+    // Step 5: apply correction, clamped to ±0.5 to prevent sign flip near T=0
+    double correction = res.vega * dsigma_dS;
+    correction = std::max(-0.5, std::min(0.5, correction));
+    res.delta += correction;
+    return res;
+}
+
 // ── update_params() ──────────────────────────────────────────
 void RoughVolPricingEngine::update_params(const RoughVolParams& params) {
     std::lock_guard<std::mutex> lk(params_mutex_);

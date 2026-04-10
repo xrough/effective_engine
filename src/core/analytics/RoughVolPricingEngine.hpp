@@ -30,10 +30,24 @@ public:
         double r = 0.05 // interest rate (annualized)
     );
 
-    // price() — realizing IPricingEngine interface
+    // price() — realizing IPricingEngine interface (uses system_clock for T, model for sigma)
     PriceResult price(
         const Option& option,
         double underlying_price
+    ) const override;
+
+    // price_at_iv() — uses explicit T_sim and market-observed sigma.
+    // Bypasses system_clock and rough-vol model sigma; call this in historical replay.
+    PriceResult price_at_iv(
+        double S, double K, double T_sim,
+        double sigma_market, bool is_call
+    ) const override;
+
+    // price_with_rough_delta() — Bergomi-Guyon minimum-variance delta.
+    // Δ_rough = Δ_BS(σ_K) + Vega(σ_K) · (−(ψ + χ·k) / S)
+    PriceResult price_with_rough_delta(
+        double S, double K, double T_sim,
+        double sigma_atm, bool is_call
     ) const override;
 
     // update_params() — hot injection of calibration

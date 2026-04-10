@@ -135,43 +135,72 @@ public:
     }
 
     // ── Side-by-side comparison table ────────────────────────
+    // c == nullptr: 2-column table (backward compatible)
+    // c != nullptr: 5-column table (a | b | Δ(b-a) | c | Δ(c-a))
+    // Key metric: Hedge Residual — should decrease  a > b > c  if hedgers improve.
     static void print_comparison(const ExtendedPnLBreakdown& a,
-                                 const ExtendedPnLBreakdown& b) {
-        auto row = [](const char* label, double va, double vb) {
+                                 const ExtendedPnLBreakdown& b,
+                                 const ExtendedPnLBreakdown* c = nullptr) {
+        const bool three_col = (c != nullptr);
+
+        auto row = [&](const char* label, double va, double vb, double vc = 0.0) {
             std::cout << "  " << std::left  << std::setw(22) << label
                       << std::right << std::fixed << std::setprecision(2)
                       << std::setw(12) << va
-                      << std::setw(16) << vb
-                      << std::setw(16) << (vb - va) << "\n";
+                      << std::setw(14) << vb
+                      << std::setw(13) << (vb - va);
+            if (three_col)
+                std::cout << std::setw(14) << vc
+                          << std::setw(13) << (vc - va);
+            std::cout << "\n";
         };
-        std::cout << "\n┌─────────────────────────────────────────────────────────────────┐\n"
-                  << "│   Alpha PnL Comparison — DeltaHedger vs NeuralBSDEHedger         │\n"
-                  << "├─────────────────────────────────────────────────────────────────┤\n"
-                  << "  " << std::left << std::setw(22) << ""
+
+        const std::string sep = three_col
+            ? "  ─────────────────────────────────────────────────────────────────────────\n"
+            : "  ─────────────────────────────────────────────────────────────\n";
+
+        if (three_col) {
+            std::cout << "\n┌─────────────────────────────────────────────────────────────────────────┐\n"
+                      << "│  Alpha PnL — Three-Strategy Hedge Attribution (BS / Rough / BSDE)       │\n"
+                      << "├─────────────────────────────────────────────────────────────────────────┤\n";
+        } else {
+            std::cout << "\n┌─────────────────────────────────────────────────────────────────┐\n"
+                      << "│   Alpha PnL Comparison — DeltaHedger vs NeuralBSDEHedger         │\n"
+                      << "├─────────────────────────────────────────────────────────────────┤\n";
+        }
+
+        std::cout << "  " << std::left << std::setw(22) << ""
                   << std::right << std::setw(12) << a.hedger_label
-                  << std::setw(16) << b.hedger_label
-                  << std::setw(16) << "Δ(BSDE−Delta)" << "\n"
-                  << "  ─────────────────────────────────────────────────────────────\n";
-        row("Option MTM ($):",      a.option_mtm,       b.option_mtm);
-        row("Δ PnL ($):",           a.delta_pnl,        b.delta_pnl);
-        row("Γ PnL ($):",           a.gamma_pnl,        b.gamma_pnl);
-        row("ν PnL ($):",           a.vega_pnl,         b.vega_pnl);
-        row("Vanna PnL ($):",       a.vanna_pnl,        b.vanna_pnl);
-        row("Volga PnL ($):",       a.volga_pnl,        b.volga_pnl);
-        row("θ PnL ($):",           a.theta_pnl,        b.theta_pnl);
-        row("Hedge PnL ($):",       a.delta_hedge_pnl,  b.delta_hedge_pnl);
-        row("Hedge Residual ($):",  a.hedge_resid,       b.hedge_resid);
-        row("Txn Cost ($):",        a.transaction_cost, b.transaction_cost);
-        std::cout << "  ─────────────────────────────────────────────────────────────\n";
-        row("Total PnL ($):",       a.total_pnl,        b.total_pnl);
+                  << std::setw(14) << b.hedger_label
+                  << std::setw(13) << "Δ(b-a)";
+        if (three_col)
+            std::cout << std::setw(14) << c->hedger_label
+                      << std::setw(13) << "Δ(c-a)";
+        std::cout << "\n" << sep;
+
+        row("Option MTM ($):",     a.option_mtm,      b.option_mtm,      three_col ? c->option_mtm      : 0.0);
+        row("Δ PnL ($):",          a.delta_pnl,       b.delta_pnl,       three_col ? c->delta_pnl       : 0.0);
+        row("Γ PnL ($):",          a.gamma_pnl,       b.gamma_pnl,       three_col ? c->gamma_pnl       : 0.0);
+        row("ν PnL ($):",          a.vega_pnl,        b.vega_pnl,        three_col ? c->vega_pnl        : 0.0);
+        row("Vanna PnL ($):",      a.vanna_pnl,       b.vanna_pnl,       three_col ? c->vanna_pnl       : 0.0);
+        row("Volga PnL ($):",      a.volga_pnl,       b.volga_pnl,       three_col ? c->volga_pnl       : 0.0);
+        row("θ PnL ($):",          a.theta_pnl,       b.theta_pnl,       three_col ? c->theta_pnl       : 0.0);
+        row("Hedge PnL ($):",      a.delta_hedge_pnl, b.delta_hedge_pnl, three_col ? c->delta_hedge_pnl : 0.0);
+        row("Hedge Residual ($):", a.hedge_resid,     b.hedge_resid,     three_col ? c->hedge_resid     : 0.0);
+        row("Txn Cost ($):",       a.transaction_cost,b.transaction_cost,three_col ? c->transaction_cost: 0.0);
+        std::cout << sep;
+        row("Total PnL ($):",      a.total_pnl,       b.total_pnl,       three_col ? c->total_pnl       : 0.0);
+
         std::cout << "\n"
                   << std::setprecision(4)
-                  << "  Vol Risk Premium\n"
-                  << "  ─────────────────────────────────────────────────────────────\n"
-                  << "  Avg IV:      " << a.avg_iv  * 100.0 << "%  (both passes share market data)\n"
+                  << "  Vol Risk Premium\n" << sep
+                  << "  Avg IV:      " << a.avg_iv  * 100.0 << "%  (all passes share market data)\n"
                   << "  Avg RV5:     " << a.avg_rv5 * 100.0 << "%\n"
-                  << "  VRP (IV-RV): " << (a.avg_iv - a.avg_rv5) * 100.0 << "%\n"
-                  << "└─────────────────────────────────────────────────────────────────┘\n\n";
+                  << "  VRP (IV-RV): " << (a.avg_iv - a.avg_rv5) * 100.0 << "%\n";
+        if (three_col)
+            std::cout << "└─────────────────────────────────────────────────────────────────────────┘\n\n";
+        else
+            std::cout << "└─────────────────────────────────────────────────────────────────┘\n\n";
     }
 
 private:
@@ -242,7 +271,17 @@ private:
             auto& pos = positions_[fill_id];
             if (pos.qty == 0) continue;
 
-            auto pr = engine_->price(*opt_ptr, new_spot);
+            // Use price_at_iv() with T_sim from extractor to avoid system_clock::now()
+            // driving T→0 for historically-expired options (theta blowup).
+            domain::PriceResult pr;
+            if (iv.valid && T_sim > 0.0) {
+                const bool is_call =
+                    (opt_ptr->option_type() == domain::OptionType::Call);
+                pr = engine_->price_at_iv(new_spot, opt_ptr->strike(),
+                                          T_sim, sigma_now, is_call);
+            } else {
+                pr = engine_->price(*opt_ptr, new_spot);
+            }
             delta_pnl_ += pos.qty * pr.delta * dS;
             gamma_pnl_ += pos.qty * 0.5 * pr.gamma * dS * dS;
             vega_pnl_  += pos.qty * pr.vega * d_sigma;

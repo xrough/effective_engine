@@ -90,6 +90,24 @@ public:
         return b;
     }
 
+    // ── Per-day session boundary hook ────────────────────────────
+    // Call this when the trading date changes (from the on_row callback
+    // in alpha_main.cpp). Snapshots the current-day incremental PnL and
+    // resets the day-start baseline.
+    void on_session_end(const std::string& date) {
+        double day_opt   = option_mtm_       - day_start_option_mtm_;
+        double day_hedge = delta_hedge_pnl_  - day_start_hedge_pnl_;
+        double day_cost  = transaction_cost_ - day_start_txn_cost_;
+        double day_total = day_opt + day_hedge - day_cost;
+
+        day_records_.push_back({date, day_opt, day_hedge, day_cost,
+                                 n_fills_today_, day_total});
+        n_fills_today_        = 0;
+        day_start_option_mtm_ = option_mtm_;
+        day_start_hedge_pnl_  = delta_hedge_pnl_;
+        day_start_txn_cost_   = transaction_cost_;
+    }
+
     void print_summary() const {
         auto b = breakdown();
 
@@ -118,9 +136,97 @@ public:
                   << "  平均隐含波动率 (IV):         " << avg_iv  * 100.0 << "%\n"
                   << "  平均已实现波动率 5-bar (RV): " << avg_rv5 * 100.0 << "%\n"
                   << "  波动率风险溢价 (IV - RV):    " << vrp     * 100.0 << "%\n\n";
+
+        if (!day_records_.empty())
+            print_stability_report();
+    }
+
+    void print_stability_report() const {
+        if (day_records_.empty()) return;
+
+        int N = static_cast<int>(day_records_.size());
+
+        // Compute daily PnL stats
+        double sum = 0.0, sum_sq = 0.0;
+        double min_pnl = day_records_[0].total_pnl;
+        double max_pnl = day_records_[0].total_pnl;
+        double total_gross_pnl  = 0.0;
+        double total_txn        = 0.0;
+        double total_hedge_pnl  = 0.0;
+        double total_option_mtm = 0.0;
+        double total_trades     = 0.0;
+
+        for (const auto& d : day_records_) {
+            sum     += d.total_pnl;
+            sum_sq  += d.total_pnl * d.total_pnl;
+            min_pnl  = std::min(min_pnl, d.total_pnl);
+            max_pnl  = std::max(max_pnl, d.total_pnl);
+            total_gross_pnl  += std::abs(d.option_mtm + d.delta_hedge_pnl);
+            total_txn        += d.txn_cost;
+            total_hedge_pnl  += d.delta_hedge_pnl;
+            total_option_mtm += d.option_mtm;
+            total_trades     += d.n_fills;
+        }
+        double mean_pnl = sum / N;
+        double var_pnl  = sum_sq / N - mean_pnl * mean_pnl;
+        double std_pnl  = (var_pnl > 0.0) ? std::sqrt(var_pnl) : 0.0;
+        double sharpe   = (std_pnl > 0.0) ? mean_pnl / std_pnl : 0.0;
+
+        // Attribution shares (of gross absolute PnL)
+        double opt_share   = (total_gross_pnl > 0.0) ? total_option_mtm / total_gross_pnl : 0.0;
+        double hedge_share = (total_gross_pnl > 0.0) ? total_hedge_pnl  / total_gross_pnl : 0.0;
+        double cost_drag   = (total_gross_pnl > 0.0) ? total_txn        / total_gross_pnl : 0.0;
+        double turnover    = total_trades / N;
+
+        // Hedge residual distribution (per-day errors stored as option_mtm - delta_pnl proxy)
+        // We store total_pnl per day; use that for the distribution
+        std::vector<double> pnls;
+        pnls.reserve(N);
+        for (const auto& d : day_records_) pnls.push_back(d.total_pnl);
+        std::sort(pnls.begin(), pnls.end());
+        double p5  = pnls[static_cast<int>(0.05 * N)];
+        double p50 = pnls[N / 2];
+        double p95 = pnls[static_cast<int>(0.95 * N)];
+
+        std::cout << "\n╔══════════════════════════════════════════════════════════════╗\n"
+                  << "║  Multi-Day Stability Report — " << N << " days"
+                  << std::string(std::max(0, 32 - static_cast<int>(std::to_string(N).size())), ' ') << "║\n"
+                  << "╠══════════════════════════════════════════════════════════════╣\n"
+                  << std::fixed << std::setprecision(2)
+                  << "║  Daily PnL        mean  $" << std::setw(8) << mean_pnl
+                  << "  ±  std  $" << std::setw(8) << std_pnl << "          ║\n"
+                  << "║               [min $"   << std::setw(8) << min_pnl
+                  << "  max $"   << std::setw(8) << max_pnl << "]          ║\n"
+                  << "║  Sharpe (daily)   " << std::setw(8) << std::setprecision(3) << sharpe
+                  << std::string(37, ' ') << "║\n"
+                  << "╠══════════════════════════════════════════════════════════════╣\n"
+                  << std::setprecision(1)
+                  << "║  Option MTM share     " << std::setw(6) << opt_share   * 100.0 << "%"
+                  << std::string(35, ' ') << "║\n"
+                  << "║  Delta hedge share    " << std::setw(6) << hedge_share * 100.0 << "%"
+                  << std::string(35, ' ') << "║\n"
+                  << "║  Txn cost drag        " << std::setw(6) << cost_drag   * 100.0 << "%"
+                  << std::string(35, ' ') << "║\n"
+                  << "║  Turnover             " << std::setw(6) << std::setprecision(1) << turnover
+                  << " fills/day" << std::string(26, ' ') << "║\n"
+                  << "╠══════════════════════════════════════════════════════════════╣\n"
+                  << std::setprecision(2)
+                  << "║  Daily PnL dist   P5 $" << std::setw(8) << p5
+                  << "  P50 $" << std::setw(8) << p50
+                  << "  P95 $" << std::setw(7) << p95 << " ║\n"
+                  << "╚══════════════════════════════════════════════════════════════╝\n\n";
     }
 
 private:
+    struct DayRecord {
+        std::string date;
+        double option_mtm;
+        double delta_hedge_pnl;
+        double txn_cost;
+        int    n_fills;
+        double total_pnl;
+    };
+
     struct InstrumentPosition {
         int    qty      = 0;
         double cost     = 0.0;   // 累计成本（qty × fill_price 之和）
@@ -130,6 +236,7 @@ private:
 
     void on_fill(const events::FillEvent& e) {
         int signed_qty = (e.side == events::Side::Buy) ? e.fill_qty : -e.fill_qty;
+        ++n_fills_today_;
 
         if (e.producer == "hedge_order") {
             delta_hedge_pnl_ -= signed_qty * e.fill_price;
@@ -199,7 +306,18 @@ private:
             auto& pos = positions_[fill_id];   // fill ID matches what StrategyController uses
             if (pos.qty == 0) continue;
 
-            auto pr = engine_->price(*opt_ptr, new_spot);
+            // Use price_at_iv() with T_sim from extractor when available to avoid
+            // system_clock::now() T calculation — options may have expired in wall-clock
+            // time during historical replay, which drives T→0 and theta to blow up.
+            domain::PriceResult pr;
+            if (iv.valid && iv.time_to_expiry > 0.0) {
+                const bool is_call =
+                    (opt_ptr->option_type() == domain::OptionType::Call);
+                pr = engine_->price_at_iv(new_spot, opt_ptr->strike(),
+                                          iv.time_to_expiry, sigma_impl_now, is_call);
+            } else {
+                pr = engine_->price(*opt_ptr, new_spot);
+            }
 
             // Δ PnL
             delta_pnl_ += pos.qty * pr.delta * dS;
@@ -246,6 +364,13 @@ private:
     int    rv5_count_         = 0;
     double rv_ring_[5]        = {};    // 环形缓冲区：最近 5 bar 对数收益
     int    rv_idx_            = 0;
+
+    // Per-day stability tracking
+    std::vector<DayRecord> day_records_;
+    int    n_fills_today_         = 0;
+    double day_start_option_mtm_  = 0.0;
+    double day_start_hedge_pnl_   = 0.0;
+    double day_start_txn_cost_    = 0.0;
 };
 
 } // namespace omm::demo

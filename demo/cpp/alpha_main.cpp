@@ -55,7 +55,12 @@ int main() {
               << "╚══════════════════════════════════════════════════════════╝\n\n";
 
     // ── 数据模式检测 ──────────────────────────────────────────
-    const std::string real_data_csv = "../demo/data/spy_atm_chain.csv";
+    // Prefer the multi-day panel (127 days, includes atm_iv + 25Δ columns);
+    // fall back to the legacy single-day ATM CSV for backward compat.
+    const std::string panel_csv  = "../data/spy_chain_panel.csv";
+    const std::string legacy_csv = "../data/spy_atm_chain.csv";
+    const std::string real_data_csv =
+        std::filesystem::exists(panel_csv) ? panel_csv : legacy_csv;
     const bool use_real_data = std::filesystem::exists(real_data_csv);
     std::cout << "[数据模式] " << (use_real_data
         ? "真实 OPRA 数据 (" + real_data_csv + ")"
@@ -158,20 +163,18 @@ int main() {
     } else {
         auto call_atm = omm::domain::InstrumentFactory::make_call("AAPL", STRIKE_ENTRY, expiry);
         auto put_atm  = omm::domain::InstrumentFactory::make_put ("AAPL", STRIKE_ENTRY, expiry);
-        std::vector<std::shared_ptr<omm::domain::Option>> hedge_options = {call_atm, put_atm};
+        // Use OptionEntry pairs so delta_map keys match PositionManager fill IDs
+        std::vector<omm::application::DeltaHedger::OptionEntry> hedge_options = {
+            {"ATM_CALL", call_atm},
+            {"ATM_PUT",  put_atm}
+        };
 
         delta_hedger = std::make_shared<omm::application::DeltaHedger>(
             bus, position_mgr, rough_engine, hedge_options, "AAPL", /*threshold=*/0.3
         );
         delta_hedger->register_handlers();
-
-        // DeltaHedger 需要跟踪最新标的价格
-        bus->subscribe<omm::events::MarketDataEvent>(
-            [delta_hedger](const omm::events::MarketDataEvent& e) {
-                delta_hedger->update_market_price(e.underlying_price);
-            }
-        );
         std::cout << "[Hedger] DeltaHedger 已激活（解析 BS Delta，阈值=0.3）\n";
+        std::cout << "[Hedger] DeltaHedger 将在真实数据回放时通过 set_market_state() 使用市场 IV 和 T_sim\n";
     }
 
     // ── PnL 追踪（行为组件，注入引擎 + 期权列表 + extractor） ─
@@ -205,7 +208,20 @@ int main() {
     // ── 运行仿真 ──────────────────────────────────────────────
     std::cout << "══════════════ Alpha Pipeline Start ══════════════\n\n";
     if (use_real_data) {
-        chain_adapter->run();
+        // on_row callback: fires after each bar's events are published.
+        // 1. Inject market IV + T_sim into DeltaHedger for correct historical delta.
+        // 2. Detect session (date) boundaries for per-day PnL accounting.
+        std::string prev_date;
+        chain_adapter->run([&](double atm_iv, double T_sim, const std::string& date) {
+            if (delta_hedger && atm_iv > 0.0 && T_sim > 0.0)
+                delta_hedger->set_market_state(atm_iv, T_sim);
+            if (!prev_date.empty() && date != prev_date)
+                pnl_tracker->on_session_end(prev_date);
+            prev_date = date;
+        });
+        // Flush the last day
+        if (!prev_date.empty())
+            pnl_tracker->on_session_end(prev_date);
     } else {
         omm::infrastructure::MarketDataAdapter adapter(bus, "../data/market_data.csv");
         adapter.run();

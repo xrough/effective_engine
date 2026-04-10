@@ -3,25 +3,34 @@
 // File: HistoricalChainAdapter.hpp  (demo/cpp/)
 // Role: real-data counterpart to SyntheticOptionFeed + MarketDataAdapter.
 //
-// Reads demo/data/spy_atm_chain.csv (produced by prepare_spy_data.py)
+// Reads demo/data/spy_chain_panel.csv (produced by prepare_spy_data.py)
 // and publishes three events per row:
 //   1. MarketDataEvent        — SPY spot (from put-call parity recovery)
 //   2. OptionMidQuoteEvent    — ATM call ("ATM_CALL") with bid/ask
 //   3. OptionMidQuoteEvent    — ATM put  ("ATM_PUT")  with bid/ask
 //
-// CSV columns (cols 0-11):
+// CSV columns — base (cols 0-11, same as original spy_atm_chain.csv):
 //   timestamp_utc, underlying_price, atm_strike, expiry_date,
 //   time_to_expiry, call_mid, put_mid,
 //   call_bid, call_ask, put_bid, put_ask, rv5_ann
+//
+// Extended columns (cols 12+, present in spy_chain_panel.csv):
+//   atm_iv  — pre-computed BS IV at ATM; exposed via row.atm_iv for
+//             use by DeltaHedger::set_market_state() in the main loop.
+//   (cols 13-21: 25Δ strike data — stored but not yet published as events)
 //
 // bid_price / ask_price are passed through to OptionMidQuoteEvent so that
 // SimpleExecSim can fill options at the correct side of the market.
 //
 // initial_strike() / initial_expiry() — peek at row 0 before run() so
 // alpha_main.cpp can construct correctly-struck option objects.
+//
+// on_row callback — optional per-row hook, called after publishing events,
+// allowing alpha_main.cpp to call set_market_state() with correct IV + T.
 // ============================================================
 
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -78,8 +87,15 @@ public:
         return parse_date_to_tp(rows_[0].expiry_date);
     }
 
+    // Expose row count for diagnostics
+    std::size_t row_count() const { return rows_.size(); }
+
     // ── 主循环 ─────────────────────────────────────────────────
-    void run() {
+    // on_row: optional callback invoked AFTER publishing all three events for
+    // a row. Receives (atm_iv, time_to_expiry, date_str) so the caller can
+    // call delta_hedger->set_market_state() and detect session boundaries.
+    void run(std::function<void(double /*atm_iv*/, double /*T_sim*/,
+                                const std::string& /*date*/)> on_row = nullptr) {
         std::cout << "[HistoricalChainAdapter] 开始回放…\n";
         for (const auto& r : rows_) {
             auto ts = parse_ts(r.timestamp_str);
@@ -112,6 +128,12 @@ public:
                 /*is_call=*/false,
                 ts
             });
+
+            // 4. Per-row callback — invoked after all events for this bar.
+            // Allows caller to call set_market_state(atm_iv, T_sim) and
+            // detect session boundaries using date_str().
+            if (on_row)
+                on_row(r.atm_iv, r.time_to_expiry, r.date_str());
         }
         std::cout << "[HistoricalChainAdapter] 回放完成 (" << rows_.size() << " 行)\n";
     }
@@ -129,7 +151,12 @@ private:
         double      call_ask = 0.0;
         double      put_bid  = 0.0;
         double      put_ask  = 0.0;
-        double      rv5_ann  = 0.0;  // rolling 5-bar annualised realised vol
+        double      rv5_ann  = 0.0;   // rolling 5-bar annualised realised vol
+        double      atm_iv   = 0.0;   // pre-computed BS IV (col 12, spy_chain_panel.csv)
+        // date portion (YYYY-MM-DD) for session boundary detection
+        std::string date_str() const {
+            return timestamp_str.size() >= 10 ? timestamp_str.substr(0, 10) : "";
+        }
     };
 
     std::shared_ptr<events::EventBus> bus_;
@@ -174,6 +201,10 @@ private:
                 r.call_ask = r.call_mid + 0.01;
                 r.put_bid  = r.put_mid  - 0.01;
                 r.put_ask  = r.put_mid  + 0.01;
+            }
+            // Col 12: atm_iv (spy_chain_panel.csv only; backward compat: stays 0.0)
+            if (cols.size() >= 13 && !cols[12].empty() && cols[12] != "nan") {
+                try { r.atm_iv = std::stod(cols[12]); } catch (...) { r.atm_iv = 0.0; }
             }
             rows_.push_back(r);
         }

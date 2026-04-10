@@ -32,15 +32,25 @@
 
 namespace omm::application {
 
+// HedgeMode — selects the delta computation method used in compute_delta_map().
+// BS_DELTA:    plain N(d1) at market IV (price_at_iv).
+// ROUGH_DELTA: Bergomi-Guyon stochastic delta = BS delta + Vega · (∂σ_K/∂S).
+enum class HedgeMode { BS_DELTA, ROUGH_DELTA };
+
 class DeltaHedger {
 public:
+    // fill_id is the instrument_id used in FillEvent (e.g. "ATM_CALL").
+    // Must match the keys stored in PositionManager so compute_portfolio_delta works.
+    using OptionEntry = std::pair<std::string, std::shared_ptr<domain::Option>>;
+
     DeltaHedger(
         std::shared_ptr<events::EventBus>            bus,
         std::shared_ptr<domain::PositionManager>     position_manager,
         std::shared_ptr<domain::IPricingEngine>      pricing_engine, //计算Delta需要用到定价引擎
-        std::vector<std::shared_ptr<domain::Option>> options,
+        std::vector<OptionEntry>                     options,   // {fill_id, option_ptr}
         const std::string&                           underlying_id,
-        double delta_threshold = 0.5  // MVP 低阈值，确保仿真中快速触发对冲
+        double delta_threshold = 0.5,  // MVP 低阈值，确保仿真中快速触发对冲
+        HedgeMode mode = HedgeMode::BS_DELTA
     );
 
     // 向 EventBus 注册 FillEvent 处理器，应在 main.cpp 连线阶段调用
@@ -51,9 +61,21 @@ public:
     // 通过订阅 MarketDataEvent 的 lambda 调用
     void update_market_price(double price);
 
+    // set_market_state() — inject historical T_sim and market IV each bar.
+    // When set (both > 0), compute_delta_map() calls price_at_iv() instead of
+    // price(), so the hedge delta uses the correct simulated T and market-
+    // observed sigma rather than system_clock and the rough-vol model forecast.
+    void set_market_state(double market_iv, double T_sim) {
+        market_iv_ = market_iv;
+        market_T_  = T_sim;
+    }
+
 private:
-    // FillEvent 的处理函数（统一成交事件，我方视角）
+    // FillEvent: records positions only; rebalancing deferred to on_market_data.
     void on_fill(const events::FillEvent& event);
+
+    // MarketDataEvent: once-per-bar delta rebalance (fires after all bar fills).
+    void on_market_data(const events::MarketDataEvent& event);
 
     // 构建各合约的 Delta 映射表（用于传入 PositionManager::compute_portfolio_delta)
     // snapshot of current deltas for all instruments
@@ -64,10 +86,16 @@ private:
     std::shared_ptr<events::EventBus>            bus_;             // 事件总线
     std::shared_ptr<domain::PositionManager>     position_manager_; // 持仓管理（注入）
     std::shared_ptr<domain::IPricingEngine>      pricing_engine_;  // 定价策略（注入）
-    std::vector<std::shared_ptr<domain::Option>> options_;         // 期权列表
+    std::vector<OptionEntry>                      options_;         // {fill_id, option_ptr}
     std::string                                  underlying_id_;   // 标的资产 ID
     double                                       delta_threshold_; // 对冲触发阈值
     double                                       last_price_;      // 最近已知标的价格
+    // Market state for historical replay (set via set_market_state each bar)
+    double                                       market_iv_ = 0.0; // market implied vol
+    double                                       market_T_  = 0.0; // simulated T_sim
+    // Set by on_fill when a non-hedge fill arrives; cleared by on_market_data after rebalance
+    bool                                         needs_rebalance_ = false;
+    HedgeMode                                    hedge_mode_;         // BS_DELTA or ROUGH_DELTA
 };
 
 } // namespace omm::application

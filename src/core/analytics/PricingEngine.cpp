@@ -34,6 +34,15 @@ PriceResult SimplePricingEngine::price(
     return PriceResult{theo, delta};
 }
 
+PriceResult SimplePricingEngine::price_at_iv(
+    double /*S*/, double /*K*/, double /*T_sim*/,
+    double /*sigma_market*/, bool is_call) const
+{
+    // Intrinsic-value engine has no meaningful vol-based pricing.
+    // Return stub with fixed delta (same as price()).
+    return PriceResult{0.0, is_call ? 0.5 : -0.5};
+}
+
 // ============================================================
 // BlackScholesPricingEngine 实现
 // ============================================================
@@ -92,6 +101,39 @@ PriceResult BlackScholesPricingEngine::price(
 
     theo = std::max(0.0, theo); // 期权理论价格不得为负
     return PriceResult{theo, delta};
+}
+
+PriceResult BlackScholesPricingEngine::price_at_iv(
+    double S, double K, double T_sim,
+    double sigma_market, bool is_call) const
+{
+    const double sigma = sigma_market;
+    double d1 = (std::log(S / K) + (r_ + 0.5 * sigma * sigma) * T_sim)
+                / (sigma * std::sqrt(T_sim));
+    double d2 = d1 - sigma * std::sqrt(T_sim);
+
+    double theo  = 0.0;
+    double delta = 0.0;
+    const double n_d1 = std::exp(-0.5 * d1 * d1) / std::sqrt(2.0 * M_PI);
+
+    if (is_call) {
+        theo  = S * norm_cdf(d1) - K * std::exp(-r_ * T_sim) * norm_cdf(d2);
+        delta = norm_cdf(d1);
+    } else {
+        theo  = K * std::exp(-r_ * T_sim) * norm_cdf(-d2) - S * norm_cdf(-d1);
+        delta = norm_cdf(d1) - 1.0;
+    }
+
+    PriceResult result;
+    result.theo  = std::max(0.0, theo);
+    result.delta = delta;
+    result.gamma = n_d1 / (S * sigma * std::sqrt(T_sim));
+    result.vega  = S * std::sqrt(T_sim) * n_d1;
+    result.theta = -(S * sigma * n_d1) / (2.0 * std::sqrt(T_sim))
+                   + (is_call ? -1.0 : 1.0)
+                     * r_ * K * std::exp(-r_ * T_sim)
+                     * (is_call ? norm_cdf(d2) : norm_cdf(-d2));
+    return result;
 }
 
 } // namespace omm::domain
