@@ -2,12 +2,12 @@
 
 C++ options trading engine. Event-driven, layered DDD architecture. Focus on a buy-side variance alpha demo, with a separate deep BSDE neural hedging demo, while capable also of the seller-side initialization. Built while learning C++, with assistance from Claude Code.
 
-## What it does
+## Demo (Rough Volatility Models)
 **Buyer — variance alpha demo (`./build/alpha_runner`)**
 
-Extracts ATM implied variance from synthetic option quotes via BS IV bisection, computes a rolling z-score against the rough-model forward variance forecast (`xi0 * T`), and runs a Flat → Live → Cooldown state machine to trade ATM front straddles when the spread is statistically significant. Delta-hedges the resulting position and reports a PnL breakdown (option MTM, delta hedge PnL, transaction cost).
+Extracts ATM implied variance from synthetic option quotes via BS IV bisection, computes a rolling z-score against the rough-model forward variance forecast $\xi_0 T$, and runs a Flat → Live → Cooldown state machine to trade ATM front straddles when the spread is statistically significant. Delta-hedges the resulting position and reports a PnL breakdown (option MTM, delta hedge PnL, transaction cost).
 
-**Deep BSDE hedging demo ([demo/](demo/Readme.md))**
+**Deep BSDE hedging demo ([demo/](demo/))**
 
 Generates lifted rough Heston paths in C++, trains a shared-weight MLP offline in Python to solve the BSDE hedging problem, exports to ONNX, and benchmarks in-process inference against analytic BS delta and finite-difference delta.
 
@@ -21,15 +21,41 @@ Generates lifted rough Heston paths in C++, trains a shared-weight MLP offline i
 
 Quotes bid/ask spreads (Rough Bergomi skew), simulates a probabilistic counterparty (30% fill), runs threshold-based delta hedging, enforces live risk limits (max loss $1M, max delta 10,000), then replays on an isolated bus to calibrate implied volatility via golden-section search and hot-inject the result.
 
-## Rough volatility research (`demo/python/research/`)
+## Research gates
 
-A sequential gate system testing whether SPY intraday option data (Databento OPRA, 127 trading days, Aug 2025 – Feb 2026) contains the structural signatures predicted by rough-volatility theory (H ≈ 0.10).
+A sequential gate system testing in `demo/python/research/` whether SPY intraday option data (OPRA, 127 trading days, Aug 2025 – Feb 2026) contains the structural signatures predicted by rough-volatility theory.
 
-The shared pipeline recovers the forward from call-put parity, then extracts ATM IV, 25-delta risk reversal (rr25 = IV_25c − IV_25p), and butterfly (bf25) via bisection IV. Rough-vol structural coefficients α = rr25 / (T^{H−0.5} · σ_ATM) and γ = bf25 / (T^{2H−1} · ATV) are computed per bar and used as 1-step-ahead forecasters.
+The shared pipeline recovers the forward from call-put parity, then extracts the smile features
+
+$$
+\mathrm{rr25} = \mathrm{IV}_{25c} - \mathrm{IV}_{25p},
+\qquad
+\mathrm{bf25} = \frac{\mathrm{IV}_{25c} + \mathrm{IV}_{25p}}{2} - \mathrm{IV}_{\mathrm{ATM}}.
+$$
+
+The rough-vol structural coefficients are then defined as
+
+$$
+\alpha = \frac{\mathrm{rr25}}{T^{H-\frac12}\sigma_{\mathrm{ATM}}},
+\qquad
+\gamma = \frac{\mathrm{bf25}}{T^{2H-1}\,\mathrm{ATV}},
+\qquad
+\mathrm{ATV} = \sigma_{\mathrm{ATM}}^2 T.
+$$
+
+These quantities are computed per bar and then used as the rough structural state in the forecast gates.
 
 ### Gate 1: Skew Structure (`skew_scaling/`)
 
-**Hypothesis:** |rr25(T)| ∝ T^H across maturities at any snapshot — `log|rr25| = a + β·log(T)` should give β ≈ H = 0.10.
+**Hypothesis:** the short-end skew follows a rough-style power law across maturities,
+
+$$
+|\mathrm{rr25}(T)| \propto T^H,
+\qquad
+\log |\mathrm{rr25}(T)| = a + \beta \log T,
+\qquad
+\beta \approx H = 0.10.
+$$
 
 **Result (127 days, ~48 000 timestamps, ≥3 expiries each):**
 
@@ -39,11 +65,19 @@ The shared pipeline recovers the forward from call-put parity, then extracts ATM
 | Mean R² | 0.86 | > 0.70 |
 | β CV | 0.42 | < 0.50 |
 
-**Verdict: WEAK.** A genuine power-law term structure exists (R² = 0.86, stable), but the slope β ≈ +0.21 is systematically above the rough-Bergomi prediction. The scaling shape is confirmed; the exponent does not match the H = 0.10 prior.
+**Verdict: WEAK.** A genuine power-law term structure exists ($R^2 = 0.86$, stable), but the slope $\beta \approx +0.21$ is systematically above the rough-Bergomi prior $\beta \approx 0.10$. The scaling shape is confirmed; the exponent does not match the original $H = 0.10$ prior.
 
 ### Gate 2: Temporal Forecast (`roughtemporal_intraday/`)
 
-**Hypothesis:** The rough-vol structural coefficients produce mean-reverting residuals and beat naive carry on 1-step-ahead rr25/bf25 RMSE.
+**Hypothesis:** the rough structural forecast
+
+$$
+\widehat{\mathrm{rr25}}_{t+1}^{\,\mathrm{rough}}
+\;\text{and}\;
+\widehat{\mathrm{bf25}}_{t+1}^{\,\mathrm{rough}}
+$$
+
+should produce mean-reverting residuals and beat naive carry on 1-step-ahead $\mathrm{rr25}$ / $\mathrm{bf25}$ RMSE.
 
 **Robustness sweep (90 days, H ∈ {0.03–0.20}, resample ∈ {1–60 min}, 30 cells):**
 
@@ -53,17 +87,35 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
      all H   |   FAIL |   FAIL | MARG.  | MARG.  | MARG.
 ```
 
-**Verdict: 0/30 PASS.** Rough-struct underperforms carry at 1–5 min. The gap narrows at coarser bars but never crosses the PASS threshold.
+**Verdict: 0/30 PASS.** The raw rough forecast underperforms carry at 1–5 min. The gap narrows at coarser bars but never crosses the PASS threshold.
 
 ### Gate 3: Regime Dynamics (`conditional_dynamics/`)
 
-**Hypothesis:** Any rough-vol edge concentrates in the ACTIVE regime (top 20% of |spot returns|) and is absent in QUIET.
+**Hypothesis:** any raw rough-vol edge should concentrate in the ACTIVE regime,
+
+$$
+|r_t| > q_{1-\texttt{move\_pct}}\bigl(|r|\bigr),
+\qquad
+r_t = \log \frac{F_t}{F_{t-1}},
+$$
+
+and should be absent in QUIET.
 
 **Robustness sweep (90 days, 126 cells: H × resample × move_pct):** All cells FAIL or MARGINAL. No regime-specific advantage detected. **Verdict: FAIL.**
 
 ### Gate 4: Incremental Edge (`roughtemporal_intraday/gate1_sweep.py`)
 
-**Hypothesis:** A composite rough-vol forecaster (carry + recent structural shift) beats carry by >2% on bf25 RMSE.
+**Hypothesis:** rough does not need to replace carry; it only needs to improve it. Gate 4 tests two hybrids:
+
+$$
+\widehat{x}_{t+1}^{\,\mathrm{cond}}
+=
+x_t + a + b\bigl(\widehat{x}^{\,\mathrm{rough}}_t - x_t\bigr),
+$$
+
+which is the carry-conditioned rough correction, and a recency-weighted rough forecaster built from EWMA estimates of $\alpha_t$ and $\gamma_t$.
+
+The question is whether these hybrids beat carry by more than $2\%$ on $\mathrm{bf25}$ RMSE.
 
 **Robustness sweep (90 days, H ∈ {0.03–0.20}, resample ∈ {1–60 min}, 30 cells):**
 
@@ -73,13 +125,21 @@ H \ resample |  1 min |  5 min | 15 min | 30 min | 60 min
      all H   |   PASS |   PASS |   PASS |  MARG. |   PASS
 ```
 
-**Verdict: PASS — 24/30 cells (80%).** bf25 shows a robust 3–8% RMSE improvement over carry across all tested H values and bar sizes from 1 to 60 min. Result is H-insensitive. The 30-min bar is marginal (+0.1%).
+**Verdict: PASS — 24/30 cells (80%).** $\mathrm{bf25}$ shows a robust $3\%$ to $8\%$ RMSE improvement over carry across all tested $H$ values and bar sizes from 1 to 60 min. The result is largely $H$-insensitive. The 30-min bar is only marginal ($+0.1\%$).
 
 ### Gate 5: Edge Concentration (`conditional_dynamics/gate1b_sweep.py`)
 
-**Hypothesis:** The Gate 4 improvement concentrates in the ACTIVE regime, confirming a rough-vol mechanism rather than a generic carry improvement.
+**Hypothesis:** the Gate 4 hybrid improvement should satisfy
 
-**Result (90-day sweep, move_pct ∈ {10%, 20%, 30%}):** 0/42 PASS at 10% or 20%. At 30%, 6/42 PASS (5-min bars only). No robust active-vs-quiet separation. **Verdict: WEAK.** The Gate 4 bf25 gain is unconditional — present in both regimes.
+$$
+\Delta_{\mathrm{active}} > 0,
+\qquad
+\Delta_{\mathrm{quiet}} \le 0,
+$$
+
+so that the rough enhancement is genuinely concentrated in stressed regimes rather than being a generic carry improvement.
+
+**Result (90-day sweep, $\texttt{move\_pct} \in \{10\%, 20\%, 30\%\}$):** 0/42 PASS at $10\%$ or $20\%$. At $30\%$, 6/42 PASS (5-min bars only). No broad active-vs-quiet separation survives. **Verdict: WEAK.** The Gate 4 $\mathrm{bf25}$ gain is mostly unconditional, with only a narrow regime-specific pocket.
 
 ### Research infrastructure
 
