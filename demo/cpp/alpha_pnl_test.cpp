@@ -290,10 +290,12 @@ static omm::demo::ExtendedPnLBreakdown run_simulation(
         {PUT_ID,  put_pnl}
     };
 
-    std::string tracker_label;
-    if      (neural_available)             tracker_label = "NeuralBSDEHedger";
-    else if (mode == HedgerMode::ROUGH_DELTA) tracker_label = "RoughVolDelta";
-    else                                   tracker_label = "BSDelta";
+    std::string tracker_label =
+        (mode == HedgerMode::NEURAL_BSDE_IS_DELTA) ? "BSDE-IS-Δonly"  :
+        (mode == HedgerMode::NEURAL_BSDE_IS)       ? "BSDE-IS-Full"   :
+        (mode == HedgerMode::NEURAL_BSDE)          ? "BSDE-Synth"     :
+        (mode == HedgerMode::ROUGH_DELTA)          ? "RoughVolDelta"  :
+                                                      "BSDelta";
 
     auto tracker = std::make_shared<omm::demo::ExtendedPnLTracker>(
         bus, rough_engine, pnl_opts, extractor,

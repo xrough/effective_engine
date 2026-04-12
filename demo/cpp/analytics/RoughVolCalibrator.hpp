@@ -37,12 +37,14 @@ public:
         std::shared_ptr<events::EventBus>                    bus,
         std::shared_ptr<analytics::ImpliedVarianceExtractor> extractor,
         std::shared_ptr<domain::RoughVolPricingEngine>       rough_engine,
-        double lambda = 0.15   // EWMA 衰减率 (~6-tick 半衰期)
+        double lambda  = 0.15,  // EWMA 衰减率 (~6-tick 半衰期)
+        bool   verbose = false  // set true to log per-tick calibration
     )
         : bus_(std::move(bus))
         , extractor_(std::move(extractor))
         , rough_engine_(std::move(rough_engine))
         , lambda_(lambda)
+        , verbose_(verbose)
     {
         // 用当前 xi0 初始化 EWMA，避免冷启动跳跃
         xi0_ewma_ = rough_engine_->get_params().xi0;
@@ -77,10 +79,11 @@ private:
         p.xi0 = std::max(xi0_prev_, XI0_FLOOR);
         rough_engine_->update_params(p);
 
-        std::cout << "[RoughVolCalibrator] xi0_ewma=" << std::fixed
-                  << std::setprecision(5) << xi0_ewma_
-                  << "  xi0_spot=" << xi0_spot
-                  << "  applied=" << p.xi0 << "\n";
+        if (verbose_)
+            std::cout << "[RoughVolCalibrator] xi0_ewma=" << std::fixed
+                      << std::setprecision(5) << xi0_ewma_
+                      << "  xi0_spot=" << xi0_spot
+                      << "  applied=" << p.xi0 << "\n";
 
         xi0_prev_ = xi0_ewma_;
     }
@@ -90,6 +93,7 @@ private:
     std::shared_ptr<domain::RoughVolPricingEngine>       rough_engine_;
 
     double lambda_;
+    bool   verbose_;
     double xi0_ewma_;
     double xi0_prev_;
 };

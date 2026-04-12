@@ -182,7 +182,7 @@ int main() {
         neural_hedger = std::make_shared<omm::demo::NeuralBSDEHedger>(
             bus, onnx_model, rough_engine, position_mgr, state_est,
             "AAPL", CALL_ID, PUT_ID,
-            STRIKE_ENTRY, expiry, /*threshold=*/0.3
+            STRIKE_ENTRY, /*threshold=*/0.3
         );
         neural_hedger->register_handlers();
         std::cout << "[Hedger] NeuralBSDEHedger 已激活（BSDE + 在线 OU 状态，阈值=0.3）\n";
@@ -243,6 +243,10 @@ int main() {
         chain_adapter->run([&](double atm_iv, double T_sim, const std::string& date) {
             if (delta_hedger && atm_iv > 0.0 && T_sim > 0.0)
                 delta_hedger->set_market_state(atm_iv, T_sim);
+#ifdef BUILD_ONNX_DEMO
+            if (neural_hedger && T_sim > 0.0)
+                neural_hedger->set_market_state(atm_iv, T_sim);
+#endif
             if (!prev_date.empty() && date != prev_date)
                 pnl_tracker->on_session_end(prev_date);
             prev_date = date;

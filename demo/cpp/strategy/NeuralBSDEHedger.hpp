@@ -91,13 +91,9 @@ private:
 
     void on_market_data(const events::MarketDataEvent& event) {
         spot_ = event.underlying_price;
-
-        // ── 推进 LRH 状态估计器 ──────────────────────────────
-        // dt 使用固定 tick 间隔近似（生产替换为实际时间差）
-        constexpr double DT_ANNUAL = 1.0 / (252.0 * 390.0);
-        double V_new = rough_engine_->get_params().xi0;  // xi0 作为 V_t 代理
-        state_est_->update(DT_ANNUAL, V_new);
-
+        // Note: LiftedHestonStateEstimator (state_est_) is NOT updated here.
+        // The delta-only BSDE model uses [tau, logm, V_t=atm_iv²] only;
+        // all U factors are zeroed at inference (see recompute_hedge).
         recompute_hedge();
     }
 
@@ -111,6 +107,9 @@ private:
         // NeuralBSDEHedger operates on historical data whose options may
         // have already expired relative to the current wall clock.
         // set_market_state() is called each bar with the actual tau from the feed.
+        // Guard: market state must be set before computing delta.
+        if (atm_iv_ <= 0.0) return;   // set_market_state() not yet called
+
         double tau = tau_from_data_;
         if (tau <= 0.0) return;
         tau = std::max(tau, 1e-4);
@@ -174,12 +173,6 @@ private:
         double target_hedge     = -(call_qty * delta_call + put_qty * delta_put);
         int    target_round     = static_cast<int>(std::round(target_hedge));
         int    hedge_qty        = std::abs(target_round - current_hedge_qty_);
-
-        std::cout << "[BSDE对冲]  Z_spot=" << std::fixed << std::setprecision(4) << Z_spot
-                  << "  Δ_call=" << std::setprecision(3) << delta_call
-                  << "  target=" << target_round
-                  << "  current=" << current_hedge_qty_
-                  << "  Δ_qty=" << (target_round - current_hedge_qty_) << "\n";
 
         if (hedge_qty <= static_cast<int>(threshold_)) return;
 
