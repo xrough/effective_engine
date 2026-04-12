@@ -47,6 +47,11 @@ public:
     const std::vector<float>& norm_mean() const { return norm_mean_; }
     const std::vector<float>& norm_std()  const { return norm_std_;  }
 
+    // Training nominal strike (K_train from normalization.json).
+    // Models trained with K=100 (synthetic LRH) output Z ≈ N(d1)·σ·K_train.
+    // Use this to recover delta: delta = Z_spot / (σ · K_train), not Z_spot / (σ · spot).
+    float k_train() const { return k_train_; }
+
 private:
     void load_norm_stats(const std::string& path);
 
@@ -56,6 +61,7 @@ private:
 
     std::vector<float> norm_mean_;
     std::vector<float> norm_std_;
+    float              k_train_   = 100.0f;  // default = 100 (synthetic LRH training scale)
     int                state_dim_ = 0;
 
     // 输入/输出名称（ONNX图定义的）

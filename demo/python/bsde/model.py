@@ -120,6 +120,56 @@ def bsde_forward(
     return Y, Z_norms_tensor
 
 
+def compute_bs_delta_target(
+    states:    "torch.Tensor",   # (B, n_times, state_dim) NORMALIZED
+    dW1:       "torch.Tensor",   # (B, n_steps) raw BM increments
+    norm_mean: "torch.Tensor",   # (state_dim,) for unnormalization
+    norm_std:  "torch.Tensor",   # (state_dim,) for unnormalization
+    K:   float = 100.0,
+    r:   float = 0.05,
+) -> "torch.Tensor":             # (B,) accumulated BS delta hedge PnL
+    """
+    Compute the BS delta hedge PnL accumulated along each path.
+
+    At each step i the BS hedging coefficient in raw BM space is:
+      tau_i  = unnormalized states[:, i, 0]        (time-to-expiry)
+      logm_i = unnormalized states[:, i, 1]        log(S_i / K)
+      V_i    = unnormalized states[:, i, 2]        implied variance
+      sigma_i = sqrt(V_i)
+      S_i     = K * exp(logm_i)
+      d1_i    = (logm_i + (r + 0.5*V_i)*tau_i) / (sigma_i * sqrt(tau_i))
+      Z_bs_i  = N(d1_i) * sigma_i * S_i            BS hedging coefficient
+
+    Returns: sum_i Z_bs_i * dW1_i                 (B,)
+
+    This is the training target for the delta-only BSDE mode.  Using this
+    instead of the full discounted payoff forces the network to learn only
+    the delta component of the option PnL, leaving gamma + vega (the VRP)
+    exposed — which is the alpha source for a long-straddle strategy.
+    """
+    from torch.special import ndtr as normal_cdf
+
+    n_steps = dW1.shape[1]
+
+    # Broadcast norm stats to (1, 1, state_dim) for vectorised unnorm
+    mean = norm_mean.to(states.device).view(1, 1, -1)
+    std  = norm_std.to(states.device).view(1, 1, -1)
+    raw  = states * std + mean                        # (B, n_times, state_dim) unnormalized
+
+    # Only the first n_steps time-points are paired with dW1 increments
+    tau  = raw[:, :n_steps, 0].clamp(min=1e-6)       # (B, n_steps)
+    logm = raw[:, :n_steps, 1]                        # (B, n_steps)
+    V    = raw[:, :n_steps, 2].clamp(min=1e-6)        # (B, n_steps)
+
+    sigma = V.sqrt()                                  # (B, n_steps)
+    S     = K * logm.exp()                            # (B, n_steps)
+
+    d1    = (logm + (r + 0.5 * V) * tau) / (sigma * tau.sqrt())
+    Z_bs  = normal_cdf(d1) * sigma * S               # (B, n_steps)  BS hedge coefficient
+
+    return (Z_bs * dW1).sum(dim=1)                   # (B,)
+
+
 def bsde_loss(
     Y_T: torch.Tensor,          # (B,) — 传播的终值
     payoff: torch.Tensor,       # (B,) — 折现到期收益

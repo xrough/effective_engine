@@ -1,0 +1,8 @@
+mode: lrh_delta
+n_epochs:   500
+batch_size: 4096
+lr:         1.0e-3
+lambda_z:   0.001
+hidden_dim: 64
+K:          100.0
+r:          0.05

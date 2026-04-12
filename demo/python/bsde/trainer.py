@@ -24,8 +24,8 @@ import yaml
 
 # 确保能找到本地模块
 sys.path.insert(0, str(Path(__file__).parent))
-from data_loader import generate_bs_batch, LRHDataset, make_lrh_dataloader
-from model import SharedWeightMLP, bsde_forward, bsde_loss
+from data_loader import generate_bs_batch, LRHDataset, make_lrh_dataloader, load_norm_stats
+from model import SharedWeightMLP, bsde_forward, bsde_loss, compute_bs_delta_target
 
 
 def train(config: dict, seed: int | None = None):
@@ -85,6 +85,8 @@ def train(config: dict, seed: int | None = None):
         bs_price  = data["bs_price"]
         bs_delta  = data["bs_delta"]
         print(f"  BS解析价格: {bs_price:.4f}, BS delta(t=0): {bs_delta:.4f}")
+        norm_mean_t = None
+        norm_std_t  = None
 
         from torch.utils.data import TensorDataset, DataLoader
         ds = TensorDataset(states, dW1, payoffs)
@@ -97,7 +99,23 @@ def train(config: dict, seed: int | None = None):
         state_dim = ds.state_dim
         bs_price  = None
         bs_delta  = None
+        norm_mean_t = None
+        norm_std_t  = None
         print(f"  LRH数据集: {ds.n_paths}条路径, state_dim={state_dim}")
+
+    elif mode == "lrh_delta":
+        ds     = LRHDataset(artifacts)
+        loader = make_lrh_dataloader(artifacts, batch_size=batch_size, shuffle=True)
+        n_steps   = ds.n_steps
+        state_dim = ds.state_dim
+        bs_price  = None
+        bs_delta  = None
+        norm_stats  = load_norm_stats(artifacts)
+        norm_mean_t = torch.tensor(norm_stats["mean"], dtype=torch.float32)
+        norm_std_t  = torch.tensor(norm_stats["std"],  dtype=torch.float32)
+        print(f"  LRH-Delta数据集: {ds.n_paths}条路径, state_dim={state_dim}")
+        print(f"  目标: BS delta对冲PnL（保留VRP，仅学习delta分量）")
+
     else:
         raise ValueError(f"未知模式: {mode}")
 
@@ -105,7 +123,23 @@ def train(config: dict, seed: int | None = None):
     # 模型与优化器
     # --------------------------------------------------------
     net = SharedWeightMLP(state_dim=state_dim, hidden_dim=hidden_dim).to(device)
-    Y0  = nn.Parameter(torch.zeros(1, device=device))  # 从0开始，Adam快速学习
+
+    # lrh_delta: warm-start Y0 from mean BS delta PnL on first batch
+    if mode == "lrh_delta":
+        with torch.no_grad():
+            s0, dw0, _ = next(iter(loader))
+            s0, dw0 = s0.to(device), dw0.to(device)
+            y0_init = compute_bs_delta_target(
+                s0, dw0,
+                norm_mean_t.to(device), norm_std_t.to(device),
+                K=config.get("K", 100.0),
+                r=config.get("r", 0.05),
+            ).mean().item()
+        print(f"  Y0 初始值（来自BS delta PnL均值）: {y0_init:.4f}")
+    else:
+        y0_init = 0.0
+
+    Y0  = nn.Parameter(torch.tensor([y0_init], device=device))
 
     # Y0 和网络参数分开优化器：
     #   - clip_grad_norm_ 只作用于网络参数，不影响Y0
@@ -135,7 +169,18 @@ def train(config: dict, seed: int | None = None):
             opt_net.zero_grad()
             opt_Y0.zero_grad()
             Y_T, Z_norms = bsde_forward(net, Y0, s_b, dw_b)
-            loss, comps  = bsde_loss(Y_T, p_b, Z_norms, lambda_z=lambda_z)
+
+            if mode == "lrh_delta":
+                target = compute_bs_delta_target(
+                    s_b, dw_b,
+                    norm_mean_t.to(device), norm_std_t.to(device),
+                    K=config.get("K", 100.0),
+                    r=config.get("r", 0.05),
+                )
+            else:
+                target = p_b
+
+            loss, comps  = bsde_loss(Y_T, target, Z_norms, lambda_z=lambda_z)
 
             loss.backward()
             # 仅裁剪网络参数梯度，不裁剪Y0（避免Y0梯度被大网络范数吞噬）

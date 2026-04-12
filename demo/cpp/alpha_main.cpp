@@ -39,6 +39,10 @@
 #include "execution/SimpleExecSim.hpp"
 #include "pnl/AlphaPnLTracker.hpp"
 #include "signal/VarianceAlphaSignal.hpp"
+#include "signal/VRPAlphaSignal.hpp"
+#include "signal/HARRealizedVolSignal.hpp"
+#include "signal/SkewCurvatureAlphaSignal.hpp"
+#include "signal/CompositeAlphaSignal.hpp"
 #include "strategy/StrategyController.hpp"
 #include "analytics/RoughVolCalibrator.hpp"
 #include "analytics/LiftedHestonStateEstimator.hpp"
@@ -95,17 +99,8 @@ int main() {
     // ── 买方核心组件（注入到 BuyerModule） ────────────────────
     auto extractor  = std::make_shared<omm::analytics::ImpliedVarianceExtractor>(bus);
 
-    omm::buyer::AlphaSignalConfig signal_cfg;
-    // 真实数据有 2000+ 条，使用默认窗口 50；合成数据仅 20 条，缩小至 10
-    signal_cfg.window = use_real_data ? 50 : 10;
+    int win = use_real_data ? 50 : 10;
     omm::buyer::StrategyControllerConfig ctrl_cfg;  // 默认: max_holding=100
-
-    auto signal     = std::make_shared<omm::buyer::VarianceAlphaSignal>(
-        bus, extractor, rough_engine, signal_cfg
-    );
-    auto controller = std::make_shared<omm::buyer::StrategyController>(
-        bus, signal_cfg, ctrl_cfg
-    );
 
     // ── 在线 xi0 校准器（在信号之前注册，确保先更新引擎参数） ─
     auto calibrator = std::make_shared<omm::demo::RoughVolCalibrator>(
@@ -114,12 +109,44 @@ int main() {
     calibrator->register_handlers();
     std::cout << "[Demo] RoughVolCalibrator 已注册 (λ=0.15)\n";
 
-    // 调用方在 install() 前注册 signal + controller
-    signal->register_handlers();
+    // ── Composite signal: VRP (0.50) + HAR-RV (0.30) + SkewCurvature (0.20) ─
+    // Inner bus isolates sub-signal events from StrategyController.
+    auto signal    = std::make_shared<omm::buyer::CompositeAlphaSignal>(bus);
+    auto inner_bus = signal->inner_bus();
+
+    omm::buyer::VRPSignalConfig vrp_cfg;
+    vrp_cfg.base.window  = win;  vrp_cfg.base.z_entry = 1.5;  vrp_cfg.base.z_exit = 0.5;
+    auto vrp_signal = std::make_shared<omm::buyer::VRPAlphaSignal>(
+        inner_bus, extractor, rough_engine, vrp_cfg
+    );
+
+    omm::buyer::HARSignalConfig har_cfg;
+    har_cfg.base.window  = win;  har_cfg.base.z_entry = 1.5;  har_cfg.base.z_exit = 0.5;
+    auto har_signal = std::make_shared<omm::buyer::HARRealizedVolSignal>(
+        inner_bus, extractor, rough_engine, har_cfg
+    );
+
+    omm::buyer::SkewCurvatureSignalConfig skew_cfg;
+    skew_cfg.base.window       = win;  skew_cfg.base.z_entry = 1.5;  skew_cfg.base.z_exit = 0.5;
+    skew_cfg.var_weight        = 0.70;
+    skew_cfg.curvature_weight  = 0.30;
+    auto skew_signal = std::make_shared<omm::buyer::SkewCurvatureAlphaSignal>(
+        inner_bus, extractor, rough_engine, skew_cfg
+    );
+
+    signal->add(vrp_signal,  0.50);
+    signal->add(har_signal,  0.30);
+    signal->add(skew_signal, 0.20);
+
+    auto controller = std::make_shared<omm::buyer::StrategyController>(
+        bus, vrp_cfg.base, ctrl_cfg
+    );
     controller->register_handlers();
 
+    // Install BuyerModule first (registers extractor), then composite forwarder
     omm::buyer::BuyerModule::install(bus, extractor, signal, controller);
-    std::cout << "\n";
+    signal->register_handlers();
+    std::cout << "[Demo] CompositeAlphaSignal 已注册 (VRP 50% + HAR 30% + SkewCurv 20%)\n\n";
 
     // ── 对冲引擎（DeltaHedger 或 NeuralBSDEHedger） ─────────
     // 真实数据：从 CSV 首行读取行权价和到期日；合成数据：使用固定值
@@ -198,7 +225,8 @@ int main() {
               << "  MarketDataEvent\n"
               << "    → SyntheticOptionFeed      → OptionMidQuoteEvent\n"
               << "    → ImpliedVarianceExtractor (σ²_atm)\n"
-              << "    → VarianceAlphaSignal      → SignalSnapshotEvent (zscore)\n"
+              << "    → CompositeAlphaSignal     → SignalSnapshotEvent (zscore)\n"
+              << "       (VRP 50% + HAR-RV 30% + SkewCurvature 20%)\n"
               << "    → StrategyController       → OrderSubmittedEvent (straddle)\n"
               << "    → SimpleExecSim            → FillEvent\n"
               << "    → " << (use_neural ? "NeuralBSDEHedger" : "DeltaHedger      ")

@@ -26,7 +26,7 @@ from model import SharedWeightMLP
 
 
 def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
-                validate: bool = True):
+                validate: bool = True, output_onnx: str | None = None):
     """
     从checkpoint加载模型并导出为ONNX。
 
@@ -55,7 +55,7 @@ def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
     # 输入:  state (batch, state_dim)
     # 输出:  Y (batch, 1)  |  Z (batch, state_dim)
     # --------------------------------------------------------
-    onnx_path = artifacts / "neural_bsde.onnx"
+    onnx_path = Path(output_onnx) if output_onnx else artifacts / "neural_bsde.onnx"
     dummy_input = torch.randn(1, state_dim)
 
     print(f"[导出] 导出ONNX到 {onnx_path}...")
@@ -146,12 +146,15 @@ def main():
                         help="导出后运行Gate 2批次验证（默认开启）")
     parser.add_argument("--no-validate", dest="validate", action="store_false",
                         help="跳过Gate 2验证")
+    parser.add_argument("--output-onnx", type=str, default=None,
+                        help="Output ONNX file path (default: <artifacts>/neural_bsde.onnx)")
     args = parser.parse_args()
 
     if args.artifacts is None:
         args.artifacts = str(Path(__file__).parent.parent / "artifacts")
 
-    export_onnx(args.checkpoint, args.artifacts, validate=args.validate)
+    export_onnx(args.checkpoint, args.artifacts, validate=args.validate,
+                output_onnx=args.output_onnx)
 
 
 if __name__ == "__main__":

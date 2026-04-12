@@ -49,8 +49,12 @@ class HistoricalChainAdapter {
 public:
     HistoricalChainAdapter(
         std::shared_ptr<events::EventBus> bus,
-        const std::string& csv_path
+        const std::string& csv_path,
+        const std::string& start_date = "",  // "YYYY-MM-DD" inclusive, "" = no filter
+        const std::string& end_date   = ""   // "YYYY-MM-DD" inclusive, "" = no filter
     ) : bus_(std::move(bus))
+      , start_date_(start_date)
+      , end_date_(end_date)
     {
         load_csv(csv_path);
         if (rows_.empty())
@@ -161,6 +165,8 @@ private:
 
     std::shared_ptr<events::EventBus> bus_;
     std::vector<Row>                  rows_;
+    std::string                       start_date_;  // "YYYY-MM-DD" or "" = no filter
+    std::string                       end_date_;    // "YYYY-MM-DD" or "" = no filter
 
     // ── CSV 解析 ────────────────────────────────────────────────
     void load_csv(const std::string& path) {
@@ -182,6 +188,15 @@ private:
 
             Row r;
             r.timestamp_str  = cols[0];
+
+            // Date-range filtering (YYYY-MM-DD prefix comparison)
+            if (!start_date_.empty() || !end_date_.empty()) {
+                std::string row_date = r.timestamp_str.size() >= 10
+                    ? r.timestamp_str.substr(0, 10) : "";
+                if (!start_date_.empty() && row_date < start_date_) continue;
+                if (!end_date_.empty()   && row_date > end_date_)   break;  // sorted → early exit
+            }
+
             r.underlying     = std::stod(cols[1]);
             r.atm_strike     = std::stod(cols[2]);
             r.expiry_date    = cols[3];
@@ -202,9 +217,12 @@ private:
                 r.put_bid  = r.put_mid  - 0.01;
                 r.put_ask  = r.put_mid  + 0.01;
             }
-            // Col 12: atm_iv (spy_chain_panel.csv only; backward compat: stays 0.0)
-            if (cols.size() >= 13 && !cols[12].empty() && cols[12] != "nan") {
-                try { r.atm_iv = std::stod(cols[12]); } catch (...) { r.atm_iv = 0.0; }
+            // Col index 11 (0-based): atm_iv (spy_chain_panel.csv only; backward compat: stays 0.0)
+            // CSV layout (0-indexed): 0=timestamp, 1=underlying, 2=atm_strike, 3=expiry,
+            //   4=time_to_expiry, 5=call_mid, 6=put_mid, 7=call_bid, 8=call_ask,
+            //   9=put_bid, 10=put_ask, 11=atm_iv, 12=call25d_strike, ...
+            if (cols.size() >= 12 && !cols[11].empty() && cols[11] != "nan") {
+                try { r.atm_iv = std::stod(cols[11]); } catch (...) { r.atm_iv = 0.0; }
             }
             rows_.push_back(r);
         }

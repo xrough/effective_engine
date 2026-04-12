@@ -13,6 +13,22 @@
 // 避免引入外部JSON库依赖
 namespace {
 
+// Parse a top-level scalar float from JSON: "key": value
+// Returns default_val if the key is not present.
+float parse_float_scalar(const std::string& json, const std::string& key, float default_val = 0.0f) {
+    std::string search = "\"" + key + "\": ";
+    auto pos = json.find(search);
+    if (pos == std::string::npos) return default_val;
+    pos += search.size();
+    // skip whitespace
+    while (pos < json.size() && (json[pos] == ' ' || json[pos] == '\t')) ++pos;
+    try {
+        return std::stof(json.substr(pos));
+    } catch (...) {
+        return default_val;
+    }
+}
+
 // 从形如 "[1.2, 3.4, 5.6]" 的字符串中提取float数组
 std::vector<float> parse_float_array(const std::string& json, const std::string& key) {
     std::string search = "\"" + key + "\": [";
@@ -81,6 +97,11 @@ void OnnxInference::load_norm_stats(const std::string& path) {
         throw std::runtime_error("[OnnxInference] mean和std维度不匹配");
 
     state_dim_ = static_cast<int>(norm_mean_.size());
+
+    // K_train: nominal strike used during BSDE training.
+    // Z_spot ≈ N(d1)·σ·K_train, so delta = Z_spot / (σ·K_train).
+    // Default 100.0 (synthetic LRH training with S0=K=100).
+    k_train_ = parse_float_scalar(json, "K_train", 100.0f);
 }
 
 // ============================================================
