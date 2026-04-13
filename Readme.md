@@ -6,12 +6,6 @@ C++ options trading engine. Event-driven, layered DDD architecture. Focus on a b
 
 ## Demo (Rough Volatility Models)
 
-### Empirical Roughness Snapshot
-
-![Empirical roughness cross-section](notes/TezaProposal/empirical_roughness_cross_section_summary.png)
-
-Cross-sectional scaling law of realized-variance fluctuations for the top 50 stocks by market capitalization. The empirical structure function `|log RV_{t+Δ} - log RV_t|` is plotted against lag `Δ` on log-log axes; the slope estimates volatility roughness. The estimated Hurst index has median **0.08**, well below the Brownian benchmark `1/2`.
-
 ### Four-Strategy Hedger Comparison (`./build/alpha_pnl_test_runner`)
 
 Runs sequential passes over the 154-day SPY OPRA intraday panel with the same alpha signal (variance z-score, calibrated Rough Heston IS/OOS split) but a different hedger each pass. The dataset is split at **2026-01-01** into an in-sample calibration period and a held-out OOS test period.
