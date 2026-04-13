@@ -1,12 +1,22 @@
-# CMake 构建目录
-build/
+# Root CMake build directory (market_maker + artifacts)
+/build/
 cmake-build-*/
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile
 
-# 编译产物
+# demo/build: ignore CMake artifacts and compiled binaries; results/ is tracked
+demo/build/CMakeFiles/
+demo/build/CMakeCache.txt
+demo/build/cmake_install.cmake
+demo/build/Makefile
+demo/build/*.cmake
+demo/build/compile_commands.json
+demo/build/alpha_pnl_test_runner
+demo/build/alpha_runner
+demo/build/demo_runner
+# Training data and model checkpoints (large; regenerate with trainer.py)
+demo/build/artifacts/training_*/
+demo/build/artifacts/checkpoints/
+
+# Compiled object files and libraries
 *.o
 *.a
 *.so
