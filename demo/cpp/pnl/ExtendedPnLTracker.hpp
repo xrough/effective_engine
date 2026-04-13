@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+#include <filesystem>
 #include <unordered_map>
 #include <vector>
 #include <chrono>
@@ -134,6 +136,71 @@ public:
         return b;
     }
 
+    // ── Per-day session boundary hook ────────────────────────
+    // Call when the trading date changes (from on_row callback).
+    // Snapshots the day's incremental PnL and resets day-start baseline.
+    void on_session_end(const std::string& date) {
+        double day_opt    = option_mtm_       - day_start_option_mtm_;
+        double day_delta  = delta_pnl_        - day_start_delta_pnl_;
+        double day_gamma  = gamma_pnl_        - day_start_gamma_pnl_;
+        double day_vega   = vega_pnl_         - day_start_vega_pnl_;
+        double day_theta  = theta_pnl_        - day_start_theta_pnl_;
+        double day_vanna  = vanna_pnl_        - day_start_vanna_pnl_;
+        double day_volga  = volga_pnl_        - day_start_volga_pnl_;
+        double day_hedge  = delta_hedge_pnl_  - day_start_hedge_pnl_;
+        double day_cost   = transaction_cost_ - day_start_txn_cost_;
+        double day_total  = day_opt + day_hedge - day_cost;
+
+        day_records_.push_back({
+            date,
+            day_opt, day_delta, day_gamma, day_vega, day_theta,
+            day_vanna, day_volga,
+            day_hedge, day_cost, day_total,
+            n_fills_today_
+        });
+        n_fills_today_         = 0;
+        day_start_option_mtm_  = option_mtm_;
+        day_start_delta_pnl_   = delta_pnl_;
+        day_start_gamma_pnl_   = gamma_pnl_;
+        day_start_vega_pnl_    = vega_pnl_;
+        day_start_theta_pnl_   = theta_pnl_;
+        day_start_vanna_pnl_   = vanna_pnl_;
+        day_start_volga_pnl_   = volga_pnl_;
+        day_start_hedge_pnl_   = delta_hedge_pnl_;
+        day_start_txn_cost_    = transaction_cost_;
+    }
+
+    // ── Write per-day PnL breakdown to CSV ───────────────────
+    void write_daily_csv(const std::string& path) const {
+        std::filesystem::create_directories(
+            std::filesystem::path(path).parent_path()
+        );
+        std::ofstream f(path);
+        if (!f.is_open()) {
+            std::cerr << "[ExtendedPnLTracker] Cannot open: " << path << "\n";
+            return;
+        }
+        f << "date,option_mtm,delta_pnl,gamma_pnl,vega_pnl,theta_pnl,"
+             "vanna_pnl,volga_pnl,delta_hedge_pnl,txn_cost,total_pnl,n_fills\n";
+        f << std::fixed << std::setprecision(4);
+        for (const auto& r : day_records_) {
+            f << r.date       << ","
+              << r.option_mtm << ","
+              << r.delta_pnl  << ","
+              << r.gamma_pnl  << ","
+              << r.vega_pnl   << ","
+              << r.theta_pnl  << ","
+              << r.vanna_pnl  << ","
+              << r.volga_pnl  << ","
+              << r.delta_hedge_pnl << ","
+              << r.txn_cost   << ","
+              << r.total_pnl  << ","
+              << r.n_fills    << "\n";
+        }
+        std::cout << "[ExtendedPnLTracker] Wrote " << day_records_.size()
+                  << " rows → " << path << "\n";
+    }
+
     // ── Side-by-side comparison table ────────────────────────
     // c == nullptr: 2-column table (backward compatible)
     // c != nullptr: 5-column table (a | b | Δ(b-a) | c | Δ(c-a))
@@ -204,6 +271,14 @@ public:
     }
 
 private:
+    struct DayRecord {
+        std::string date;
+        double option_mtm, delta_pnl, gamma_pnl, vega_pnl, theta_pnl;
+        double vanna_pnl, volga_pnl;
+        double delta_hedge_pnl, txn_cost, total_pnl;
+        int    n_fills;
+    };
+
     struct InstrumentPosition {
         int    qty       = 0;
         double cost      = 0.0;
@@ -212,6 +287,7 @@ private:
 
     void on_fill(const events::FillEvent& e) {
         int signed_qty = (e.side == events::Side::Buy) ? e.fill_qty : -e.fill_qty;
+        ++n_fills_today_;
         if (e.producer == "hedge_order") {
             delta_hedge_pnl_ -= signed_qty * e.fill_price;
             transaction_cost_ += default_half_spread_ * std::abs(e.fill_qty);
@@ -331,6 +407,19 @@ private:
     double rv5_sum_  = 0.0;  int rv5_count_ = 0;
     double rv_ring_[5] = {};
     int    rv_idx_     = 0;
+
+    // Per-day tracking
+    std::vector<DayRecord> day_records_;
+    int    n_fills_today_        = 0;
+    double day_start_option_mtm_ = 0.0;
+    double day_start_delta_pnl_  = 0.0;
+    double day_start_gamma_pnl_  = 0.0;
+    double day_start_vega_pnl_   = 0.0;
+    double day_start_theta_pnl_  = 0.0;
+    double day_start_vanna_pnl_  = 0.0;
+    double day_start_volga_pnl_  = 0.0;
+    double day_start_hedge_pnl_  = 0.0;
+    double day_start_txn_cost_   = 0.0;
 };
 
 } // namespace omm::demo

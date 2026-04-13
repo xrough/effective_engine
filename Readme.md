@@ -79,6 +79,54 @@ This forces the BSDE to match only the delta component of option PnL. The residu
 
 ---
 
+### Visualization
+
+Four figures are generated automatically after running `./alpha_pnl_test_runner`. To regenerate:
+
+```bash
+cd MVP/demo
+python python/visualize/plot_pipeline.py
+# outputs: build/results/figures/fig{1,2,3,4}_*.png
+```
+
+---
+
+**Figure 1 — OOS Cumulative PnL (4 strategies)**
+
+![Cumulative PnL](demo/build/results/figures/fig1_cumulative_pnl.png)
+
+The core narrative in one chart. BSDelta (blue) and BSDE-IS-Δonly (green) track closely, both compounding positive PnL over the 27-day OOS window. BSDE-IS-Full (red, dashed) flatlines near zero — the full-replication training target eliminates the VRP by design. RoughVolDelta (orange) earns less carry because its larger hedge position consumes vol premium (see below).
+
+---
+
+**Figure 2 — Market Context Dashboard**
+
+![Market Context](demo/build/results/figures/fig2_market_context.png)
+
+Four panels covering the full 127-day panel (IS + OOS, vertical line at split):
+- **Top-left:** SPY spot trajectory. The OOS period (Jan–Feb 2026) covers a mild uptrend.
+- **Top-right:** ATM IV (σ) vs 5-bar realised vol — the VRP is visually clear as IV consistently trades above RV.
+- **Bottom-left:** VRP = IV − RV per day. Bars are positive (green) on most days; the OOS VRP (+2.83%) is smaller than IS (+4.94%), consistent with lower absolute realised.
+- **Bottom-right:** Smile structure — rr25 (skew, negative = left-skewed SPY) and bf25 (butterfly / curvature) over time.
+
+---
+
+**Figure 3 — Greek Attribution by Strategy**
+
+![Greek Attribution](demo/build/results/figures/fig3_greek_attribution.png)
+
+Stacked OOS attribution showing where PnL comes from. Gamma (blue) and Vega (orange) are the alpha sources — these are the VRP components that remain after delta hedging. Theta (red, negative) is the daily decay drag. Delta Hedge PnL (green) is the dominant component and is common across all strategies. Transaction costs (grey) are small for BSDelta/RoughVolDelta but inflated for the BSDE models due to higher rebalancing frequency.
+
+---
+
+**Figure 4 — Daily PnL Distribution**
+
+![Daily PnL Distribution](demo/build/results/figures/fig4_daily_distribution.png)
+
+Box plots over 27 OOS days, with individual day scatter and μ/σ/Sharpe annotations. BSDelta has the highest mean daily PnL and the best Sharpe. BSDE-IS-Δonly has a slightly lower mean but a similar distribution shape, confirming the partial-hedge approach captures most of the risk-adjusted return. BSDE-IS-Full is centred near zero with wide dispersion — it does not consistently earn the premium.
+
+---
+
 ### Why does RoughVolDelta underperform BS Delta?
 
 This is the correct hedge-versus-carry tradeoff, not a model failure.

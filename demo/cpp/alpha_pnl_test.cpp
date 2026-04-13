@@ -101,7 +101,8 @@ static omm::demo::ExtendedPnLBreakdown run_simulation(
     const std::string& label,
     bool               use_real_data,
     const std::string& start_date = "",  // "YYYY-MM-DD" inclusive, "" = no filter
-    const std::string& end_date   = ""   // "YYYY-MM-DD" inclusive, "" = no filter
+    const std::string& end_date   = "",  // "YYYY-MM-DD" inclusive, "" = no filter
+    const std::string& csv_out    = ""   // path to write per-day CSV, "" = skip
 ) {
     std::cout << "\n╔══════════════════════════════════════════════════════════╗\n"
               << "║  Pass: " << std::left << std::setw(50) << label << "║\n"
@@ -320,19 +321,29 @@ static omm::demo::ExtendedPnLBreakdown run_simulation(
     // ── Run simulation ────────────────────────────────────────
     std::cout << "── Simulation Start ─────────────────────────────────────\n";
     if (use_real_data) {
-        chain_adapter->run([&](double atm_iv, double T_sim, const std::string& /*date*/) {
+        std::string prev_date;
+        chain_adapter->run([&](double atm_iv, double T_sim, const std::string& date) {
             if (delta_hedger && atm_iv > 0.0 && T_sim > 0.0)
                 delta_hedger->set_market_state(atm_iv, T_sim);
 #ifdef BUILD_ONNX_DEMO
             if (neural_hedger && T_sim > 0.0)
                 neural_hedger->set_market_state(atm_iv, T_sim);
 #endif
+            if (!prev_date.empty() && date != prev_date)
+                tracker->on_session_end(prev_date);
+            prev_date = date;
         });
+        // Flush the last day
+        if (!prev_date.empty())
+            tracker->on_session_end(prev_date);
     } else {
         omm::infrastructure::MarketDataAdapter adapter(bus, SYNTH_DATA_CSV);
         adapter.run();
     }
     std::cout << "── Simulation End ───────────────────────────────────────\n";
+
+    if (!csv_out.empty())
+        tracker->write_daily_csv(csv_out);
 
     position_mgr->print_positions();
     return tracker->breakdown();
@@ -555,11 +566,11 @@ int main() {
               << "║  OUT-OF-SAMPLE  (2026-01-02 → 2026-02-06)                ║\n"
               << "╚══════════════════════════════════════════════════════════╝\n";
 
-    auto oos_bs       = run_simulation(HedgerMode::BS_DELTA,             "BS Delta [OOS]",          use_real_data, SPLIT_DATE, "");
-    auto oos_rough    = run_simulation(HedgerMode::ROUGH_DELTA,          "Rough Vol Delta [OOS]",   use_real_data, SPLIT_DATE, "");
-    auto oos_bsde     = run_simulation(HedgerMode::NEURAL_BSDE,          "BSDE-Synth [OOS]",        use_real_data, SPLIT_DATE, "");
-    auto oos_is       = run_simulation(HedgerMode::NEURAL_BSDE_IS,       "BSDE-IS [OOS]",           use_real_data, SPLIT_DATE, "");
-    auto oos_is_delta = run_simulation(HedgerMode::NEURAL_BSDE_IS_DELTA, "BSDE-IS-Delta [OOS]",     use_real_data, SPLIT_DATE, "");
+    auto oos_bs       = run_simulation(HedgerMode::BS_DELTA,             "BS Delta [OOS]",          use_real_data, SPLIT_DATE, "", "results/oos_bs_delta.csv");
+    auto oos_rough    = run_simulation(HedgerMode::ROUGH_DELTA,          "Rough Vol Delta [OOS]",   use_real_data, SPLIT_DATE, "", "results/oos_rough_delta.csv");
+    auto oos_bsde     = run_simulation(HedgerMode::NEURAL_BSDE,          "BSDE-Synth [OOS]",        use_real_data, SPLIT_DATE, "", "results/oos_bsde_synth.csv");
+    auto oos_is       = run_simulation(HedgerMode::NEURAL_BSDE_IS,       "BSDE-IS [OOS]",           use_real_data, SPLIT_DATE, "", "results/oos_bsde_is_full.csv");
+    auto oos_is_delta = run_simulation(HedgerMode::NEURAL_BSDE_IS_DELTA, "BSDE-IS-Delta [OOS]",     use_real_data, SPLIT_DATE, "", "results/oos_bsde_is_delta.csv");
 
     // Comparison 1: BS vs Rough vs BSDE-Synth (does rough-vol alpha persist OOS?)
     omm::demo::ExtendedPnLTracker::print_comparison(oos_bs, oos_rough, &oos_bsde);
