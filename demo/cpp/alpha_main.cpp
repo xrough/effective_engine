@@ -34,7 +34,7 @@
 #include "modules/buyer/BuyerModule.hpp"
 #include "modules/seller/DeltaHedger.hpp"
 
-// Demo-local files (same directory)
+// Demo-local files 
 #include "feed/SyntheticOptionFeed.hpp"
 #include "execution/SimpleExecSim.hpp"
 #include "pnl/AlphaPnLTracker.hpp"
@@ -54,9 +54,8 @@
 #endif
 
 int main() {
-    std::cout << "╔══════════════════════════════════════════════════════════╗\n"
-              << "║   Variance Alpha Pipeline Demo — Buyer Side              ║\n"
-              << "╚══════════════════════════════════════════════════════════╝\n\n";
+    std::cout <<  "Variance Alpha Pipeline Demo\n"
+              <<  "============================\n\n";
 
     // ── 数据模式检测 ──────────────────────────────────────────
     // Prefer the multi-day panel (127 days, includes atm_iv + 25Δ columns);

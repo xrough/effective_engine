@@ -8,7 +8,9 @@
 // ============================================================
 // File: SimpleExecSim.hpp  (demo/cpp/)
 // Role: simulation adapter — converts OrderSubmittedEvent into
-//       FillEvent at the current market price.
+//       FillEvent at the current market price. 
+//       SimpleExecSim is a demo infrastructure shim — it simulates the role of a real Order Management System (OMS) or broker.
+// StrategyController仅仅表达交易的意愿，但由于现实中OMS的存在，订单并不一定会以理想价格成交，甚至可能无法成交。SimpleExecSim负责处理非理想的情况。The "market reality" it applies is just bid/ask spread — buys fill at ask, sells fill at bid, instead of the ideal mid.
 //
 // Fill price logic:
 //   - Underlying orders (e.g. delta hedge): fill at last spot price.
@@ -31,16 +33,17 @@ public:
     explicit SimpleExecSim(
         std::shared_ptr<events::EventBus> bus,
         double initial_price = 150.0
-    ) : bus_(std::move(bus)), last_price_(initial_price) {}
+    ) : bus_(std::move(bus)), last_price_(initial_price) {} // initialization list after :
 
-    void register_handlers() {
+    void register_handlers() { // recall that register_handlers() is the subscription registration step — it tells the EventBus which events this component wants to listen to, and what to do when each arrives.
         // 跟踪最新标的价格
         bus_->subscribe<events::MarketDataEvent>(
-            [this](const events::MarketDataEvent& e) {
+            [this](const events::MarketDataEvent& e) { // lambda captures 'this' pointer to access member variables
                 last_price_ = e.underlying_price;
             }
         );
         // 记录每个期权品种的最新行情（买/卖/中间价）
+        // Buying at ask and selling at bid is the standard execution cost assumption.
         bus_->subscribe<events::OptionMidQuoteEvent>(
             [this](const events::OptionMidQuoteEvent& e) {
                 last_mid_[e.instrument_id] = e.mid_price;
@@ -55,7 +58,7 @@ public:
     }
 
 private:
-    void on_order(const events::OrderSubmittedEvent& o) {
+    void on_order(const events::OrderSubmittedEvent& o) {//an order has already been submitted, what price should it fill at?
         events::FillEvent fill;
         fill.instrument_id = o.instrument_id;
         fill.side          = o.side;
@@ -65,7 +68,7 @@ private:
 
         // 期权成交：按买入/卖出方向使用买卖价，降低模拟过于乐观的问题
         auto it_mid = last_mid_.find(o.instrument_id);
-        if (it_mid != last_mid_.end()) {
+        if (it_mid != last_mid_.end()) { // if the key was found in the map.
             // 这是期权订单：买入时用卖出价（ask），卖出时用买入价（bid）
             if (o.side == events::Side::Buy) {
                 auto it = last_ask_.find(o.instrument_id);
