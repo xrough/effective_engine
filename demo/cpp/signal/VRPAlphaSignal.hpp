@@ -8,6 +8,7 @@
 #include "modules/buyer/IAlphaSignal.hpp"
 #include "core/analytics/RoughVolPricingEngine.hpp"
 #include "core/analytics/ImpliedVarianceExtractor.hpp"
+#include "analytics/SmileVarianceExtractor.hpp"
 
 // ============================================================
 // File: VRPAlphaSignal.hpp  (demo/cpp/signal/)
@@ -60,6 +61,10 @@ public:
         );
     }
 
+    void set_smile_extractor(std::shared_ptr<omm::demo::SmileVarianceExtractor> se) {
+        smile_ex_ = std::move(se);
+    }
+
     // MarketDataEvent: update RV ring buffer with each spot log-return.
     void on_market_data(const events::MarketDataEvent& e) override {
         double spot = e.underlying_price;
@@ -85,9 +90,12 @@ public:
             rv5 = std::sqrt(ss / cfg_.rv_window * 252.0 * 390.0);
         }
 
-        double iv_sq  = iv.atm_implied_vol * iv.atm_implied_vol;
+        // VIX-style model-free variance (default); fall back to ATM BS IV²
+        double implied_var = (smile_ex_ && smile_ex_->has_vix())
+                             ? smile_ex_->vix_variance()
+                             : iv.atm_implied_vol * iv.atm_implied_vol;
         double rv5_sq = rv5 * rv5;
-        double vrp    = iv_sq - rv5_sq;
+        double vrp    = implied_var - rv5_sq;
 
         vrp_history_.push_back(vrp);
         if ((int)vrp_history_.size() > cfg_.base.window)
@@ -106,7 +114,7 @@ public:
         snap.ts                      = e.timestamp;
         snap.valid                   = window_full && rv_idx_ >= cfg_.rv_window;
         snap.atm_implied_variance    = iv.atm_implied_variance;
-        snap.rough_forecast_variance = iv_sq;   // reuse field: stores IV² for diagnostics
+        snap.rough_forecast_variance = implied_var;  // VIX or IV² (for diagnostics)
         snap.raw_spread              = vrp;
         snap.zscore                  = zscore;
         snap.calibration_ok          = true;
@@ -126,6 +134,7 @@ private:
 
     std::shared_ptr<events::EventBus>                    bus_;
     std::shared_ptr<analytics::ImpliedVarianceExtractor> extractor_;
+    std::shared_ptr<omm::demo::SmileVarianceExtractor>   smile_ex_;
     VRPSignalConfig                                      cfg_;
 
     double rv_ring_[22] = {};   // ring buffer: enough for 22-bar HAR window

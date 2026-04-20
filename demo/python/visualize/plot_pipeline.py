@@ -96,11 +96,14 @@ def load_market_csv(data_path: Path) -> pd.DataFrame:
                 return daily[c]
         return pd.Series([default] * len(daily)) if default is not None else None
 
-    daily["spot"]      = get_col(["underlying_price", "underlying", "spot", "close"])
-    daily["atm_iv"]    = get_col(["atm_iv", "iv"])
-    daily["rv5"]       = get_col(["rv5_ann", "rv5", "realized_vol"])
-    daily["rr25_iv"]   = get_col(["rr25_iv", "rr25"])
-    daily["bf25_iv"]   = get_col(["bf25_iv", "bf25"])
+    daily["spot"]        = get_col(["underlying_price", "underlying", "spot", "close"])
+    daily["atm_iv"]      = get_col(["atm_iv", "iv"])
+    daily["rv5"]         = get_col(["rv5_ann", "rv5", "realized_vol"])
+    daily["rr25_iv"]     = get_col(["rr25_iv", "rr25"])
+    daily["bf25_iv"]     = get_col(["bf25_iv", "bf25"])
+    daily["vix_varswap"] = get_col(["vix_varswap"])
+    daily["ssvi_rho"]    = get_col(["ssvi_rho"])
+    daily["ssvi_phi"]    = get_col(["ssvi_phi"])
     return daily
 
 
@@ -158,27 +161,36 @@ def plot_cumulative_pnl(data: dict, outdir: Path):
 # ── Figure 2: Market Context (2×2) ───────────────────────────────────────────
 
 def plot_market_context(daily: pd.DataFrame, outdir: Path):
-    fig, axes = plt.subplots(2, 2, figsize=(13, 8))
-    fig.suptitle("SPY Market Context — 127 Trading Days (2025-08-07 → 2026-02-06)",
+    n_days = len(daily)
+    date_range = (f"{daily['date'].iloc[0].strftime('%Y-%m-%d')} → "
+                  f"{daily['date'].iloc[-1].strftime('%Y-%m-%d')}")
+    fig, axes = plt.subplots(2, 3, figsize=(18, 9))
+    fig.suptitle(f"SPY Market Context — {n_days} Trading Days ({date_range})",
                  fontsize=13, fontweight="bold")
 
     split_dt = pd.Timestamp(IS_SPLIT)
 
-    def add_split(ax):
-        ax.axvline(split_dt, color="gray", linewidth=1.2, linestyle="--", alpha=0.7)
-        ax.text(split_dt, ax.get_ylim()[1] * 0.97, " OOS →",
-                fontsize=8, color="gray", va="top")
+    # Normalise dates to tz-naive for comparison
+    first_day = daily["date"].iloc[0].tz_localize(None) if daily["date"].iloc[0].tzinfo else daily["date"].iloc[0]
+    last_day  = daily["date"].iloc[-1].tz_localize(None) if daily["date"].iloc[-1].tzinfo else daily["date"].iloc[-1]
 
-    # TL: SPY spot
+    def add_split(ax):
+        ylim = ax.get_ylim()
+        if first_day <= split_dt <= last_day:
+            ax.axvline(split_dt, color="gray", linewidth=1.2, linestyle="--", alpha=0.7)
+            ax.text(split_dt, ylim[1] * 0.97, " OOS →",
+                    fontsize=8, color="gray", va="top")
+
+    # [0,0] SPY spot
     ax = axes[0, 0]
     ax.plot(daily["date"], daily["spot"], color="#1E40AF", linewidth=1.5)
     ax.set_title("SPY Spot Price")
     ax.set_ylabel("Price ($)")
     ax.grid(True, alpha=0.3)
-    ax.xaxis.set_major_formatter(DateFormatter("%b"))
+    ax.xaxis.set_major_formatter(DateFormatter("%b %d"))
     add_split(ax)
 
-    # TR: ATM IV vs RV5
+    # [0,1] ATM IV vs RV5
     ax = axes[0, 1]
     if daily["atm_iv"].notna().any():
         ax.plot(daily["date"], daily["atm_iv"] * 100, color="#2563EB",
@@ -190,26 +202,56 @@ def plot_market_context(daily: pd.DataFrame, outdir: Path):
     ax.set_ylabel("Vol (%)")
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
-    ax.xaxis.set_major_formatter(DateFormatter("%b"))
+    ax.xaxis.set_major_formatter(DateFormatter("%b %d"))
     add_split(ax)
 
-    # BL: VRP = IV - RV
+    # [0,2] VIX σ²_varswap vs ATM IV² — model-free vs single-strike comparison
+    ax = axes[0, 2]
+    has_vix = daily["vix_varswap"].notna().any()
+    has_atm = daily["atm_iv"].notna().any()
+    if has_vix:
+        vix_vol = (daily["vix_varswap"].clip(lower=0) ** 0.5) * 100
+        ax.plot(daily["date"], vix_vol, color="#EF4444",
+                linewidth=1.5, label="VIX σ (model-free)")
+    if has_atm:
+        ax.plot(daily["date"], daily["atm_iv"] * 100, color="#2563EB",
+                linewidth=1.5, linestyle="--", label="ATM IV (BS)")
+    if has_vix and has_atm:
+        spread = vix_vol - daily["atm_iv"] * 100
+        ax2 = ax.twinx()
+        ax2.fill_between(daily["date"], spread, 0,
+                         where=(spread >= 0), alpha=0.15, color="#EF4444",
+                         label="VIX > ATM (smile premium)")
+        ax2.fill_between(daily["date"], spread, 0,
+                         where=(spread < 0), alpha=0.15, color="#2563EB")
+        ax2.set_ylabel("VIX − ATM (%)", fontsize=8, color="gray")
+        ax2.tick_params(axis="y", labelsize=7, colors="gray")
+        ax2.axhline(0, color="gray", linewidth=0.5, linestyle=":")
+    ax.set_title("VIX (model-free) vs ATM IV")
+    ax.set_ylabel("Vol (%)")
+    ax.legend(fontsize=8, loc="upper left")
+    ax.grid(True, alpha=0.3)
+    ax.xaxis.set_major_formatter(DateFormatter("%b %d"))
+    add_split(ax)
+
+    # [1,0] VRP = IV - RV
     ax = axes[1, 0]
     if daily["atm_iv"].notna().any() and daily["rv5"].notna().any():
         vrp = (daily["atm_iv"] - daily["rv5"]) * 100
-        colors = ["#10B981" if v >= 0 else "#EF4444" for v in vrp]
-        ax.bar(daily["date"], vrp, color=colors, width=1.0, alpha=0.8)
+        bar_colors = ["#10B981" if v >= 0 else "#EF4444" for v in vrp]
+        ax.bar(daily["date"], vrp, color=bar_colors, width=1.0, alpha=0.8)
         ax.axhline(0, color="black", linewidth=0.6)
         ax.set_title("Vol Risk Premium (IV − RV5)")
         ax.set_ylabel("VRP (%)")
         ax.grid(True, alpha=0.3, axis="y")
-        ax.xaxis.set_major_formatter(DateFormatter("%b"))
+        ax.xaxis.set_major_formatter(DateFormatter("%b %d"))
         add_split(ax)
     else:
         ax.text(0.5, 0.5, "VRP data unavailable", ha="center", va="center",
                 transform=ax.transAxes, fontsize=10, color="gray")
+        ax.set_title("Vol Risk Premium (IV − RV5)")
 
-    # BR: Smile structure (skew + curvature)
+    # [1,1] 25Δ smile structure (skew + curvature)
     ax = axes[1, 1]
     plotted = False
     if daily["rr25_iv"].notna().any():
@@ -230,7 +272,36 @@ def plot_market_context(daily: pd.DataFrame, outdir: Path):
                 ha="center", va="center", transform=ax.transAxes, fontsize=10, color="gray")
         ax.set_title("25Δ Smile Structure")
     ax.grid(True, alpha=0.3)
-    ax.xaxis.set_major_formatter(DateFormatter("%b"))
+    ax.xaxis.set_major_formatter(DateFormatter("%b %d"))
+    add_split(ax)
+
+    # [1,2] SSVI parameters — ρ (skew shape) and φ (wing steepness) over time
+    ax = axes[1, 2]
+    has_rho = daily["ssvi_rho"].notna().any()
+    has_phi = daily["ssvi_phi"].notna().any()
+    if has_rho:
+        ax.plot(daily["date"], daily["ssvi_rho"], color="#7C3AED",
+                linewidth=1.5, label="ρ (skew, left axis)")
+        ax.set_ylabel("ρ (skew)", color="#7C3AED")
+        ax.tick_params(axis="y", colors="#7C3AED")
+    if has_phi:
+        ax3 = ax.twinx()
+        ax3.plot(daily["date"], daily["ssvi_phi"], color="#059669",
+                 linewidth=1.5, linestyle="--", label="φ (wings, right axis)")
+        ax3.set_ylabel("φ (wing steepness)", color="#059669", fontsize=9)
+        ax3.tick_params(axis="y", colors="#059669")
+    if has_rho or has_phi:
+        # Combined legend
+        lines1, labs1 = ax.get_legend_handles_labels()
+        lines2, labs2 = (ax3.get_legend_handles_labels() if has_phi else ([], []))
+        ax.legend(lines1 + lines2, labs1 + labs2, fontsize=8, loc="lower right")
+        ax.axhline(0, color="gray", linewidth=0.5, linestyle=":")
+    else:
+        ax.text(0.5, 0.5, "SSVI data not in CSV",
+                ha="center", va="center", transform=ax.transAxes, fontsize=10, color="gray")
+    ax.set_title("SSVI Smile Parameters (ρ, φ)")
+    ax.grid(True, alpha=0.3)
+    ax.xaxis.set_major_formatter(DateFormatter("%b %d"))
     add_split(ax)
 
     fig.tight_layout()
@@ -383,13 +454,13 @@ def main():
     print(f"  Market data : {data_path.resolve()}")
     print(f"  Output dir  : {outdir.resolve()}\n")
 
-    # Load OOS simulation results
+    # Load OOS simulation results (optional — figs 1/3/4 are skipped if absent)
     print("Loading OOS CSV files...")
     oos_data = load_oos_csv(results_dir)
     if not oos_data:
-        print("ERROR: No OOS CSV files found. Run alpha_pnl_test_runner first.", file=sys.stderr)
-        sys.exit(1)
-    print(f"  Loaded {len(oos_data)} strategies: {list(oos_data.keys())}\n")
+        print("  [info] No OOS CSV files found — skipping figs 1, 3, 4 (run alpha_pnl_test_runner to generate them)")
+    else:
+        print(f"  Loaded {len(oos_data)} strategies: {list(oos_data.keys())}\n")
 
     # Load market data
     if data_path.exists():
@@ -402,13 +473,19 @@ def main():
 
     # Generate figures
     print("Generating figures...")
-    plot_cumulative_pnl(oos_data, outdir)
+    if oos_data:
+        plot_cumulative_pnl(oos_data, outdir)
+    else:
+        print("  Skipping fig1 (no OOS data)")
     if market is not None:
         plot_market_context(market, outdir)
     else:
         print("  Skipping fig2 (no market data)")
-    plot_greek_attribution(oos_data, outdir)
-    plot_daily_distribution(oos_data, outdir)
+    if oos_data:
+        plot_greek_attribution(oos_data, outdir)
+        plot_daily_distribution(oos_data, outdir)
+    else:
+        print("  Skipping figs 3, 4 (no OOS data)")
 
     print(f"\nAll figures saved to: {outdir.resolve()}/")
     print("Done.")

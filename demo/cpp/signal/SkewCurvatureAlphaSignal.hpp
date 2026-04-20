@@ -12,6 +12,7 @@
 #include "core/domain/InstrumentFactory.hpp"
 #include "VarianceAlphaSignal.hpp"   // for AlphaSignalConfig
 #include "analytics/RoughVolSmilePredictor.hpp"
+#include "analytics/SmileVarianceExtractor.hpp"
 
 // ============================================================
 // File: SkewCurvatureAlphaSignal.hpp  (demo/cpp/)
@@ -63,6 +64,10 @@ public:
 
     void on_market_data(const events::MarketDataEvent&) override {}
 
+    void set_smile_extractor(std::shared_ptr<omm::demo::SmileVarianceExtractor> se) {
+        smile_ex_ = std::move(se);
+    }
+
     // ── Diagnostic accessors (for ExtendedPnLTracker summary) ──
     double last_predicted_skew_slope() const { return last_skew_slope_; }
     double last_predicted_curvature()  const { return last_curvature_; }
@@ -108,14 +113,46 @@ private:
             if (vstd > 1e-12)
                 var_z = (var_spread - vm) / vstd;
 
-            // Curvature z-score: realized vol-of-vol vs model prediction
-            if ((int)sigma_change_history_.size() >= 5) {
-                double realized_vov = rolling_std(sigma_change_history_);
-                // Model vol-of-vol per tick: η × σ₀ × sqrt(dt) where dt≈1min
-                double dt_annual   = 1.0 / (252.0 * 390.0);
-                double model_vov   = params.eta * smile.atm_vol * std::sqrt(dt_annual);
-                double curv_spread = realized_vov - model_vov;
+            // Curvature z-score: market bf25_iv (SSVI mode) vs model prediction,
+            // or realized vol-of-vol vs model vol-of-vol (rough vol fallback).
+            bool use_ssvi = (smile_ex_ && smile_ex_->has_ssvi());
+            double curv_spread = 0.0;
+            bool   curv_valid  = false;
 
+            if (use_ssvi) {
+                // SSVI mode: market butterfly vs SSVI-model-implied butterfly
+                double market_bf  = smile_ex_->curvature_25d();  // bf25_iv from market
+                double ssvi_theta = smile_ex_->ssvi_theta();
+                double ssvi_rho   = smile_ex_->ssvi_rho();
+                double ssvi_phi   = smile_ex_->ssvi_phi();
+                // ATM BS IV and ± one-strike OTM moneyness k ≈ ±σ√T
+                double k_ref = (iv.atm_implied_vol > 0 && T > 0)
+                               ? iv.atm_implied_vol * std::sqrt(T) : 0.05;
+                // SSVI total variance at ±k_ref:
+                auto ssvi_w = [&](double k) {
+                    double disc = (ssvi_phi * k + ssvi_rho) * (ssvi_phi * k + ssvi_rho)
+                                  + (1.0 - ssvi_rho * ssvi_rho);
+                    return (ssvi_theta / 2.0) * (1.0 + ssvi_rho * ssvi_phi * k
+                                                       + std::sqrt(std::max(disc, 0.0)));
+                };
+                double model_bf = (T > 1e-6)
+                    ? 0.5 * (std::sqrt(ssvi_w(k_ref) / T) + std::sqrt(ssvi_w(-k_ref) / T))
+                      - iv.atm_implied_vol
+                    : 0.0;
+                if (ssvi_theta > 0 && ssvi_phi > 0) {
+                    curv_spread = market_bf - model_bf;
+                    curv_valid  = true;
+                }
+            } else if ((int)sigma_change_history_.size() >= 5) {
+                // Rough vol fallback: realized vol-of-vol vs η × σ₀ × sqrt(dt)
+                double realized_vov = rolling_std(sigma_change_history_);
+                double dt_annual    = 1.0 / (252.0 * 390.0);
+                double model_vov    = params.eta * smile.atm_vol * std::sqrt(dt_annual);
+                curv_spread = realized_vov - model_vov;
+                curv_valid  = true;
+            }
+
+            if (curv_valid) {
                 curv_spread_history_.push_back(curv_spread);
                 if ((int)curv_spread_history_.size() > cfg_.base.window)
                     curv_spread_history_.pop_front();
@@ -173,6 +210,7 @@ private:
     std::shared_ptr<events::EventBus>                    bus_;
     std::shared_ptr<analytics::ImpliedVarianceExtractor> extractor_;
     std::shared_ptr<domain::RoughVolPricingEngine>       rough_;
+    std::shared_ptr<omm::demo::SmileVarianceExtractor>   smile_ex_;
     SkewCurvatureSignalConfig                            cfg_;
     demo::RoughVolSmilePredictor                         predictor_;
 

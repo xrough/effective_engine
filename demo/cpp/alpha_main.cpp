@@ -46,6 +46,7 @@
 #include "strategy/StrategyController.hpp"
 #include "analytics/RoughVolCalibrator.hpp"
 #include "analytics/LiftedHestonStateEstimator.hpp"
+#include "analytics/SmileVarianceExtractor.hpp"
 #include "strategy/NeuralBSDEHedger.hpp"
 #include "feed/HistoricalChainAdapter.hpp"
 
@@ -60,8 +61,9 @@ int main() {
     // ── 数据模式检测 ──────────────────────────────────────────
     // Prefer the multi-day panel (127 days, includes atm_iv + 25Δ columns);
     // fall back to the legacy single-day ATM CSV for backward compat.
-    const std::string panel_csv  = "../data/spy_chain_panel.csv";
-    const std::string legacy_csv = "../data/spy_atm_chain.csv";
+    // Paths relative to the demo/ working directory (where alpha_runner is invoked)
+    const std::string panel_csv  = "data/spy_chain_panel.csv";
+    const std::string legacy_csv = "data/spy_atm_chain.csv";
     const std::string real_data_csv =
         std::filesystem::exists(panel_csv) ? panel_csv : legacy_csv;
     const bool use_real_data = std::filesystem::exists(real_data_csv);
@@ -108,6 +110,10 @@ int main() {
     calibrator->register_handlers();
     std::cout << "[Demo] RoughVolCalibrator 已注册 (λ=0.15)\n";
 
+    // ── SmileVarianceExtractor（真实数据模式：VIX 方差互换 + SSVI 参数）──
+    auto smile_extractor = std::make_shared<omm::demo::SmileVarianceExtractor>(bus);
+    smile_extractor->register_handlers();
+
     // ── Composite signal: VRP (0.50) + HAR-RV (0.30) + SkewCurvature (0.20) ─
     // Inner bus isolates sub-signal events from StrategyController.
     auto signal    = std::make_shared<omm::buyer::CompositeAlphaSignal>(bus);
@@ -132,6 +138,10 @@ int main() {
     auto skew_signal = std::make_shared<omm::buyer::SkewCurvatureAlphaSignal>(
         inner_bus, extractor, rough_engine, skew_cfg
     );
+
+    // 注入 SmileVarianceExtractor：真实数据模式使用 VIX / SSVI；合成模式自动降级
+    vrp_signal->set_smile_extractor(smile_extractor);
+    skew_signal->set_smile_extractor(smile_extractor);
 
     signal->add(vrp_signal,  0.50);
     signal->add(har_signal,  0.30);
@@ -174,17 +184,18 @@ int main() {
     if (use_neural) {
 #ifdef BUILD_ONNX_DEMO
         // LRH 状态估计器（normalization.json 中的 model_params 提供默认值）
+        // SPY-calibrated params from normalization.json (retrained on spy_chain_panel.csv)
         auto state_est = std::make_shared<omm::demo::LiftedHestonStateEstimator>(
-            /*kappa=*/0.3, /*theta=*/0.04, /*xi=*/0.5, /*V0=*/0.04
+            /*kappa=*/0.3, /*theta=*/0.01386, /*xi=*/0.5, /*V0=*/0.01386
         );
         onnx_model    = std::make_shared<::demo::OnnxInference>(onnx_path, norm_path);
         neural_hedger = std::make_shared<omm::demo::NeuralBSDEHedger>(
             bus, onnx_model, rough_engine, position_mgr, state_est,
             "AAPL", CALL_ID, PUT_ID,
-            STRIKE_ENTRY, /*threshold=*/0.3
+            STRIKE_ENTRY, /*threshold=*/10.0
         );
         neural_hedger->register_handlers();
-        std::cout << "[Hedger] NeuralBSDEHedger 已激活（BSDE + 在线 OU 状态，阈值=0.3）\n";
+        std::cout << "[Hedger] NeuralBSDEHedger 已激活（BSDE + 在线 OU 状态，阈值=10.0 股）\n";
 #endif
     } else {
         auto call_atm = omm::domain::InstrumentFactory::make_call("AAPL", STRIKE_ENTRY, expiry);
@@ -196,10 +207,10 @@ int main() {
         };
 
         delta_hedger = std::make_shared<omm::application::DeltaHedger>(
-            bus, position_mgr, rough_engine, hedge_options, "AAPL", /*threshold=*/0.3
+            bus, position_mgr, rough_engine, hedge_options, "AAPL", /*threshold=*/10.0
         );
         delta_hedger->register_handlers();
-        std::cout << "[Hedger] DeltaHedger 已激活（解析 BS Delta，阈值=0.3）\n";
+        std::cout << "[Hedger] DeltaHedger 已激活（解析 BS Delta，阈值=10.0 股）\n";
         std::cout << "[Hedger] DeltaHedger 将在真实数据回放时通过 set_market_state() 使用市场 IV 和 T_sim\n";
     }
 

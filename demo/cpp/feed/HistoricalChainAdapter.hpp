@@ -4,29 +4,20 @@
 // Role: real-data counterpart to SyntheticOptionFeed + MarketDataAdapter.
 //
 // Reads demo/data/spy_chain_panel.csv (produced by prepare_spy_data.py)
-// and publishes three events per row:
+// and publishes four events per row:
 //   1. MarketDataEvent        — SPY spot (from put-call parity recovery)
 //   2. OptionMidQuoteEvent    — ATM call ("ATM_CALL") with bid/ask
 //   3. OptionMidQuoteEvent    — ATM put  ("ATM_PUT")  with bid/ask
+//   4. SmileSnapshotEvent     — VIX variance swap rate + SSVI parameters
 //
-// CSV columns — base (cols 0-11, same as original spy_atm_chain.csv):
-//   timestamp_utc, underlying_price, atm_strike, expiry_date,
-//   time_to_expiry, call_mid, put_mid,
-//   call_bid, call_ask, put_bid, put_ask, rv5_ann
-//
-// Extended columns (cols 12+, present in spy_chain_panel.csv):
-//   atm_iv  — pre-computed BS IV at ATM; exposed via row.atm_iv for
-//             use by DeltaHedger::set_market_state() in the main loop.
-//   (cols 13-21: 25Δ strike data — stored but not yet published as events)
-//
-// bid_price / ask_price are passed through to OptionMidQuoteEvent so that
-// SimpleExecSim can fill options at the correct side of the market.
-//
-// initial_strike() / initial_expiry() — peek at row 0 before run() so
-// alpha_main.cpp can construct correctly-struck option objects.
-//
-// on_row callback — optional per-row hook, called after publishing events,
-// allowing alpha_main.cpp to call set_market_state() with correct IV + T.
+// CSV column layout (0-indexed):
+//   0=timestamp_utc  1=underlying_price  2=atm_strike  3=expiry_date
+//   4=time_to_expiry 5=call_mid          6=put_mid
+//   7=call_bid       8=call_ask          9=put_bid      10=put_ask
+//   11=atm_iv        12=call25d_strike   13=call25d_mid 14=call25d_bid
+//   15=call25d_ask   16=put25d_strike    17=put25d_mid  18=put25d_bid
+//   19=put25d_ask    20=rr25_iv          21=bf25_iv
+//   22=vix_varswap   23=ssvi_rho         24=ssvi_phi    25=rv5_ann
 // ============================================================
 
 #include <fstream>
@@ -133,9 +124,24 @@ public:
                 ts
             });
 
-            // 4. Per-row callback — invoked after all events for this bar.
-            // Allows caller to call set_market_state(atm_iv, T_sim) and
-            // detect session boundaries using date_str().
+            // 4. SmileSnapshotEvent — VIX variance + SSVI fit (real data only)
+            events::SmileSnapshotEvent smile;
+            smile.vix_varswap    = r.vix_varswap;
+            smile.atm_iv         = r.atm_iv;
+            smile.rr25_iv        = r.rr25_iv;
+            smile.bf25_iv        = r.bf25_iv;
+            smile.ssvi_theta     = (r.atm_iv > 0 && r.time_to_expiry > 0)
+                                   ? r.atm_iv * r.atm_iv * r.time_to_expiry : 0.0;
+            smile.ssvi_rho       = r.ssvi_rho;
+            smile.ssvi_phi       = r.ssvi_phi;
+            smile.time_to_expiry = r.time_to_expiry;
+            smile.underlying     = r.underlying;
+            smile.has_vix        = (r.vix_varswap > 0.0);
+            smile.has_ssvi       = (r.ssvi_phi > 0.0 && std::abs(r.ssvi_rho) < 1.0);
+            smile.timestamp      = ts;
+            bus_->publish(smile);
+
+            // 5. Per-row callback — invoked after all events for this bar.
             if (on_row)
                 on_row(r.atm_iv, r.time_to_expiry, r.date_str());
         }
@@ -151,12 +157,17 @@ private:
         double      time_to_expiry;
         double      call_mid;
         double      put_mid;
-        double      call_bid = 0.0;
-        double      call_ask = 0.0;
-        double      put_bid  = 0.0;
-        double      put_ask  = 0.0;
-        double      rv5_ann  = 0.0;   // rolling 5-bar annualised realised vol
-        double      atm_iv   = 0.0;   // pre-computed BS IV (col 12, spy_chain_panel.csv)
+        double      call_bid    = 0.0;
+        double      call_ask    = 0.0;
+        double      put_bid     = 0.0;
+        double      put_ask     = 0.0;
+        double      atm_iv      = 0.0;  // col 11 — BS IV at ATM
+        double      rr25_iv     = 0.0;  // col 20 — risk reversal IV
+        double      bf25_iv     = 0.0;  // col 21 — butterfly IV
+        double      vix_varswap = 0.0;  // col 22 — VIX-style σ²_varswap
+        double      ssvi_rho    = 0.0;  // col 23 — SSVI skew ρ
+        double      ssvi_phi    = 0.0;  // col 24 — SSVI smoothing φ
+        double      rv5_ann     = 0.0;  // col 25 — realised vol 5-bar
         // date portion (YYYY-MM-DD) for session boundary detection
         std::string date_str() const {
             return timestamp_str.size() >= 10 ? timestamp_str.substr(0, 10) : "";
@@ -203,27 +214,31 @@ private:
             r.time_to_expiry = std::stod(cols[4]);
             r.call_mid       = std::stod(cols[5]);
             r.put_mid        = std::stod(cols[6]);
-            // Extended columns (cols 7-11) — present in new CSV, optional for backward compat
+            // Extended columns — present in spy_chain_panel.csv; backward-compat fallback for legacy CSV
+            auto safe_d = [&](int col, double def = 0.0) -> double {
+                if ((int)cols.size() <= col || cols[col].empty() || cols[col] == "nan")
+                    return def;
+                try { return std::stod(cols[col]); } catch (...) { return def; }
+            };
+
             if (cols.size() >= 12) {
-                r.call_bid = std::stod(cols[7]);
-                r.call_ask = std::stod(cols[8]);
-                r.put_bid  = std::stod(cols[9]);
-                r.put_ask  = std::stod(cols[10]);
-                r.rv5_ann  = std::stod(cols[11]);
+                r.call_bid = safe_d(7);
+                r.call_ask = safe_d(8);
+                r.put_bid  = safe_d(9);
+                r.put_ask  = safe_d(10);
+                r.atm_iv   = safe_d(11);
             } else {
-                // Backward compat: synthesise bid/ask from mid with a 1-cent half-spread
                 r.call_bid = r.call_mid - 0.01;
                 r.call_ask = r.call_mid + 0.01;
                 r.put_bid  = r.put_mid  - 0.01;
                 r.put_ask  = r.put_mid  + 0.01;
             }
-            // Col index 11 (0-based): atm_iv (spy_chain_panel.csv only; backward compat: stays 0.0)
-            // CSV layout (0-indexed): 0=timestamp, 1=underlying, 2=atm_strike, 3=expiry,
-            //   4=time_to_expiry, 5=call_mid, 6=put_mid, 7=call_bid, 8=call_ask,
-            //   9=put_bid, 10=put_ask, 11=atm_iv, 12=call25d_strike, ...
-            if (cols.size() >= 12 && !cols[11].empty() && cols[11] != "nan") {
-                try { r.atm_iv = std::stod(cols[11]); } catch (...) { r.atm_iv = 0.0; }
-            }
+            r.rr25_iv     = safe_d(20);
+            r.bf25_iv     = safe_d(21);
+            r.vix_varswap = safe_d(22);
+            r.ssvi_rho    = safe_d(23);
+            r.ssvi_phi    = safe_d(24);
+            r.rv5_ann     = safe_d(25);
             rows_.push_back(r);
         }
     }

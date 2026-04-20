@@ -91,9 +91,6 @@ private:
 
     void on_market_data(const events::MarketDataEvent& event) {
         spot_ = event.underlying_price;
-        // Note: LiftedHestonStateEstimator (state_est_) is NOT updated here.
-        // The delta-only BSDE model uses [tau, logm, V_t=atm_iv²] only;
-        // all U factors are zeroed at inference (see recompute_hedge).
         recompute_hedge();
     }
 
@@ -122,24 +119,18 @@ private:
         double V_t = atm_iv_ * atm_iv_;
         V_t = std::max(V_t, 1e-6);
 
-        // All U factors are zeroed at inference. Rationale:
-        // - The lrh_delta training target (BS delta PnL) is independent of U, so the
-        //   optimal Z should depend only on (tau, logm, V_t). The model nonetheless
-        //   learned U-correlated artifacts during training (U correlates with tau
-        //   along LRH paths), causing Z → 0 for any U ≠ 0 even within-distribution.
-        // - U[0]/U[1] (slow factors) read 0.02 at inference vs training mean ~0.002,
-        //   shifting Z from 4.7 to -0.04. Setting U=0 recovers Z ≈ N(d1)*σ*K_train.
-        // - U[2]/U[3] (fast factors, λ=215/10000): exponentially decay to ≈0 within
-        //   each training step (dt_train=0.02 → λ*dt >> 1), so are already ≈0 in
-        //   training data. The online estimator accumulates them with dt_tick<<1.
+        // U factors zeroed: lrh_delta training target = BS delta (independent of U).
+        // The model learns U-correlated artifacts (U correlates with tau along paths)
+        // that add noise at inference. Zeroing U recovers clean Z ≈ N(d1)·σ·K_train.
+        // state_est_ retained for future full-BSDE retraining that includes U in loss.
         std::vector<float> raw_state = {
             static_cast<float>(tau),
             static_cast<float>(log_moneyness),
             static_cast<float>(V_t),
-            0.0f,   // U[0]: zeroed — see above
-            0.0f,   // U[1]: zeroed — see above
-            0.0f,   // U[2]: fast factor (λ=215), ≈0 in training
-            0.0f    // U[3]: fast factor (λ=10000), ≈0 in training
+            0.0f,
+            0.0f,
+            0.0f,
+            0.0f
         };
 
         // ── 归一化（使用 OnnxInference 中已加载的参数） ──────

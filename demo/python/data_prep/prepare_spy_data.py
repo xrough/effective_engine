@@ -22,7 +22,7 @@ Columns — base ATM straddle (same as before, cols 0-11):
     put_ask             — best ask for the ATM put
     rv5_ann             — rolling 5-bar annualised realised vol (session-reset)
 
-New columns (cols 12-21):
+New columns (cols 12-24):
     atm_iv              — BS implied vol at ATM strike (bisection on call_mid)
     call25d_strike      — call strike nearest to 25-delta
     call25d_mid         — market mid for that call
@@ -34,6 +34,9 @@ New columns (cols 12-21):
     put25d_ask
     rr25_iv             — IV(call25d) - IV(put25d)    (skew proxy)
     bf25_iv             — (IV(call25d)+IV(put25d))/2 - atm_iv  (curvature proxy)
+    vix_varswap         — model-free annualised variance swap rate (VIX-style)
+    ssvi_rho            — SSVI skew parameter rho ∈ (−1, 1)
+    ssvi_phi            — SSVI smoothing parameter phi > 0
 
 Algorithm per day:
   1. Load DBN/zstd via databento, filter bid > 0 for both legs.
@@ -69,6 +72,7 @@ from pathlib import Path
 import databento as db
 import numpy as np
 import pandas as pd
+from scipy.optimize import minimize
 
 # ── constants ────────────────────────────────────────────────────────────────
 T_MIN_DAYS  = 10
@@ -224,6 +228,7 @@ def process_day(df: pd.DataFrame, bar_date: date, s_prev: float) -> tuple[list, 
         call25d_strike = call25d_mid = call25d_bid = call25d_ask = float('nan')
         put25d_strike  = put25d_mid  = put25d_bid  = put25d_ask  = float('nan')
         rr25_iv = bf25_iv = float('nan')
+        iv_c25 = iv_p25 = float('nan')
 
         if not math.isnan(atm_iv) and atm_iv > 0:
             # For calls, delta decreases with K; find K closest to delta=0.25
@@ -252,7 +257,6 @@ def process_day(df: pd.DataFrame, bar_date: date, s_prev: float) -> tuple[list, 
                     put25d_strike = put25d_mid = put25d_bid = put25d_ask = float('nan')
 
             # IVs at 25Δ strikes for skew/curvature
-            iv_c25 = iv_p25 = float('nan')
             if not math.isnan(call25d_mid) and not math.isnan(call25d_strike):
                 iv_c25 = implied_vol(call25d_mid, F, call25d_strike, T, is_call=True)
             if not math.isnan(put25d_mid) and not math.isnan(put25d_strike):
@@ -261,6 +265,56 @@ def process_day(df: pd.DataFrame, bar_date: date, s_prev: float) -> tuple[list, 
             if not math.isnan(iv_c25) and not math.isnan(iv_p25):
                 rr25_iv = iv_c25 - iv_p25
                 bf25_iv = 0.5 * (iv_c25 + iv_p25) - atm_iv
+
+        # ── VIX-style model-free variance swap rate ──────────────────
+        vix_varswap = float('nan')
+        if T > 0 and len(common_strikes) >= 2:
+            sorted_k = sorted(common_strikes)
+            n_k = len(sorted_k)
+            vix_sum = 0.0
+            for i, K in enumerate(sorted_k):
+                dK_prev = (K - sorted_k[i-1]) if i > 0 else (sorted_k[1] - sorted_k[0])
+                dK_next = (sorted_k[i+1] - K) if i < n_k - 1 else dK_prev
+                dK = 0.5 * (dK_prev + dK_next)
+                if K < F and K in puts.index:
+                    mid = (float(puts.loc[K, 'bid_px_00']) + float(puts.loc[K, 'ask_px_00'])) / 2.0
+                    if mid >= MID_FLOOR:
+                        vix_sum += dK / (K * K) * mid
+                elif K > F and K in calls.index:
+                    mid = (float(calls.loc[K, 'bid_px_00']) + float(calls.loc[K, 'ask_px_00'])) / 2.0
+                    if mid >= MID_FLOOR:
+                        vix_sum += dK / (K * K) * mid
+            if vix_sum > 0:
+                vix_varswap = (2.0 / T) * vix_sum
+
+        # ── SSVI 3-point fit (ATM + 25Δ call + 25Δ put) ─────────────
+        ssvi_rho = ssvi_phi = float('nan')
+        if (not math.isnan(atm_iv) and atm_iv > 0 and T > 0
+                and not math.isnan(call25d_strike) and not math.isnan(put25d_strike)
+                and not math.isnan(iv_c25) and not math.isnan(iv_p25)):
+            theta = atm_iv ** 2 * T
+            k_C = math.log(call25d_strike / F)
+            k_P = math.log(put25d_strike  / F)
+            w_C = iv_c25 ** 2 * T
+            w_P = iv_p25 ** 2 * T
+
+            def _ssvi(k, rho, phi):
+                disc = (phi * k + rho) ** 2 + (1.0 - rho ** 2)
+                return (theta / 2.0) * (1.0 + rho * phi * k + math.sqrt(max(disc, 0.0)))
+
+            def _loss(params):
+                rho, phi = params
+                if phi <= 0 or abs(rho) >= 1.0:
+                    return 1e9
+                return (_ssvi(k_C, rho, phi) - w_C) ** 2 + (_ssvi(k_P, rho, phi) - w_P) ** 2
+
+            try:
+                res = minimize(_loss, x0=[-0.5, 1.0], method='Nelder-Mead',
+                               options={'xatol': 1e-7, 'fatol': 1e-10, 'maxiter': 1000})
+                if res.success and abs(res.x[0]) < 1.0 and res.x[1] > 0:
+                    ssvi_rho, ssvi_phi = float(res.x[0]), float(res.x[1])
+            except Exception:
+                pass
 
         rows.append({
             'timestamp_utc':    ts.isoformat(),
@@ -286,6 +340,9 @@ def process_day(df: pd.DataFrame, bar_date: date, s_prev: float) -> tuple[list, 
             'put25d_ask':       round(put25d_ask, 4) if not math.isnan(put25d_ask) else float('nan'),
             'rr25_iv':          round(rr25_iv, 6) if not math.isnan(rr25_iv) else float('nan'),
             'bf25_iv':          round(bf25_iv, 6) if not math.isnan(bf25_iv) else float('nan'),
+            'vix_varswap':      round(vix_varswap, 8) if not math.isnan(vix_varswap) else float('nan'),
+            'ssvi_rho':         round(ssvi_rho, 6) if not math.isnan(ssvi_rho) else float('nan'),
+            'ssvi_phi':         round(ssvi_phi, 6) if not math.isnan(ssvi_phi) else float('nan'),
         })
 
     return rows, s_prev
@@ -365,6 +422,11 @@ def main():
     print(f'  Expiries used: {sorted(result["expiry_date"].unique())}')
     print(f'  atm_iv null:   {result["atm_iv"].isna().mean():.1%}')
     print(f'  rr25_iv null:  {result["rr25_iv"].isna().mean():.1%}')
+    print(f'  vix_varswap null: {result["vix_varswap"].isna().mean():.1%}')
+    print(f'  ssvi null:     {result["ssvi_rho"].isna().mean():.1%}')
+    vix_mean = result.loc[result['vix_varswap'].notna(), 'vix_varswap'].mean()
+    if not math.isnan(vix_mean):
+        print(f'  Avg VIX σ²:    {vix_mean:.6f}  (ann. vol ≈ {math.sqrt(vix_mean)*100:.1f}%)')
     call_spread = (result['call_ask'] - result['call_bid']).mean()
     put_spread  = (result['put_ask']  - result['put_bid']).mean()
     print(f'  Avg spread:    call ${call_spread:.4f}  put ${put_spread:.4f}')
