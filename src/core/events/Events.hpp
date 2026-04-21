@@ -144,6 +144,27 @@ struct OptionMidQuoteEvent {
 };
 
 // ============================================================
+// SmileSnapshotEvent — full smile snapshot per bar (real data mode)
+// Published by: HistoricalChainAdapter
+// Consumed by: SmileVarianceExtractor
+// All fields default to 0/false; subscribers check has_vix / has_ssvi before using.
+// ============================================================
+struct SmileSnapshotEvent {
+    double    vix_varswap    = 0.0;  // model-free σ²_varswap (VIX-style, annualised)
+    double    atm_iv         = 0.0;  // BS IV at ATM
+    double    rr25_iv        = 0.0;  // risk reversal: IV(25Δ call) − IV(25Δ put)
+    double    bf25_iv        = 0.0;  // butterfly: (IV(25Δ call)+IV(25Δ put))/2 − atm_iv
+    double    ssvi_theta     = 0.0;  // atm_iv² × T
+    double    ssvi_rho       = 0.0;  // SSVI skew parameter ρ
+    double    ssvi_phi       = 0.0;  // SSVI smoothing φ
+    double    time_to_expiry = 0.0;
+    double    underlying     = 0.0;
+    bool      has_vix        = false;
+    bool      has_ssvi       = false;
+    Timestamp timestamp;
+};
+
+// ============================================================
 // SignalSnapshotEvent — variance alpha signal snapshot
 // Published by: VarianceAlphaSignal
 // Consumed by: StrategyController + monitoring / logging
