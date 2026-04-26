@@ -163,32 +163,25 @@ private:
         // Equivalent to DeltaHedger: portfolio_delta > 0 → Sell underlying.
         double target_hedge     = -(call_qty * delta_call + put_qty * delta_put);
         int    target_round     = static_cast<int>(std::round(target_hedge));
-        int    hedge_qty        = std::abs(target_round - current_hedge_qty_);
+        int    current_hedge_qty = position_mgr_->get_position(underlying_id_);
+        int    hedge_qty        = std::abs(target_round - current_hedge_qty);
 
         if (hedge_qty <= static_cast<int>(threshold_)) return;
 
-        // ── 提交对冲订单（直接发布 FillEvent，与 DeltaHedger 模式一致）────
-        // Use FillEvent(producer="hedge_order") so ExtendedPnLTracker correctly
-        // credits/debits delta_hedge_pnl_, identical to DeltaHedger::on_market_data.
-        // Do NOT publish OrderSubmittedEvent — that would route through SimpleExecSim
-        // and produce producer="alpha_exec", which is excluded from delta_hedge_pnl_.
-        auto hedge_side = (target_round > current_hedge_qty_)
+        // ── 提交对冲订单；执行层会发布 producer="hedge_order" 的 FillEvent ──
+        auto hedge_side = (target_round > current_hedge_qty)
             ? events::Side::Buy    // 需要更多多头
             : events::Side::Sell;  // 需要更多空头
 
-        // 先更新内部对冲量，防止 EventBus 同步递归重入
-        current_hedge_qty_ = target_round;
-
-        events::FillEvent hedge_fill{
+        events::OrderSubmittedEvent order{
             underlying_id_,
             hedge_side,
-            spot_,
             hedge_qty,
-            "hedge_order",
-            std::chrono::system_clock::now()
+            events::OrderType::Market
         };
-        position_mgr_->on_fill(hedge_fill);   // 更新持仓（不触发 recompute_hedge）
-        bus_->publish(hedge_fill);             // ExtendedPnLTracker 通过此获取对冲 PnL
+        order.reference_price = spot_;
+        order.producer = "hedge_order";
+        bus_->publish(order);
 
         std::cout << "[BSDE对冲] *** 触发对冲！"
                   << (hedge_side == events::Side::Buy ? "买入" : "卖出")
@@ -212,7 +205,6 @@ private:
     double spot_              = 150.0;  // 最新标的价格
     double tau_from_data_     = 0.25;   // time-to-expiry from market data (set via set_market_state)
     double atm_iv_            = 0.15;   // ATM implied vol from market feed; V_t = atm_iv_^2
-    int    current_hedge_qty_ = 0;      // 当前标的对冲净持仓
 };
 
 } // namespace omm::demo

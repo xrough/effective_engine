@@ -261,12 +261,14 @@ int main() {
                 pnl_tracker->on_session_end(prev_date);
             prev_date = date;
         });
+        exec_sim->flush_all();
         // Flush the last day
         if (!prev_date.empty())
             pnl_tracker->on_session_end(prev_date);
     } else {
         omm::infrastructure::MarketDataAdapter adapter(bus, "../data/market_data.csv");
         adapter.run();
+        exec_sim->flush_all();
     }
     std::cout << "\n══════════════ Alpha Pipeline End ══════════════\n";
 

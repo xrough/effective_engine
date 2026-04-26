@@ -46,10 +46,14 @@ void DeltaHedger::update_market_price(double price) {
 
 // ── on_fill: position accounting only ───────────────────────
 void DeltaHedger::on_fill(const events::FillEvent& event) {
-    // Skip our own hedge fills (published to bus so AlphaPnLTracker can see them).
-    if (event.producer == "hedge_order") return;
-
     position_manager_->on_fill(event);
+
+    // Hedge fills update the underlying position but must not trigger another
+    // rebalance cycle.
+    if (event.producer == "hedge_order" || event.instrument_id == underlying_id_) {
+        return;
+    }
+
     needs_rebalance_ = true;
 }
 
@@ -70,31 +74,22 @@ void DeltaHedger::on_market_data(const events::MarketDataEvent& event) {
         ? events::Side::Sell
         : events::Side::Buy;
 
-    // Do NOT publish an OrderSubmittedEvent — the fill is simulated directly below.
-    // Publishing through the bus would route via SimpleExecSim, which generates
-    // a second FillEvent{producer="alpha_exec"} that re-triggers this rebalance
-    // every bar (1-bar-delayed oscillation leading to txn cost explosion).
-
     std::cout << "[Delta对冲] *** 触发对冲！"
               << (hedge_side == events::Side::Buy ? " 买入 " : " 卖出 ")
               << hedge_qty << " 股 " << underlying_id_
               << "  (Delta=" << std::fixed << std::setprecision(2)
               << portfolio_delta << "  spot=" << last_price_ << ")\n";
 
-    // Simulate immediate fill at current price.
-    // Applied directly to position_manager_ (not via bus) to avoid the hedge
-    // fill triggering another on_fill → needs_rebalance_ cycle.
-    // Simultaneously published to bus so AlphaPnLTracker can observe it.
-    events::FillEvent hedge_fill{
+    events::OrderSubmittedEvent order{
         underlying_id_,
         hedge_side,
-        last_price_,
         hedge_qty,
-        "hedge_order",
-        event.timestamp
+        events::OrderType::Market
     };
-    position_manager_->on_fill(hedge_fill);
-    bus_->publish(hedge_fill);   // observed by AlphaPnLTracker; skipped by on_fill above
+    order.reference_price = last_price_;
+    order.producer = "hedge_order";
+    order.timestamp = event.timestamp;
+    bus_->publish(order);
 }
 
 std::unordered_map<std::string, double>

@@ -88,8 +88,13 @@ public:
 
         // ── Delta 对冲器 ─────────────────────────────────────
         auto position_mgr = std::make_shared<domain::PositionManager>();
+        std::vector<application::DeltaHedger::OptionEntry> hedge_options;
+        hedge_options.reserve(options.size());
+        for (const auto& opt : options) {
+            hedge_options.emplace_back(opt->id(), opt);
+        }
         auto hedger = std::make_shared<application::DeltaHedger>(
-            bus, position_mgr, pricing, options,
+            bus, position_mgr, pricing, hedge_options,
             cfg.underlying_id, cfg.delta_threshold
         );
         hedger->register_handlers();
@@ -137,7 +142,7 @@ public:
         // ── 执行边界（OrderRouter）───────────────────────────
         auto order_router = std::make_shared<infrastructure::OrderRouter>(bus);
         order_router->register_handlers();
-        std::cout << "[SellerModule] OrderRouter registered (skeleton)\n";
+        std::cout << "[SellerModule] OrderRouter registered (execution sim v1)\n";
 
         // ── 概率成交模拟器 ───────────────────────────────────
         auto taker = std::make_shared<infrastructure::ProbabilisticTaker>(

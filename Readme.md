@@ -196,17 +196,17 @@ VRP regime: **−4.7%** (RV = 17.1% > IV = 12.4%). This is a negative-VRP window
   Γ PnL (convexity):          $488.79
   ν PnL (vol move):           $-645.00
   θ PnL (time decay):         $-1,063.96
-  Delta hedge PnL (realized): $3,416,257.22   ← gamma scalping: RV > IV
+  Delta hedge PnL (realized): $3,415,736.71   ← gamma scalping: RV > IV
   Transaction cost:           $-850.95
   ──────────────────────────────────────────
-  Total PnL:                  $3,415,309.01
+  Total PnL:                  $3,414,788.51
 ```
 
 **Multi-day stability (NeuralBSDEHedger, threshold = 10 shares):**
 
 | Metric | Value |
 |---|---|
-| Mean daily PnL | $683,062 ± $214,624 |
+| Mean daily PnL | $682,958 ± $214,586 |
 | Sharpe (daily) | 3.18 |
 | P5 / P50 / P95 | $311K / $690K / $929K |
 | Turnover | 138.8 fills/day |
@@ -214,6 +214,20 @@ VRP regime: **−4.7%** (RV = 17.1% > IV = 12.4%). This is a negative-VRP window
 
 Before retraining: hedge P&L = −$274K, Sharpe < 0.  
 After walk-forward SPY calibration: hedge P&L = **+$3.416M**, Sharpe = **3.18**.
+
+### Execution Layer v1
+
+Order execution is now centralized instead of letting hedge components self-fill. Strategy and hedge components publish `OrderSubmittedEvent`; execution infrastructure owns fill price, order provenance, partial-fill metadata, and `FillEvent` publication.
+
+| Area | Before | After v1 |
+|---|---|---|
+| Hedge fills | `DeltaHedger` / `NeuralBSDEHedger` directly created `FillEvent` and updated positions | Hedgers submit `OrderSubmittedEvent`; `SimpleExecSim` / `OrderRouter` publish fills |
+| Fill provenance | Alpha and hedge fills could be conflated unless manually tagged | Orders carry `producer` (`alpha_exec`, `hedge_order`, `broker`) and fills preserve it |
+| Execution price | Options used bid/ask in `SimpleExecSim`; hedge fills used raw spot | Options use bid/ask; underlying hedge orders apply configurable half-spread bps |
+| Order lifecycle | Immediate one-shot fill only | Accepted order → execution queue → fill; supports marketability checks, optional latency, and optional split fills |
+| Event metadata | `FillEvent` contained only instrument, side, price, qty, producer, timestamp | Fills also carry `order_id`, requested qty, remaining qty, partial flag, and reference price |
+| Seller path | `OrderRouter` was a logging skeleton | `OrderRouter` accepts orders, simulates fills, and publishes `FillEvent` |
+| Position accounting | Hedge position could be updated inside hedger before execution | Positions update only when execution publishes a fill |
 
 ### Key Inference Notes (NeuralBSDEHedger)
 
@@ -389,7 +403,7 @@ cd demo && make -C build alpha_runner && ./build/alpha_runner
 
 ### Seller — Live Simulation + Calibration (`./build/market_maker`)
 
-Quotes bid/ask spreads (Rough Bergomi skew), simulates a probabilistic counterparty (30% fill), runs threshold-based delta hedging, enforces live risk limits (max loss $1M, max delta 10,000), then replays on an isolated bus to calibrate implied volatility via golden-section search and hot-inject the result.
+Quotes bid/ask spreads (Rough Bergomi skew), simulates a probabilistic counterparty (30% fill), routes hedge orders through `OrderRouter` execution sim v1, enforces live risk limits (max loss $1M, max delta 10,000), then replays on an isolated bus to calibrate implied volatility via golden-section search and hot-inject the result.
 
 ---
 

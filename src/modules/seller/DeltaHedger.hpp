@@ -27,7 +27,7 @@
 //      Δ_portfolio = Δ_标的 × 持仓_标的 + Σ(Δ_期权_i × 持仓_期权_i)
 //   3. 若 |Δ_portfolio| > 阈值（delta_threshold_）：
 //      - 发布 OrderSubmittedEvent（市价单，方向与 Delta 敞口相反）
-//      - 直接更新 PositionManager（模拟对冲成交，避免事件重入）
+//      - 等待执行层发布 FillEvent 后再更新 PositionManager
 // ============================================================
 
 namespace omm::application {

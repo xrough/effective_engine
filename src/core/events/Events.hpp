@@ -65,6 +65,11 @@ struct FillEvent {
     int         fill_qty;      // deal quantity
     std::string producer;      //（"customer_taker"、"broker"、"hedge_order"）
     Timestamp   timestamp; 
+    std::string order_id      = "";
+    int         requested_qty = 0;
+    int         remaining_qty = 0;
+    bool        is_partial    = false;
+    double      reference_price = 0.0;
 };
 
 // ============================================================
@@ -81,6 +86,11 @@ struct OrderSubmittedEvent {
     Side        side;          // Order direction (from our perspective: Buy = we buy)
     int         quantity;      // Order quantity
     OrderType   order_type;    // Order type (Market / Limit)
+    double      limit_price     = 0.0;  // optional; used only for Limit orders
+    double      reference_price = 0.0;  // optional caller-side mark for execution sims
+    std::string producer        = "alpha_exec";
+    std::string order_id        = "";
+    Timestamp   timestamp       = std::chrono::system_clock::now();
 };
 
 // ============================================================

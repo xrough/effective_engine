@@ -333,12 +333,14 @@ static omm::demo::ExtendedPnLBreakdown run_simulation(
                 tracker->on_session_end(prev_date);
             prev_date = date;
         });
+        exec_sim->flush_all();
         // Flush the last day
         if (!prev_date.empty())
             tracker->on_session_end(prev_date);
     } else {
         omm::infrastructure::MarketDataAdapter adapter(bus, SYNTH_DATA_CSV);
         adapter.run();
+        exec_sim->flush_all();
     }
     std::cout << "── Simulation End ───────────────────────────────────────\n";
 
@@ -512,9 +514,11 @@ static omm::demo::ExtendedPnLBreakdown run_simulation_modern(
             if (delta_hedger && atm_iv > 0.0 && T_sim > 0.0)
                 delta_hedger->set_market_state(atm_iv, T_sim);
         });
+        exec_sim->flush_all();
     } else {
         omm::infrastructure::MarketDataAdapter adapter(bus, SYNTH_DATA_CSV);
         adapter.run();
+        exec_sim->flush_all();
     }
     std::cout << "── Simulation End ───────────────────────────────────────\n";
 

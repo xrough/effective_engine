@@ -109,6 +109,7 @@ int main() {
 
     omm::infrastructure::MarketDataAdapter adapter(seller_bus, "data/market_data.csv");
     adapter.run();
+    seller_ctx.order_router->flush_all();
 
     std::cout << "\n══════════════ Seller Simulation End ══════════════\n\n";
     seller_ctx.position_mgr->print_positions();
