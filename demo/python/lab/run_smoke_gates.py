@@ -195,6 +195,7 @@ def default_output_path(version_id: str) -> Path:
 def build_required_gates(version_id: str, artifacts_root: Path) -> list[dict[str, Any]]:
     log_dir = artifacts_root / "logs"
     replay_csv = artifacts_root / "bs_daily.csv"
+    experiment_dir = artifacts_root / "experiment_orchestrator"
     data_contracts_json = artifacts_root / "data_contracts.json"
     data_contracts_md = artifacts_root / "data_contracts.md"
     strategy_registry_json = artifacts_root / "strategy_registry.json"
@@ -299,6 +300,32 @@ def build_required_gates(version_id: str, artifacts_root: Path) -> list[dict[str
             log_dir=log_dir,
             artifacts={"results_csv": str(replay_csv)},
             post_check=lambda: parse_daily_csv(replay_csv),
+        ),
+        command_gate(
+            gate_id="experiment_orchestrator_smoke",
+            name="Lab experiment orchestrator smoke",
+            command=[
+                "python3",
+                str(DEMO_ROOT / "python" / "lab" / "run_lab_experiment.py"),
+                "--experiment-id",
+                f"{version_id}_orchestrator_smoke",
+                "--profile",
+                "smoke",
+                "--start-date",
+                "2025-08-12",
+                "--end-date",
+                "2025-08-13",
+                "--output-dir",
+                str(experiment_dir),
+            ],
+            cwd=REPO_ROOT,
+            required=True,
+            log_dir=log_dir,
+            artifacts={
+                "manifest": str(experiment_dir / "manifest.json"),
+                "summary_json": str(experiment_dir / "summary.json"),
+                "summary_md": str(experiment_dir / "summary.md"),
+            },
         ),
     ]
 

@@ -10,7 +10,8 @@
         "build_core_targets",
         "execution_layer_smoke",
         "python_walk_forward_unit",
-        "bs_replay_smoke"
+        "bs_replay_smoke",
+        "experiment_orchestrator_smoke"
       ],
       "optional_gate_ids": []
     },
@@ -23,7 +24,8 @@
         "build_core_targets",
         "execution_layer_smoke",
         "python_walk_forward_unit",
-        "bs_replay_smoke"
+        "bs_replay_smoke",
+        "experiment_orchestrator_smoke"
       ],
       "optional_gate_ids": [
         "onnx_dependency_probe",
@@ -83,6 +85,13 @@
       "description": "Replay the current two-day local SPY window with BS delta and write daily CSV.",
       "command_template": "cd demo && ./build/alpha_runner --hedger bs --start-date 2025-08-12 --end-date 2025-08-13 --results-csv <artifacts>/bs_daily.csv",
       "success_criteria": "Replay exits 0 and writes a non-empty daily PnL CSV."
+    },
+    {
+      "gate_id": "experiment_orchestrator_smoke",
+      "required": true,
+      "description": "Run the unified lab experiment orchestrator in smoke mode.",
+      "command_template": "python3 demo/python/lab/run_lab_experiment.py --experiment-id <version>_orchestrator_smoke --profile smoke --start-date 2025-08-12 --end-date 2025-08-13 --output-dir <artifacts>/experiment_orchestrator",
+      "success_criteria": "Experiment writes manifest.json, summary.json, summary.md, validates registries, builds alpha_runner, and replays BS daily PnL."
     },
     {
       "gate_id": "onnx_dependency_probe",

@@ -1,0 +1,509 @@
+{
+  "artifacts_root": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator",
+  "created_at": "2026-05-06T15:13:04Z",
+  "gates": [
+    {
+      "artifacts": {
+        "result_json": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/data_contracts.json",
+        "result_md": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/data_contracts.md"
+      },
+      "command": [
+        "python3",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/python/lab/validate_data_contracts.py",
+        "--output-json",
+        "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/data_contracts.json",
+        "--output-md",
+        "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/data_contracts.md"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 1.197,
+      "gate_id": "data_contract_validation",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/data_contract_validation.log",
+      "log_tail": [
+        "[data-contracts] datasets=2/2 status=PASS",
+        "[data-contracts] wrote /Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/data_contracts.json"
+      ],
+      "name": "Dataset contract validation",
+      "post_check": {},
+      "required": true,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {
+        "result_json": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/strategy_registry.json",
+        "result_md": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/strategy_registry.md"
+      },
+      "command": [
+        "python3",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/python/lab/validate_strategy_registry.py",
+        "--output-json",
+        "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/strategy_registry.json",
+        "--output-md",
+        "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/strategy_registry.md"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 0.077,
+      "gate_id": "strategy_registry_validation",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/strategy_registry_validation.log",
+      "log_tail": [
+        "[strategy-registry] strategies=8/8 status=PASS",
+        "[strategy-registry] wrote /Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/strategy_registry.json"
+      ],
+      "name": "Strategy registry validation",
+      "post_check": {},
+      "required": true,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {},
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/xiaohao/Effective_Engine/MVP/demo",
+        "-B",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/build",
+        "-DBUILD_ONNX_DEMO=OFF"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 0.157,
+      "gate_id": "configure_demo",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/configure_demo.log",
+      "log_tail": [
+        "-- \u6784\u5efa\u5b8c\u6210\u540e\u8bf7\u5728 demo/ \u76ee\u5f55\u4e0b\u8fd0\u884c: ./build/demo_runner",
+        "-- Alpha pipeline: ./build/alpha_runner",
+        "-- Alpha PnL test: ./build/alpha_pnl_test_runner",
+        "-- Configuring done (0.1s)",
+        "-- Generating done (0.0s)",
+        "-- Build files have been written to: /Users/xiaohao/Effective_Engine/MVP/demo/build"
+      ],
+      "name": "Configure demo CMake",
+      "post_check": {},
+      "required": true,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {},
+      "command": [
+        "cmake",
+        "--build",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/build",
+        "--target",
+        "alpha_runner",
+        "execution_layer_smoke_test",
+        "-j2"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 6.617,
+      "gate_id": "build_core_targets",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/build_core_targets.log",
+      "log_tail": [
+        "[  6%] Building CXX object CMakeFiles/alpha_runner.dir/cpp/alpha_main.cpp.o",
+        "[ 13%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/analytics/CalibrationEngine.cpp.o",
+        "[ 20%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/analytics/PricingEngine.cpp.o",
+        "[ 26%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/analytics/RiskPolicy.cpp.o",
+        "[ 33%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/analytics/RoughVolPricingEngine.cpp.o",
+        "[ 40%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/application/PortfolioService.cpp.o",
+        "[ 46%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/domain/Instrument.cpp.o",
+        "[ 53%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/domain/InstrumentFactory.cpp.o",
+        "[ 60%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/domain/PortfolioAggregate.cpp.o",
+        "[ 66%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/domain/PositionManager.cpp.o",
+        "[ 73%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/infrastructure/MarketDataAdapter.cpp.o",
+        "[ 80%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/infrastructure/OrderRouter.cpp.o",
+        "[ 86%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/infrastructure/ParameterStore.cpp.o",
+        "[ 93%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/modules/seller/DeltaHedger.cpp.o",
+        "[100%] Linking CXX executable alpha_runner",
+        "[100%] Built target alpha_runner",
+        "[100%] Built target execution_layer_smoke_test"
+      ],
+      "name": "Build core smoke targets",
+      "post_check": {},
+      "required": true,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {},
+      "command": [
+        "/Users/xiaohao/Effective_Engine/MVP/demo/build/execution_layer_smoke_test"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP/demo",
+      "detail": "returncode=0",
+      "duration_sec": 0.004,
+      "gate_id": "execution_layer_smoke",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/execution_layer_smoke.log",
+      "log_tail": [
+        "[execution_smoke_test] passed"
+      ],
+      "name": "Execution lifecycle smoke",
+      "post_check": {},
+      "required": true,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {},
+      "command": [
+        "python3",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/python/bsde/test_walk_forward_pipeline.py"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 0.632,
+      "gate_id": "python_walk_forward_unit",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/python_walk_forward_unit.log",
+      "log_tail": [
+        "....",
+        "----------------------------------------------------------------------",
+        "Ran 4 tests in 0.028s",
+        "",
+        "OK",
+        "[walk-forward] Window 1/1 deploy=2025-01-03"
+      ],
+      "name": "Walk-forward unit tests",
+      "post_check": {},
+      "required": true,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {
+        "results_csv": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/bs_daily.csv"
+      },
+      "command": [
+        "/Users/xiaohao/Effective_Engine/MVP/demo/build/alpha_runner",
+        "--csv",
+        "data/spy_chain_panel.csv",
+        "--hedger",
+        "bs",
+        "--start-date",
+        "2025-08-12",
+        "--end-date",
+        "2025-08-13",
+        "--results-csv",
+        "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/bs_daily.csv"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP/demo",
+      "detail": "returncode=0",
+      "duration_sec": 0.539,
+      "gate_id": "bs_replay_smoke",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/bs_replay_smoke.log",
+      "log_tail": [
+        "  Transaction cost:          -$20.31",
+        "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+        "  Total PnL:                  $99235.59",
+        "",
+        "  Vol Risk Premium (Databento OPRA)",
+        "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+        "  \u5e73\u5747\u9690\u542b\u6ce2\u52a8\u7387 (IV):         11.7800%",
+        "  \u5e73\u5747\u5df2\u5b9e\u73b0\u6ce2\u52a8\u7387 5-bar (RV): 31.2703%",
+        "  \u6ce2\u52a8\u7387\u98ce\u9669\u6ea2\u4ef7 (IV - RV):    -19.4904%",
+        "",
+        "",
+        "\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
+        "\u2551  Multi-Day Stability Report \u2014 2 days                               \u2551",
+        "\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563",
+        "\u2551  Daily PnL        mean  $49617.79  \u00b1  std  $27176.03          \u2551",
+        "\u2551               [min $22441.77  max $76793.82]          \u2551",
+        "\u2551  Sharpe (daily)   1.826                                        \u2551",
+        "\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563",
+        "\u2551  Option MTM share     -0.0  %                                   \u2551",
+        "\u2551  Delta hedge share    100.0 %                                   \u2551",
+        "\u2551  Txn cost drag        0.0   %                                   \u2551",
+        "\u2551  Turnover             28.5   fills/day                          \u2551",
+        "\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563",
+        "\u2551  Daily PnL dist   P5 $22441.77  P50 $76793.82  P95 $76793.82 \u2551",
+        "\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d",
+        "",
+        "[AlphaPnLTracker] Wrote 2 rows \u2192 /Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/bs_daily.csv",
+        "\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
+        "\u2551  Complete.                                               \u2551",
+        "\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d"
+      ],
+      "name": "BS delta replay smoke",
+      "post_check": {
+        "detail": "ok",
+        "ok": true,
+        "rows": 2,
+        "total_pnl": 99235.5865
+      },
+      "required": true,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {
+        "manifest": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/experiment_orchestrator/manifest.json",
+        "summary_json": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/experiment_orchestrator/summary.json",
+        "summary_md": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/experiment_orchestrator/summary.md"
+      },
+      "command": [
+        "python3",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/python/lab/run_lab_experiment.py",
+        "--experiment-id",
+        "v0.4-experiment-orchestrator_orchestrator_smoke",
+        "--profile",
+        "smoke",
+        "--start-date",
+        "2025-08-12",
+        "--end-date",
+        "2025-08-13",
+        "--output-dir",
+        "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/experiment_orchestrator"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 1.088,
+      "gate_id": "experiment_orchestrator_smoke",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/experiment_orchestrator_smoke.log",
+      "log_tail": [
+        "[lab-experiment] v0.4-experiment-orchestrator_orchestrator_smoke profile=smoke required=5/5 optional_failed=0 recommendation=merge",
+        "[lab-experiment] wrote /Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/experiment_orchestrator/manifest.json"
+      ],
+      "name": "Lab experiment orchestrator smoke",
+      "post_check": {},
+      "required": true,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {
+        "onnxruntime_root": "/Users/xiaohao/onnxruntime"
+      },
+      "command": [],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "available",
+      "duration_sec": 0.0,
+      "gate_id": "onnx_dependency_probe",
+      "log_path": null,
+      "name": "ONNX dependency probe",
+      "required": false,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {},
+      "command": [
+        "cmake",
+        "-S",
+        "/Users/xiaohao/Effective_Engine/MVP/demo",
+        "-B",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/build",
+        "-DBUILD_ONNX_DEMO=ON",
+        "-DONNXRUNTIME_ROOT=/Users/xiaohao/onnxruntime"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 0.063,
+      "gate_id": "configure_onnx_demo",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/configure_onnx_demo.log",
+      "log_tail": [
+        "-- [ONNX Runtime] \u627e\u5230: /Users/xiaohao/onnxruntime/lib/libonnxruntime.dylib",
+        "-- [alpha_runner] NeuralBSDEHedger \u5df2\u542f\u7528\uff08ONNX Runtime: /Users/xiaohao/onnxruntime/lib/libonnxruntime.dylib\uff09",
+        "-- [alpha_pnl_test_runner] NeuralBSDEHedger \u5df2\u542f\u7528",
+        "-- \u6784\u5efa\u5b8c\u6210\u540e\u8bf7\u5728 demo/ \u76ee\u5f55\u4e0b\u8fd0\u884c: ./build/demo_runner",
+        "-- Alpha pipeline: ./build/alpha_runner",
+        "-- Alpha PnL test: ./build/alpha_pnl_test_runner",
+        "-- Configuring done (0.0s)",
+        "-- Generating done (0.0s)",
+        "-- Build files have been written to: /Users/xiaohao/Effective_Engine/MVP/demo/build"
+      ],
+      "name": "Configure ONNX-enabled demo",
+      "post_check": {},
+      "required": false,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {},
+      "command": [
+        "cmake",
+        "--build",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/build",
+        "--target",
+        "alpha_runner",
+        "-j2"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 5.118,
+      "gate_id": "build_onnx_alpha_runner",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/build_onnx_alpha_runner.log",
+      "log_tail": [
+        "[ 12%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/analytics/CalibrationEngine.cpp.o",
+        "[ 12%] Building CXX object CMakeFiles/alpha_runner.dir/cpp/alpha_main.cpp.o",
+        "[ 18%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/analytics/PricingEngine.cpp.o",
+        "[ 25%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/analytics/RiskPolicy.cpp.o",
+        "[ 31%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/analytics/RoughVolPricingEngine.cpp.o",
+        "[ 37%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/application/PortfolioService.cpp.o",
+        "[ 43%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/domain/Instrument.cpp.o",
+        "[ 50%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/domain/InstrumentFactory.cpp.o",
+        "[ 56%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/domain/PortfolioAggregate.cpp.o",
+        "[ 62%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/domain/PositionManager.cpp.o",
+        "[ 68%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/infrastructure/MarketDataAdapter.cpp.o",
+        "[ 75%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/infrastructure/OrderRouter.cpp.o",
+        "[ 81%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/core/infrastructure/ParameterStore.cpp.o",
+        "[ 87%] Building CXX object CMakeFiles/alpha_runner.dir/Users/xiaohao/Effective_Engine/MVP/src/modules/seller/DeltaHedger.cpp.o",
+        "[ 93%] Building CXX object CMakeFiles/alpha_runner.dir/cpp/execution/OnnxInference.cpp.o",
+        "[100%] Linking CXX executable alpha_runner",
+        "[100%] Built target alpha_runner"
+      ],
+      "name": "Build ONNX alpha_runner",
+      "post_check": {},
+      "required": false,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {
+        "results_csv": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/neural_daily.csv"
+      },
+      "command": [
+        "/Users/xiaohao/Effective_Engine/MVP/demo/build/alpha_runner",
+        "--csv",
+        "data/spy_chain_panel.csv",
+        "--hedger",
+        "neural",
+        "--artifacts",
+        "artifacts",
+        "--start-date",
+        "2025-08-12",
+        "--end-date",
+        "2025-08-13",
+        "--results-csv",
+        "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/neural_daily.csv"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP/demo",
+      "detail": "returncode=0",
+      "duration_sec": 0.583,
+      "gate_id": "neural_replay_smoke",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/neural_replay_smoke.log",
+      "log_tail": [
+        "  Transaction cost:          -$167.21",
+        "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+        "  Total PnL:                  $1199382.88",
+        "",
+        "  Vol Risk Premium (Databento OPRA)",
+        "  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+        "  \u5e73\u5747\u9690\u542b\u6ce2\u52a8\u7387 (IV):         11.7800%",
+        "  \u5e73\u5747\u5df2\u5b9e\u73b0\u6ce2\u52a8\u7387 5-bar (RV): 31.2703%",
+        "  \u6ce2\u52a8\u7387\u98ce\u9669\u6ea2\u4ef7 (IV - RV):    -19.4904%",
+        "",
+        "",
+        "\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
+        "\u2551  Multi-Day Stability Report \u2014 2 days                               \u2551",
+        "\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563",
+        "\u2551  Daily PnL        mean  $599691.44  \u00b1  std  $170621.67          \u2551",
+        "\u2551               [min $429069.77  max $770313.11]          \u2551",
+        "\u2551  Sharpe (daily)   3.515                                        \u2551",
+        "\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563",
+        "\u2551  Option MTM share     -0.0  %                                   \u2551",
+        "\u2551  Delta hedge share    100.0 %                                   \u2551",
+        "\u2551  Txn cost drag        0.0   %                                   \u2551",
+        "\u2551  Turnover             61.0   fills/day                          \u2551",
+        "\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563",
+        "\u2551  Daily PnL dist   P5 $429069.77  P50 $770313.11  P95 $770313.11 \u2551",
+        "\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d",
+        "",
+        "[AlphaPnLTracker] Wrote 2 rows \u2192 /Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/neural_daily.csv",
+        "\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
+        "\u2551  Complete.                                               \u2551",
+        "\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d"
+      ],
+      "name": "Neural BSDE replay smoke",
+      "post_check": {
+        "detail": "ok",
+        "ok": true,
+        "rows": 2,
+        "total_pnl": 1199382.8835
+      },
+      "required": false,
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "artifacts": {
+        "run_id": "wf_smoke_lab_20260506T151255Z",
+        "run_root": "/Users/xiaohao/Effective_Engine/MVP/demo/runs/walk_forward"
+      },
+      "command": [
+        "python3",
+        "/Users/xiaohao/Effective_Engine/MVP/demo/python/bsde/walk_forward_pipeline.py",
+        "--profile",
+        "smoke",
+        "--run-id",
+        "wf_smoke_lab_20260506T151255Z",
+        "--start-date",
+        "2025-08-12",
+        "--end-date",
+        "2025-08-13",
+        "--no-promote"
+      ],
+      "cwd": "/Users/xiaohao/Effective_Engine/MVP",
+      "detail": "returncode=0",
+      "duration_sec": 3.69,
+      "gate_id": "walk_forward_model_smoke",
+      "log_path": "/Users/xiaohao/Effective_Engine/MVP/lab/reports/artifacts/v0.4-experiment-orchestrator/logs/walk_forward_model_smoke.log",
+      "log_tail": [
+        "  Epoch    1/1  loss=38.40847  Y0=-0.0041  lr=0.00e+00",
+        "",
+        "[calibrate] Best loss=38.40847  final Y0=-0.0041",
+        "",
+        "[sanity] ATM delta check  (tau=0.027, \u03c3=0.117, K=637)",
+        "  Model delta = 0.4585",
+        "  BS delta    = 0.5039  (N(d1))",
+        "  Error       = 0.0454",
+        "",
+        "[calibrate] Exporting ONNX model...",
+        "[\u5bfc\u51fa] \u4ece /Users/xiaohao/Effective_Engine/MVP/demo/runs/walk_forward/wf_smoke_lab_20260506T151255Z/windows/2025-08-13/artifacts/checkpoints/best.pt \u52a0\u8f7dcheckpoint...",
+        "  state_dim=7, hidden_dim=64, Y0=-0.0041",
+        "  \u8bad\u7ec3epoch=1, loss=38.40847",
+        "[\u5bfc\u51fa] \u5bfc\u51faONNX\u5230 /Users/xiaohao/Effective_Engine/MVP/demo/runs/walk_forward/wf_smoke_lab_20260506T151255Z/windows/2025-08-13/artifacts/neural_bsde.onnx...",
+        "  ONNX\u5bfc\u51fa\u5b8c\u6210: /Users/xiaohao/Effective_Engine/MVP/demo/runs/walk_forward/wf_smoke_lab_20260506T151255Z/windows/2025-08-13/artifacts/neural_bsde.onnx",
+        "  Y0\u5df2\u4fdd\u5b58: /Users/xiaohao/Effective_Engine/MVP/demo/runs/walk_forward/wf_smoke_lab_20260506T151255Z/windows/2025-08-13/artifacts/Y0_init.json",
+        "",
+        "[Gate 2] \u8fd0\u884cONNX\u6279\u6b21\u9a8c\u8bc1 (1000\u4e2a\u968f\u673a\u8f93\u5165)...",
+        "  Y\u6700\u5927\u7edd\u5bf9\u8bef\u5dee: 7.15e-07  (\u9608\u503c: 1.0e-04)",
+        "  Z\u6700\u5927\u7edd\u5bf9\u8bef\u5dee: 1.81e-05  (\u9608\u503c: 1.0e-04)",
+        "[Gate 2] \u2713 PyTorch\u4e0eONNX\u8f93\u51fa\u5339\u914d \u2014 \u901a\u8fc7",
+        "",
+        "[\u5bfc\u51fa\u5b8c\u6210]",
+        "  artifacts/neural_bsde.onnx",
+        "  artifacts/Y0_init.json",
+        "",
+        "  \u4e0b\u4e00\u6b65\uff08Gate 2\u901a\u8fc7\u540e\uff09:",
+        "  cd build && cmake .. -DBUILD_ONNX_DEMO=ON -DONNXRUNTIME_ROOT=$HOME/onnxruntime && make",
+        "  ./demo_runner",
+        "[walk-forward] Run complete: /Users/xiaohao/Effective_Engine/MVP/demo/runs/walk_forward/wf_smoke_lab_20260506T151255Z (2/2 windows passed)"
+      ],
+      "name": "Walk-forward model smoke",
+      "post_check": {},
+      "required": false,
+      "returncode": 0,
+      "status": "passed"
+    }
+  ],
+  "keep_artifacts": true,
+  "profile": "model",
+  "repo": {
+    "branch": "codex/v0.4-experiment-orchestrator",
+    "dirty": true,
+    "head": "cc103cf"
+  },
+  "summary": {
+    "default_recommendation": "merge",
+    "optional_failed": 0,
+    "optional_passed": 5,
+    "optional_skipped": 0,
+    "optional_total": 5,
+    "required_passed": 8,
+    "required_total": 8
+  },
+  "version_id": "v0.4-experiment-orchestrator"
+}
