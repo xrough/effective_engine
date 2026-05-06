@@ -1,0 +1,33 @@
+{
+  "schema_id": "strategy.v1",
+  "required_fields": [
+    "strategy_id",
+    "family",
+    "asset_scope",
+    "signal_inputs",
+    "hedger",
+    "expected_edge",
+    "current_status",
+    "replay_command",
+    "known_risks"
+  ],
+  "field_rules": {
+    "strategy_id": "unique lowercase snake/kebab identifier",
+    "family": "non-empty strategy family such as variance-alpha, hedger-benchmark, smile-forecast-research, or signal-component",
+    "asset_scope": "non-empty list of supported assets",
+    "signal_inputs": "non-empty list of signal/data/model inputs",
+    "hedger": "hedger identifier or research-only/not-wired for non-tradable components",
+    "expected_edge": "plain-language hypothesis for why the strategy should earn or preserve edge",
+    "current_status": "implementation status used for roadmap triage",
+    "replay_command": "command or research command that validates the strategy/component",
+    "known_risks": "non-empty list of model, data, execution, or interpretation risks"
+  },
+  "recommended_statuses": [
+    "primary baseline replay strategy",
+    "model-gated candidate",
+    "documented benchmark",
+    "research gate narrow pass",
+    "registered component",
+    "not yet wired"
+  ]
+}

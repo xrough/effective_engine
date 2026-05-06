@@ -98,10 +98,35 @@
     },
     {
       "branch": "codex/v0.3-strategy-library",
+      "comparison": [
+        {
+          "after": "Strategies and signal components are validated against a strategy schema.",
+          "area": "Strategy contract",
+          "before": "Strategy registry entries were descriptive but not mechanically checked."
+        },
+        {
+          "after": "A Markdown catalog is generated from the registry with family, hedger, status, edge, replay command, inputs, and risks.",
+          "area": "Strategy catalog",
+          "before": "The strategy library existed across README prose and C++ headers."
+        },
+        {
+          "after": "The smoke gate now requires strategy registry validation before build/replay.",
+          "area": "Governance",
+          "before": "New techniques could be added without satisfying minimum metadata or replay-command standards."
+        }
+      ],
       "goal": "Turn current signals into a registered volatility strategy library.",
+      "last_gate_json": "lab/reports/v0.3-strategy-library_model_gates.json",
+      "last_recommendation": "merge",
+      "last_report": "lab/reports/v0.3-strategy-library.md",
       "main_outcome": "Strategy catalog and replay comparison.",
       "merge_evidence": "Strategy registry and replay comparison report.",
-      "status": "planned",
+      "risks": [
+        "Registered signal components are not automatically tradable until wired into alpha_runner or research gates.",
+        "Replay commands are shape-validated in v0.3; future versions should execute per-strategy replay plans."
+      ],
+      "status": "reported",
+      "updated_at": "2026-05-06T15:02:43Z",
       "version_id": "v0.3-strategy-library"
     },
     {

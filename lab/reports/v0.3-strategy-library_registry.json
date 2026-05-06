@@ -1,0 +1,584 @@
+{
+  "created_at": "2026-05-06T15:02:05Z",
+  "n_passed": 8,
+  "n_strategies": 8,
+  "passed": true,
+  "registry": "/Users/xiaohao/Effective_Engine/MVP/lab/registry/strategies.json",
+  "registry_summary": {
+    "checks": [
+      {
+        "detail": "count=8",
+        "name": "strategies_nonempty",
+        "passed": true
+      },
+      {
+        "detail": "ok",
+        "name": "strategy_ids_unique",
+        "passed": true
+      },
+      {
+        "detail": "families={'variance-alpha': 2, 'hedger-benchmark': 1, 'smile-forecast-research': 1, 'signal-component': 4}",
+        "name": "family_coverage",
+        "passed": true
+      },
+      {
+        "detail": "tradable=3",
+        "name": "tradable_strategy_available",
+        "passed": true
+      },
+      {
+        "detail": "components=4",
+        "name": "component_backlog_available",
+        "passed": true
+      }
+    ],
+    "family_counts": {
+      "hedger-benchmark": 1,
+      "signal-component": 4,
+      "smile-forecast-research": 1,
+      "variance-alpha": 2
+    },
+    "n_components": 4,
+    "n_strategies": 8,
+    "n_tradable": 3,
+    "passed": true
+  },
+  "strategies": [
+    {
+      "asset_scope": [
+        "SPY"
+      ],
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "composite_vrp_har_skew_bs_delta",
+          "name": "strategy_id_format",
+          "passed": true
+        },
+        {
+          "detail": "['SPY']",
+          "name": "asset_scope_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=3",
+          "name": "signal_inputs_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "known_risks_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "variance-alpha",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "bs",
+          "name": "hedger_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Collect variance-risk-premium and gamma/vega residuals while neutralising first-order spot exposure with analytic Black-Scholes delta.",
+          "name": "expected_edge_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "primary baseline replay strategy",
+          "name": "current_status_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "cd demo && ./build/alpha_runner --hedger bs --start-date 2025-08-12 --end-date 2025-08-13 --results-csv <out>/bs_daily.csv",
+          "name": "replay_command_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "cd demo && ./build/alpha_runner --hedger bs --start-date 2025-08-12 --end-date 2025-08-13 --results-csv <out>/bs_daily.csv",
+          "name": "replay_command_shape",
+          "passed": true
+        }
+      ],
+      "current_status": "primary baseline replay strategy",
+      "family": "variance-alpha",
+      "hedger": "bs",
+      "passed": true,
+      "strategy_id": "composite_vrp_har_skew_bs_delta"
+    },
+    {
+      "asset_scope": [
+        "SPY"
+      ],
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "composite_vrp_har_skew_neural_bsde_delta",
+          "name": "strategy_id_format",
+          "passed": true
+        },
+        {
+          "detail": "['SPY']",
+          "name": "asset_scope_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "signal_inputs_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=3",
+          "name": "known_risks_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "variance-alpha",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "neural",
+          "name": "hedger_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Approximate BS delta in Brownian-motion space after SPY walk-forward calibration while preserving gamma and vega alpha.",
+          "name": "expected_edge_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "model-gated candidate",
+          "name": "current_status_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "cd demo && ./build/alpha_runner --hedger neural --artifacts <window-artifacts> --start-date <D> --end-date <D> --results-csv <out>/neural_daily.csv",
+          "name": "replay_command_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "cd demo && ./build/alpha_runner --hedger neural --artifacts <window-artifacts> --start-date <D> --end-date <D> --results-csv <out>/neural_daily.csv",
+          "name": "replay_command_shape",
+          "passed": true
+        }
+      ],
+      "current_status": "model-gated candidate",
+      "family": "variance-alpha",
+      "hedger": "neural",
+      "passed": true,
+      "strategy_id": "composite_vrp_har_skew_neural_bsde_delta"
+    },
+    {
+      "asset_scope": [
+        "SPY"
+      ],
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "four_hedger_oos_comparison",
+          "name": "strategy_id_format",
+          "passed": true
+        },
+        {
+          "detail": "['SPY']",
+          "name": "asset_scope_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "signal_inputs_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "known_risks_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "hedger-benchmark",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "multi",
+          "name": "hedger_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Compare hedge-versus-carry tradeoff and confirm that full replication removes VRP while partial hedging preserves most alpha.",
+          "name": "expected_edge_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "documented benchmark",
+          "name": "current_status_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "cd demo && ./build/alpha_pnl_test_runner",
+          "name": "replay_command_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "cd demo && ./build/alpha_pnl_test_runner",
+          "name": "replay_command_shape",
+          "passed": true
+        }
+      ],
+      "current_status": "documented benchmark",
+      "family": "hedger-benchmark",
+      "hedger": "multi",
+      "passed": true,
+      "strategy_id": "four_hedger_oos_comparison"
+    },
+    {
+      "asset_scope": [
+        "SPY"
+      ],
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "rough_conditional_carry_bf25",
+          "name": "strategy_id_format",
+          "passed": true
+        },
+        {
+          "detail": "['SPY']",
+          "name": "asset_scope_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=3",
+          "name": "signal_inputs_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "known_risks_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "smile-forecast-research",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "research-only",
+          "name": "hedger_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Rough geometry adds incremental information to carry, mainly for smile curvature rather than skew.",
+          "name": "expected_edge_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "research gate narrow pass",
+          "name": "current_status_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "python3 demo/python/research/roughtemporal_intraday/gate4_sweep.py",
+          "name": "replay_command_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "python3 demo/python/research/roughtemporal_intraday/gate4_sweep.py",
+          "name": "replay_command_shape",
+          "passed": true
+        }
+      ],
+      "current_status": "research gate narrow pass",
+      "family": "smile-forecast-research",
+      "hedger": "research-only",
+      "passed": true,
+      "strategy_id": "rough_conditional_carry_bf25"
+    },
+    {
+      "asset_scope": [
+        "SPY"
+      ],
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "component_downside_vrp",
+          "name": "strategy_id_format",
+          "passed": true
+        },
+        {
+          "detail": "['SPY']",
+          "name": "asset_scope_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=3",
+          "name": "signal_inputs_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "known_risks_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "signal-component",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "not-wired",
+          "name": "hedger_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Separate downside jump/left-tail variance premium from symmetric variance carry.",
+          "name": "expected_edge_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "registered component",
+          "name": "current_status_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "rg \"DownsideVRPSignal\" demo/cpp/signal",
+          "name": "replay_command_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "rg \"DownsideVRPSignal\" demo/cpp/signal",
+          "name": "replay_command_shape",
+          "passed": true
+        }
+      ],
+      "current_status": "registered component",
+      "family": "signal-component",
+      "hedger": "not-wired",
+      "passed": true,
+      "strategy_id": "component_downside_vrp"
+    },
+    {
+      "asset_scope": [
+        "SPY"
+      ],
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "component_log_iv_rv_ratio",
+          "name": "strategy_id_format",
+          "passed": true
+        },
+        {
+          "detail": "['SPY']",
+          "name": "asset_scope_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "signal_inputs_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "known_risks_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "signal-component",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "not-wired",
+          "name": "hedger_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Normalise IV/RV richness into a more stable scale than raw variance spread.",
+          "name": "expected_edge_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "registered component",
+          "name": "current_status_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "rg \"LogIVRVRatioSignal\" demo/cpp/signal",
+          "name": "replay_command_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "rg \"LogIVRVRatioSignal\" demo/cpp/signal",
+          "name": "replay_command_shape",
+          "passed": true
+        }
+      ],
+      "current_status": "registered component",
+      "family": "signal-component",
+      "hedger": "not-wired",
+      "passed": true,
+      "strategy_id": "component_log_iv_rv_ratio"
+    },
+    {
+      "asset_scope": [
+        "SPY"
+      ],
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "component_realized_skewness",
+          "name": "strategy_id_format",
+          "passed": true
+        },
+        {
+          "detail": "['SPY']",
+          "name": "asset_scope_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "signal_inputs_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "known_risks_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "signal-component",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "not-wired",
+          "name": "hedger_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Detect realised asymmetry regimes where put-skew carry or curvature signals should be resized.",
+          "name": "expected_edge_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "registered component",
+          "name": "current_status_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "rg \"RealizedSkewnessSignal\" demo/cpp/signal",
+          "name": "replay_command_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "rg \"RealizedSkewnessSignal\" demo/cpp/signal",
+          "name": "replay_command_shape",
+          "passed": true
+        }
+      ],
+      "current_status": "registered component",
+      "family": "signal-component",
+      "hedger": "not-wired",
+      "passed": true,
+      "strategy_id": "component_realized_skewness"
+    },
+    {
+      "asset_scope": [
+        "SPY"
+      ],
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "component_iv_autocorr",
+          "name": "strategy_id_format",
+          "passed": true
+        },
+        {
+          "detail": "['SPY']",
+          "name": "asset_scope_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "signal_inputs_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "count=2",
+          "name": "known_risks_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "signal-component",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "not-wired",
+          "name": "hedger_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Identify sticky implied-vol regimes where carry and mean-reversion assumptions differ.",
+          "name": "expected_edge_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "registered component",
+          "name": "current_status_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "rg \"IVAutocorrSignal\" demo/cpp/signal",
+          "name": "replay_command_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "rg \"IVAutocorrSignal\" demo/cpp/signal",
+          "name": "replay_command_shape",
+          "passed": true
+        }
+      ],
+      "current_status": "registered component",
+      "family": "signal-component",
+      "hedger": "not-wired",
+      "passed": true,
+      "strategy_id": "component_iv_autocorr"
+    }
+  ]
+}
