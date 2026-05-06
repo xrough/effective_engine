@@ -32,6 +32,11 @@ void OrderRouter::register_handlers() {
             this->on_order(evt);
         }
     );
+    bus_->subscribe<events::RiskControlEvent>(
+        [this](const events::RiskControlEvent& evt) {
+            this->on_risk_control(evt);
+        }
+    );
 }
 
 void OrderRouter::flush_all() {
@@ -45,9 +50,6 @@ void OrderRouter::on_market_data(const events::MarketDataEvent& evt) {
 }
 
 void OrderRouter::on_order(events::OrderSubmittedEvent evt) {
-    if (evt.quantity <= 0) {
-        return;
-    }
     if (evt.order_id.empty()) {
         evt.order_id = "ROUTER-" + std::to_string(++order_seq_);
     }
@@ -56,6 +58,22 @@ void OrderRouter::on_order(events::OrderSubmittedEvent evt) {
     }
     if (evt.timestamp == events::Timestamp{}) {
         evt.timestamp = std::chrono::system_clock::now();
+    }
+    if (evt.quantity <= 0) {
+        publish_report(evt, events::OrderStatus::Rejected, 0, 0, 0.0,
+                       "quantity_must_be_positive");
+        return;
+    }
+
+    std::string reject_reason;
+    if (!risk_allows(evt, reject_reason)) {
+        publish_report(evt, events::OrderStatus::Rejected, 0, evt.quantity,
+                       0.0, reject_reason);
+        if (config_.verbose) {
+            std::cout << "[OrderRouter] rejected order " << evt.order_id
+                      << " reason=" << reject_reason << "\n";
+        }
+        return;
     }
 
     if (config_.verbose) {
@@ -69,6 +87,8 @@ void OrderRouter::on_order(events::OrderSubmittedEvent evt) {
                   << "\n";
     }
 
+    order_status_[evt.order_id] = events::OrderStatus::Accepted;
+    publish_report(evt, events::OrderStatus::Accepted, 0, evt.quantity);
     send_to_exchange(evt);
 
     PendingOrder pending;
@@ -88,12 +108,36 @@ void OrderRouter::send_to_exchange(const events::OrderSubmittedEvent& /*evt*/) {
     // here and publish FillEvent when an execution report is received.
 }
 
+void OrderRouter::on_risk_control(const events::RiskControlEvent& evt) {
+    risk_reason_ = evt.reason;
+    switch (evt.action) {
+        case events::RiskAction::BlockOrders:
+            block_orders_ = true;
+            cancel_pending_orders(evt.reason.empty()
+                ? "risk_block_orders"
+                : evt.reason);
+            break;
+        case events::RiskAction::CancelOrders:
+            cancel_pending_orders(evt.reason.empty()
+                ? "risk_cancel_orders"
+                : evt.reason);
+            break;
+        case events::RiskAction::ReduceOnly:
+            reduce_only_ = true;
+            break;
+    }
+}
+
 void OrderRouter::flush_ready_orders(bool force_ready) {
     if (publishing_fills_) {
         return;
     }
 
-    std::vector<events::FillEvent> fills;
+    struct FillAndReport {
+        events::FillEvent fill;
+        events::ExecutionReportEvent report;
+    };
+    std::vector<FillAndReport> fill_reports;
     std::deque<PendingOrder> still_pending;
 
     while (!pending_.empty()) {
@@ -134,7 +178,16 @@ void OrderRouter::flush_ready_orders(bool force_ready) {
         fill.remaining_qty = pending.remaining_qty;
         fill.is_partial = pending.remaining_qty > 0;
         fill.reference_price = pending.order.reference_price;
-        fills.push_back(fill);
+
+        auto status = pending.remaining_qty > 0
+            ? events::OrderStatus::PartiallyFilled
+            : events::OrderStatus::Filled;
+        order_status_[pending.order.order_id] = status;
+        auto report = make_report(
+            pending.order, status, fill_qty, pending.remaining_qty,
+            fill_price, ""
+        );
+        fill_reports.push_back({fill, report});
 
         if (pending.remaining_qty > 0) {
             still_pending.push_back(std::move(pending));
@@ -144,7 +197,8 @@ void OrderRouter::flush_ready_orders(bool force_ready) {
     pending_ = std::move(still_pending);
 
     publishing_fills_ = true;
-    for (const auto& fill : fills) {
+    for (const auto& fr : fill_reports) {
+        const auto& fill = fr.fill;
         if (config_.verbose) {
             std::cout << "[OrderRouter] fill order=" << fill.order_id
                       << " producer=" << fill.producer
@@ -155,8 +209,41 @@ void OrderRouter::flush_ready_orders(bool force_ready) {
                       << (fill.is_partial ? " partial" : "") << "\n";
         }
         bus_->publish(fill);
+        bus_->publish(fr.report);
     }
     publishing_fills_ = false;
+}
+
+void OrderRouter::cancel_pending_orders(const std::string& reason) {
+    while (!pending_.empty()) {
+        PendingOrder pending = std::move(pending_.front());
+        pending_.pop_front();
+        order_status_[pending.order.order_id] = events::OrderStatus::Canceled;
+        publish_report(
+            pending.order, events::OrderStatus::Canceled,
+            0, pending.remaining_qty, 0.0, reason
+        );
+        if (config_.verbose) {
+            std::cout << "[OrderRouter] canceled order "
+                      << pending.order.order_id
+                      << " reason=" << reason << "\n";
+        }
+    }
+}
+
+bool OrderRouter::risk_allows(
+    const events::OrderSubmittedEvent& evt,
+    std::string& reason
+) const {
+    if (block_orders_) {
+        reason = risk_reason_.empty() ? "orders_blocked_by_risk" : risk_reason_;
+        return false;
+    }
+    if (reduce_only_ && evt.producer != "hedge_order") {
+        reason = risk_reason_.empty() ? "reduce_only_mode" : risk_reason_;
+        return false;
+    }
+    return true;
 }
 
 bool OrderRouter::compute_fill_price(
@@ -180,6 +267,45 @@ bool OrderRouter::is_marketable(
         return fill_price <= evt.limit_price;
     }
     return fill_price >= evt.limit_price;
+}
+
+events::ExecutionReportEvent OrderRouter::make_report(
+    const events::OrderSubmittedEvent& evt,
+    events::OrderStatus status,
+    int filled_qty,
+    int remaining_qty,
+    double fill_price,
+    const std::string& reason
+) const {
+    events::ExecutionReportEvent report{
+        evt.instrument_id,
+        evt.side,
+        evt.order_type,
+        status
+    };
+    report.requested_qty = evt.quantity;
+    report.filled_qty = filled_qty;
+    report.remaining_qty = remaining_qty;
+    report.fill_price = fill_price;
+    report.reference_price = evt.reference_price;
+    report.producer = evt.producer;
+    report.order_id = evt.order_id;
+    report.reason = reason;
+    report.timestamp = std::chrono::system_clock::now();
+    return report;
+}
+
+void OrderRouter::publish_report(
+    const events::OrderSubmittedEvent& evt,
+    events::OrderStatus status,
+    int filled_qty,
+    int remaining_qty,
+    double fill_price,
+    const std::string& reason
+) const {
+    bus_->publish(make_report(
+        evt, status, filled_qty, remaining_qty, fill_price, reason
+    ));
 }
 
 } // namespace omm::infrastructure

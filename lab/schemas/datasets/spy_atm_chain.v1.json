@@ -1,0 +1,29 @@
+{
+  "schema_id": "spy_atm_chain.v1",
+  "asset": "SPY",
+  "grain": "legacy_intraday_atm_option_panel",
+  "primary_timestamp": "timestamp_utc",
+  "required_columns": [
+    "timestamp_utc",
+    "underlying_price",
+    "atm_strike",
+    "expiry_date",
+    "time_to_expiry",
+    "call_mid",
+    "put_mid"
+  ],
+  "positive_columns": [
+    "underlying_price",
+    "atm_strike",
+    "time_to_expiry",
+    "call_mid",
+    "put_mid"
+  ],
+  "nonnegative_columns": [],
+  "finite_signed_columns": [],
+  "quote_bounds": [],
+  "notes": [
+    "This fallback intentionally lacks atm_iv and 25-delta smile features.",
+    "Use spy_chain_panel.v1 for strategy research and walk-forward model validation."
+  ]
+}

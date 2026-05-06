@@ -94,6 +94,16 @@ if(BUILD_ONNX_DEMO)
     endif()
 endif()
 
+# ── Execution Layer Smoke Test ───────────────────────────────
+add_executable(execution_layer_smoke_test
+    cpp/execution/ExecutionLayerSmokeTest.cpp
+)
+
+target_include_directories(execution_layer_smoke_test PRIVATE
+    cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
+
 # artifacts目录输出路径（运行时相对路径提示）
 message(STATUS "构建完成后请在 demo/ 目录下运行: ./build/demo_runner")
 message(STATUS "Alpha pipeline: ./build/alpha_runner")

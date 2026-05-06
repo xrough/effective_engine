@@ -1,0 +1,130 @@
+{
+  "project_goal": "Mature the SPY-focused MVP into a reproducible volatility trading lab with versioned experiments, strategy registries, retraining, replay, execution simulation, reports, and merge/stop governance.",
+  "schema_version": 1,
+  "versions": [
+    {
+      "branch": "codex/v0.0-baseline-freeze",
+      "comparison": [
+        {
+          "after": "Baseline work is documented as a versioned candidate for review.",
+          "area": "Repository state",
+          "before": "Several uncommitted MVP upgrades mixed with generated artifacts."
+        },
+        {
+          "after": "Auxiliary files are ignored while source slides and final PDF remain trackable.",
+          "area": "Presentation outputs",
+          "before": "LaTeX auxiliary files appeared as untracked review noise."
+        }
+      ],
+      "goal": "Freeze the current dirty MVP state without reverting existing work, separate source artifacts from build junk, and produce a baseline report.",
+      "last_gate_json": "lab/reports/v0.1-lab-foundation_gates.json",
+      "last_recommendation": "hold",
+      "last_report": "lab/reports/v0.0-baseline-freeze.md",
+      "main_outcome": "Current execution layer, walk-forward retraining, neural BSDE replay, README narrative, and presentation assets are treated as the baseline candidate.",
+      "merge_evidence": "Current status, smoke results, and known risks.",
+      "risks": [
+        "Baseline includes prior uncommitted Execution Layer and walk-forward changes that still need final merge review.",
+        "Some smoke gates depend on local SPY data under demo/data, which is intentionally gitignored."
+      ],
+      "status": "baseline-candidate",
+      "updated_at": "2026-05-05T07:27:18Z",
+      "version_id": "v0.0-baseline-freeze"
+    },
+    {
+      "branch": "codex/v0.1-lab-foundation",
+      "comparison": [
+        {
+          "after": "Repo-local version reports and machine-readable version metadata.",
+          "area": "Governance",
+          "before": "Ad hoc README updates and chat summaries."
+        },
+        {
+          "after": "Single smoke-gate CLI with required core gates and optional model gates.",
+          "area": "Testing",
+          "before": "Manual build/replay commands."
+        },
+        {
+          "after": "Datasets, strategies, and gates are declared in registries.",
+          "area": "Research inventory",
+          "before": "Signals and datasets are discoverable only by reading code and README."
+        }
+      ],
+      "goal": "Add the lab control plane: registries, smoke gates, version reports, and explicit merge/hold/stop recommendations.",
+      "last_gate_json": "lab/reports/v0.1-lab-foundation_model_gates.json",
+      "last_recommendation": "merge",
+      "last_report": "lab/reports/v0.1-lab-foundation.md",
+      "main_outcome": "Every future upgrade can be recorded, smoke-tested, reported, and reviewed before merge.",
+      "merge_evidence": "Required smoke gates pass and generated report includes a recommendation.",
+      "risks": [
+        "Model gates remain optional because ONNX Runtime and training dependencies are machine-local.",
+        "The lab registry is intentionally descriptive in v0.1; it does not yet drive C++ strategy construction."
+      ],
+      "status": "reported",
+      "updated_at": "2026-05-05T07:29:52Z",
+      "version_id": "v0.1-lab-foundation"
+    },
+    {
+      "branch": "codex/v0.2-data-contracts",
+      "comparison": [
+        {
+          "after": "SPY panel and legacy ATM fallback have explicit registry entries and schema files.",
+          "area": "Dataset contract",
+          "before": "SPY data assumptions lived in README prose and C++/Python call sites."
+        },
+        {
+          "after": "A data contract gate checks columns, timestamps, numeric fields, quote bounds, date summaries, and walk-forward causality before replay.",
+          "area": "Validation",
+          "before": "Replay failures were the first signal that local data was missing or malformed."
+        },
+        {
+          "after": "Validation emits machine-readable JSON and a Markdown report that can be attached to each lab version.",
+          "area": "Reporting",
+          "before": "Dataset summaries were ad hoc terminal observations."
+        }
+      ],
+      "goal": "Formalize SPY panel schema, data quality checks, dataset catalog, and date/window summaries.",
+      "last_gate_json": "lab/reports/v0.2-data-contracts_model_gates.json",
+      "last_recommendation": "merge",
+      "last_report": "lab/reports/v0.2-data-contracts.md",
+      "main_outcome": "Data validation report.",
+      "merge_evidence": "Schema and quality gates pass on the local SPY panel.",
+      "risks": [
+        "The validator checks local structural quality, not vendor provenance or corporate-action adjustments.",
+        "The legacy ATM fallback remains intentionally limited and should not be used for full strategy research."
+      ],
+      "status": "reported",
+      "updated_at": "2026-05-05T07:44:55Z",
+      "version_id": "v0.2-data-contracts"
+    },
+    {
+      "branch": "codex/v0.3-strategy-library",
+      "goal": "Turn current signals into a registered volatility strategy library.",
+      "main_outcome": "Strategy catalog and replay comparison.",
+      "merge_evidence": "Strategy registry and replay comparison report.",
+      "status": "planned",
+      "version_id": "v0.3-strategy-library"
+    },
+    {
+      "branch": "codex/v0.4-experiment-orchestrator",
+      "goal": "Unify alpha replay, walk-forward retraining, plotting, and report generation.",
+      "main_outcome": "End-to-end smoke experiment.",
+      "merge_evidence": "Experiment summary and gated replay outputs.",
+      "status": "planned",
+      "version_id": "v0.4-experiment-orchestrator"
+    },
+    {
+      "branch": "codex/v0.5-research-expansion",
+      "goal": "Add new candidate volatility techniques under the same gates.",
+      "main_outcome": "Research gate report.",
+      "merge_evidence": "New strategy hypotheses are falsified or promoted through registry-first gates.",
+      "status": "planned",
+      "version_id": "v0.5-research-expansion"
+    }
+  ],
+  "workflow": {
+    "branch_prefix": "codex/",
+    "default_gate_profile": "core",
+    "default_merge_policy": "manual_review_only",
+    "version_granularity": "small_versions"
+  }
+}

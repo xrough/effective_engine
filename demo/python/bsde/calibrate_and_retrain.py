@@ -163,12 +163,15 @@ def generate_spy_paths(params: dict, n_syn: int, seed: int,
 # ── Warmstart training ─────────────────────────────────────────────────────────
 
 def warmstart_train(artifacts_dir: Path, warmstart_path: Path | None,
-                    n_epochs: int, params: dict) -> None:
+                    n_epochs: int, params: dict) -> dict:
     """
     Train in lrh_delta mode (learn only delta, leave gamma+vega as alpha).
     Warmstarts from warmstart_path if provided and architecture matches.
     """
     from torch.utils.data import DataLoader
+
+    if n_epochs < 1:
+        raise ValueError("n_epochs must be >= 1")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ds     = LRHDataset(artifacts_dir)
@@ -259,7 +262,14 @@ def warmstart_train(artifacts_dir: Path, warmstart_path: Path | None,
     print(f"\n[calibrate] Best loss={best_loss:.5f}  final Y0={Y0.item():.4f}")
 
     # Sanity check: delta at ATM (S=K, log_moneyness=0, tau=T_sim/2)
-    _check_atm_delta(net, norm_mean_t, norm_std_t, params, device)
+    delta_sanity = _check_atm_delta(net, norm_mean_t, norm_std_t, params, device)
+    return {
+        "best_loss": float(best_loss),
+        "final_Y0": float(Y0.item()),
+        "best_checkpoint": str(artifacts_dir / "checkpoints" / "best.pt"),
+        "loaded_warmstart": loaded_warmstart,
+        "delta_sanity": delta_sanity,
+    }
 
 
 def _check_atm_delta(net, norm_mean_t, norm_std_t, params, device):
@@ -279,15 +289,93 @@ def _check_atm_delta(net, norm_mean_t, norm_std_t, params, device):
     model_delta = Z_spot / (sig * params["K"])
 
     # BS delta at ATM: d1 = 0.5*σ*√T → N(d1)
-    from math import erf, sqrt, pi
+    from math import erf, sqrt
     norm_cdf = lambda x: 0.5 * (1 + erf(x / sqrt(2)))
     d1 = 0.5 * sig * math.sqrt(T/2)
     bs_delta = norm_cdf(d1)
+    error = abs(model_delta - bs_delta)
 
     print(f"\n[sanity] ATM delta check  (tau={T/2:.3f}, σ={sig:.3f}, K={params['K']:.0f})")
     print(f"  Model delta = {model_delta:.4f}")
     print(f"  BS delta    = {bs_delta:.4f}  (N(d1))")
-    print(f"  Error       = {abs(model_delta - bs_delta):.4f}")
+    print(f"  Error       = {error:.4f}")
+    return {
+        "tau": float(T / 2),
+        "sigma": float(sig),
+        "model_delta": float(model_delta),
+        "bs_delta": float(bs_delta),
+        "error": float(error),
+    }
+
+
+def run_calibration_retrain(
+    csv_path: str | Path,
+    train_end: str,
+    artifacts_dir: str | Path,
+    epochs: int = 100,
+    n_syn: int = 9500,
+    n_steps: int = 50,
+    seed: int = 42,
+    warmstart_path: str | Path | None = None,
+    no_warmstart: bool = False,
+    validate_export: bool = True,
+    export_validation_atol: float = 1e-5,
+) -> dict:
+    """
+    Callable version of the walk-forward calibration step.
+
+    The CLI below remains a thin wrapper around this function; the first-class
+    walk-forward pipeline imports this entrypoint so there is one source of
+    truth for calibration, synthetic path generation, training, and export.
+    """
+    artifacts_path = Path(artifacts_dir).resolve()
+    if no_warmstart:
+        resolved_warmstart = None
+    elif warmstart_path is not None:
+        resolved_warmstart = Path(warmstart_path).resolve()
+    else:
+        resolved_warmstart = artifacts_path / "checkpoints" / "best.pt"
+
+    print("=" * 60)
+    print("Walk-forward SPY BSDE Calibration")
+    print(f"  Training window : up to {train_end}")
+    print(f"  Epochs          : {epochs}")
+    print(f"  Synthetic paths : {n_syn}")
+    print(f"  Steps/path      : {n_steps}")
+    print(f"  Artifacts dir   : {artifacts_path}")
+    print("=" * 60)
+
+    params = estimate_spy_params(str(csv_path), train_end)
+    generate_spy_paths(
+        params,
+        n_syn=n_syn,
+        seed=seed,
+        n_steps=n_steps,
+        artifacts_dir=artifacts_path,
+    )
+
+    print(f"\n[calibrate] Training {epochs} epochs (lrh_delta mode)...")
+    train_metrics = warmstart_train(
+        artifacts_path,
+        resolved_warmstart,
+        epochs,
+        params,
+    )
+
+    print(f"\n[calibrate] Exporting ONNX model...")
+    export_metrics = export_onnx(
+        checkpoint_path=artifacts_path / "checkpoints" / "best.pt",
+        artifacts_dir=artifacts_path,
+        validate=validate_export,
+        validation_atol=export_validation_atol,
+    )
+
+    return {
+        "params": params,
+        "train": train_metrics,
+        "export": export_metrics or {},
+        "artifacts_dir": str(artifacts_path),
+    }
 
 
 # ── Main ───────────────────────────────────────────────────────────────────────
@@ -311,35 +399,21 @@ def main():
                         help="Output artifacts directory")
     parser.add_argument("--no-warmstart", action="store_true",
                         help="Train from scratch (ignore existing checkpoint)")
+    parser.add_argument("--export-validation-atol", type=float, default=1e-5,
+                        help="PyTorch-vs-ONNX max error threshold")
     args = parser.parse_args()
 
-    artifacts_dir   = Path(args.artifacts).resolve()
-    warmstart_path  = None if args.no_warmstart else (artifacts_dir / "checkpoints" / "best.pt")
-
-    print("=" * 60)
-    print("Walk-forward SPY BSDE Calibration")
-    print(f"  Training window : up to {args.train_end}")
-    print(f"  Epochs          : {args.epochs}")
-    print(f"  Artifacts dir   : {artifacts_dir}")
-    print("=" * 60)
-
-    # Step 1: Estimate SPY params from real data
-    params = estimate_spy_params(args.csv, args.train_end)
-
-    # Step 2: Generate SPY-calibrated synthetic training data
-    generate_spy_paths(params, n_syn=args.n_syn, seed=args.seed,
-                        n_steps=args.n_steps, artifacts_dir=artifacts_dir)
-
-    # Step 3: Warmstart retrain in lrh_delta mode
-    print(f"\n[calibrate] Training {args.epochs} epochs (lrh_delta mode)...")
-    warmstart_train(artifacts_dir, warmstart_path, args.epochs, params)
-
-    # Step 4: Export ONNX
-    print(f"\n[calibrate] Exporting ONNX model...")
-    export_onnx(
-        checkpoint_path=artifacts_dir / "checkpoints" / "best.pt",
-        artifacts_dir=artifacts_dir,
-        validate=True,
+    run_calibration_retrain(
+        csv_path=args.csv,
+        train_end=args.train_end,
+        artifacts_dir=args.artifacts,
+        epochs=args.epochs,
+        n_syn=args.n_syn,
+        n_steps=args.n_steps,
+        seed=args.seed,
+        no_warmstart=args.no_warmstart,
+        validate_export=True,
+        export_validation_atol=args.export_validation_atol,
     )
 
     print("\n" + "=" * 60)

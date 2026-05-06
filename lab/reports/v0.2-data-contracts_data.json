@@ -1,0 +1,425 @@
+{
+  "created_at": "2026-05-05T07:42:07Z",
+  "datasets": [
+    {
+      "asset": "SPY",
+      "checks": [
+        {
+          "detail": "/Users/xiaohao/Effective_Engine/MVP/demo/data/spy_chain_panel.csv",
+          "name": "file_exists",
+          "passed": true
+        },
+        {
+          "detail": "rows=2029",
+          "name": "non_empty_csv",
+          "passed": true
+        },
+        {
+          "actual_count": 26,
+          "detail": "ok",
+          "name": "required_columns",
+          "passed": true,
+          "required_count": 26
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "timestamp_parse_utc",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "timestamp_monotonic",
+          "passed": true
+        },
+        {
+          "detail": "duplicates=0",
+          "name": "timestamp_unique",
+          "passed": true
+        },
+        {
+          "detail": "2025-08-07 to 2025-08-13, 5 trading dates",
+          "name": "date_summary_available",
+          "passed": true
+        },
+        {
+          "detail": "actual=2029, expected=2029",
+          "name": "row_count_matches_registry",
+          "passed": true
+        },
+        {
+          "detail": "actual=2025-08-07, expected=2025-08-07",
+          "name": "start_date_matches_registry",
+          "passed": true
+        },
+        {
+          "detail": "actual=2025-08-13, expected=2025-08-13",
+          "name": "end_date_matches_registry",
+          "passed": true
+        },
+        {
+          "detail": "actual=5, expected=5",
+          "name": "trading_date_count_matches_registry",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:atm_iv",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:atm_strike",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:bf25_iv",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:call25d_ask",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:call25d_bid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:call25d_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:call25d_strike",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:call_ask",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:call_bid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:call_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:put25d_ask",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:put25d_bid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:put25d_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:put25d_strike",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:put_ask",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:put_bid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:put_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:rr25_iv",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:rv5_ann",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:ssvi_phi",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:ssvi_rho",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:time_to_expiry",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:underlying_price",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:vix_varswap",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "quote_bounds:call_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "quote_bounds:put_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "quote_bounds:call25d_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "quote_bounds:put25d_mid",
+          "passed": true
+        },
+        {
+          "detail": "windows=2, min_train_days=3",
+          "name": "walk_forward_windows_available",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "walk_forward_causality",
+          "passed": true
+        }
+      ],
+      "dataset_id": "spy_chain_panel_local_v1",
+      "passed": true,
+      "path": "/Users/xiaohao/Effective_Engine/MVP/demo/data/spy_chain_panel.csv",
+      "summary": {
+        "columns": 26,
+        "end_date": "2025-08-13",
+        "first_timestamp_utc": "2025-08-07T13:31:00+00:00",
+        "last_timestamp_utc": "2025-08-13T20:16:00+00:00",
+        "rows": 2029,
+        "rows_by_date": [
+          {
+            "date": "2025-08-07",
+            "rows": 405
+          },
+          {
+            "date": "2025-08-08",
+            "rows": 406
+          },
+          {
+            "date": "2025-08-11",
+            "rows": 406
+          },
+          {
+            "date": "2025-08-12",
+            "rows": 406
+          },
+          {
+            "date": "2025-08-13",
+            "rows": 406
+          }
+        ],
+        "start_date": "2025-08-07",
+        "trading_dates": 5
+      },
+      "walk_forward_windows": [
+        {
+          "causal": true,
+          "deploy_date": "2025-08-12",
+          "deploy_rows": 406,
+          "train_dates": [
+            "2025-08-07",
+            "2025-08-08",
+            "2025-08-11"
+          ],
+          "train_end_exclusive": "2025-08-12",
+          "train_rows": 1217,
+          "train_start": "2025-08-07"
+        },
+        {
+          "causal": true,
+          "deploy_date": "2025-08-13",
+          "deploy_rows": 406,
+          "train_dates": [
+            "2025-08-07",
+            "2025-08-08",
+            "2025-08-11",
+            "2025-08-12"
+          ],
+          "train_end_exclusive": "2025-08-13",
+          "train_rows": 1623,
+          "train_start": "2025-08-07"
+        }
+      ]
+    },
+    {
+      "asset": "SPY",
+      "checks": [
+        {
+          "detail": "/Users/xiaohao/Effective_Engine/MVP/demo/data/spy_atm_chain.csv",
+          "name": "file_exists",
+          "passed": true
+        },
+        {
+          "detail": "rows=2029",
+          "name": "non_empty_csv",
+          "passed": true
+        },
+        {
+          "actual_count": 7,
+          "detail": "ok",
+          "name": "required_columns",
+          "passed": true,
+          "required_count": 7
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "timestamp_parse_utc",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "timestamp_monotonic",
+          "passed": true
+        },
+        {
+          "detail": "duplicates=0",
+          "name": "timestamp_unique",
+          "passed": true
+        },
+        {
+          "detail": "2025-08-07 to 2025-08-13, 5 trading dates",
+          "name": "date_summary_available",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:atm_strike",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:call_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:put_mid",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:time_to_expiry",
+          "passed": true
+        },
+        {
+          "detail": "bad=0, rows=2029",
+          "name": "numeric:underlying_price",
+          "passed": true
+        },
+        {
+          "detail": "windows=2, min_train_days=3",
+          "name": "walk_forward_windows_available",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "walk_forward_causality",
+          "passed": true
+        }
+      ],
+      "dataset_id": "spy_atm_chain_local_v1",
+      "passed": true,
+      "path": "/Users/xiaohao/Effective_Engine/MVP/demo/data/spy_atm_chain.csv",
+      "summary": {
+        "columns": 7,
+        "end_date": "2025-08-13",
+        "first_timestamp_utc": "2025-08-07T13:31:00+00:00",
+        "last_timestamp_utc": "2025-08-13T20:16:00+00:00",
+        "rows": 2029,
+        "rows_by_date": [
+          {
+            "date": "2025-08-07",
+            "rows": 405
+          },
+          {
+            "date": "2025-08-08",
+            "rows": 406
+          },
+          {
+            "date": "2025-08-11",
+            "rows": 406
+          },
+          {
+            "date": "2025-08-12",
+            "rows": 406
+          },
+          {
+            "date": "2025-08-13",
+            "rows": 406
+          }
+        ],
+        "start_date": "2025-08-07",
+        "trading_dates": 5
+      },
+      "walk_forward_windows": [
+        {
+          "causal": true,
+          "deploy_date": "2025-08-12",
+          "deploy_rows": 406,
+          "train_dates": [
+            "2025-08-07",
+            "2025-08-08",
+            "2025-08-11"
+          ],
+          "train_end_exclusive": "2025-08-12",
+          "train_rows": 1217,
+          "train_start": "2025-08-07"
+        },
+        {
+          "causal": true,
+          "deploy_date": "2025-08-13",
+          "deploy_rows": 406,
+          "train_dates": [
+            "2025-08-07",
+            "2025-08-08",
+            "2025-08-11",
+            "2025-08-12"
+          ],
+          "train_end_exclusive": "2025-08-13",
+          "train_rows": 1623,
+          "train_start": "2025-08-07"
+        }
+      ]
+    }
+  ],
+  "min_train_days": 3,
+  "n_datasets": 2,
+  "n_passed": 2,
+  "passed": true,
+  "registry": "/Users/xiaohao/Effective_Engine/MVP/lab/registry/datasets.json"
+}
