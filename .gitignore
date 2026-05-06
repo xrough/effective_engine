@@ -12,9 +12,14 @@ demo/build/compile_commands.json
 demo/build/alpha_pnl_test_runner
 demo/build/alpha_runner
 demo/build/demo_runner
+demo/build/execution_layer_smoke_test
 # Training data and model checkpoints (large; regenerate with trainer.py)
 demo/build/artifacts/training_*/
 demo/build/artifacts/checkpoints/
+
+# Versioned experiment run outputs; manifests/summaries can be promoted into lab reports.
+demo/runs/
+lab/reports/artifacts/
 
 # Compiled object files and libraries
 *.o
@@ -54,6 +59,20 @@ venv/
 
 # 笔记
 notes/
+
+# LaTeX presentation build auxiliaries; keep source .tex/.bib and final PDFs trackable.
+presentation/*.aux
+presentation/*.bbl
+presentation/*.bcf
+presentation/*.blg
+presentation/*.fdb_latexmk
+presentation/*.fls
+presentation/*.log
+presentation/*.nav
+presentation/*.out
+presentation/*.run.xml
+presentation/*.snm
+presentation/*.toc
 
 # data
 demo/data/

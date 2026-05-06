@@ -4,9 +4,12 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+#include <filesystem>
 #include <unordered_map>
 #include <vector>
 #include <chrono>
+#include <algorithm>
 #include "core/events/EventBus.hpp"
 #include "core/events/Events.hpp"
 #include "core/domain/Instrument.hpp"
@@ -96,16 +99,56 @@ public:
     // resets the day-start baseline.
     void on_session_end(const std::string& date) {
         double day_opt   = option_mtm_       - day_start_option_mtm_;
+        double day_delta = delta_pnl_        - day_start_delta_pnl_;
+        double day_gamma = gamma_pnl_        - day_start_gamma_pnl_;
+        double day_vega  = vega_pnl_         - day_start_vega_pnl_;
+        double day_theta = theta_pnl_        - day_start_theta_pnl_;
         double day_hedge = delta_hedge_pnl_  - day_start_hedge_pnl_;
         double day_cost  = transaction_cost_ - day_start_txn_cost_;
         double day_total = day_opt + day_hedge - day_cost;
 
-        day_records_.push_back({date, day_opt, day_hedge, day_cost,
-                                 n_fills_today_, day_total});
+        day_records_.push_back({date, day_opt, day_delta, day_gamma,
+                                 day_vega, day_theta, day_hedge,
+                                 day_cost, n_fills_today_, day_total});
         n_fills_today_        = 0;
         day_start_option_mtm_ = option_mtm_;
+        day_start_delta_pnl_  = delta_pnl_;
+        day_start_gamma_pnl_  = gamma_pnl_;
+        day_start_vega_pnl_   = vega_pnl_;
+        day_start_theta_pnl_  = theta_pnl_;
         day_start_hedge_pnl_  = delta_hedge_pnl_;
         day_start_txn_cost_   = transaction_cost_;
+    }
+
+    void write_daily_csv(const std::string& path) const {
+        auto out_path = std::filesystem::path(path);
+        auto parent = out_path.parent_path();
+        if (!parent.empty())
+            std::filesystem::create_directories(parent);
+
+        std::ofstream f(out_path);
+        if (!f.is_open()) {
+            std::cerr << "[AlphaPnLTracker] Cannot open: " << path << "\n";
+            return;
+        }
+
+        f << "date,option_mtm,delta_pnl,gamma_pnl,vega_pnl,theta_pnl,"
+             "delta_hedge_pnl,txn_cost,total_pnl,n_fills\n";
+        f << std::fixed << std::setprecision(4);
+        for (const auto& r : day_records_) {
+            f << r.date << ","
+              << r.option_mtm << ","
+              << r.delta_pnl << ","
+              << r.gamma_pnl << ","
+              << r.vega_pnl << ","
+              << r.theta_pnl << ","
+              << r.delta_hedge_pnl << ","
+              << r.txn_cost << ","
+              << r.total_pnl << ","
+              << r.n_fills << "\n";
+        }
+        std::cout << "[AlphaPnLTracker] Wrote " << day_records_.size()
+                  << " rows → " << path << "\n";
     }
 
     void print_summary() const {
@@ -221,6 +264,10 @@ private:
     struct DayRecord {
         std::string date;
         double option_mtm;
+        double delta_pnl;
+        double gamma_pnl;
+        double vega_pnl;
+        double theta_pnl;
         double delta_hedge_pnl;
         double txn_cost;
         int    n_fills;
@@ -369,6 +416,10 @@ private:
     std::vector<DayRecord> day_records_;
     int    n_fills_today_         = 0;
     double day_start_option_mtm_  = 0.0;
+    double day_start_delta_pnl_   = 0.0;
+    double day_start_gamma_pnl_   = 0.0;
+    double day_start_vega_pnl_    = 0.0;
+    double day_start_theta_pnl_   = 0.0;
     double day_start_hedge_pnl_   = 0.0;
     double day_start_txn_cost_    = 0.0;
 };
