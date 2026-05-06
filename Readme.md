@@ -46,6 +46,17 @@ python3 demo/python/lab/validate_strategy_registry.py \
     --output-md lab/reports/v0.3-strategy-library_registry.md
 ```
 
+Run a compact end-to-end lab experiment:
+
+```bash
+python3 demo/python/lab/run_lab_experiment.py \
+    --experiment-id v0.4-smoke \
+    --profile smoke \
+    --start-date 2025-08-12 \
+    --end-date 2025-08-13 \
+    --output-dir lab/reports/artifacts/v0.4-smoke
+```
+
 Default policy: required core gates must pass for `merge`; core pass plus
 optional model failures becomes `hold`; core failures become `stop`. No branch
 is merged automatically.

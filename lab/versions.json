@@ -131,10 +131,35 @@
     },
     {
       "branch": "codex/v0.4-experiment-orchestrator",
+      "comparison": [
+        {
+          "after": "A single experiment CLI produces manifest.json, summary.json, summary.md, logs, and replay CSVs under one experiment directory.",
+          "area": "Experiment run",
+          "before": "Replay, model smoke, registry validation, and reports were separate commands."
+        },
+        {
+          "after": "The smoke gate now requires the experiment orchestrator to validate registries, build alpha_runner, replay BS delta, and write experiment summaries.",
+          "area": "Gate integration",
+          "before": "The lab gates verified pieces but did not prove a user-facing experiment pipeline existed."
+        },
+        {
+          "after": "Model profile experiments can include ONNX neural replay and walk-forward smoke when local dependencies are available.",
+          "area": "Model path",
+          "before": "Model replay and walk-forward smoke were available only as individual gate steps."
+        }
+      ],
       "goal": "Unify alpha replay, walk-forward retraining, plotting, and report generation.",
+      "last_gate_json": "lab/reports/v0.4-experiment-orchestrator_model_gates.json",
+      "last_recommendation": "merge",
+      "last_report": "lab/reports/v0.4-experiment-orchestrator.md",
       "main_outcome": "End-to-end smoke experiment.",
       "merge_evidence": "Experiment summary and gated replay outputs.",
-      "status": "planned",
+      "risks": [
+        "The orchestrator smoke focuses on compact replay and report generation; full plotting remains tied to alpha_pnl_test_runner outputs.",
+        "v0.4 runs per-experiment validations and builds, so the gate is intentionally redundant but more user-facing."
+      ],
+      "status": "reported",
+      "updated_at": "2026-05-06T15:13:28Z",
       "version_id": "v0.4-experiment-orchestrator"
     },
     {
