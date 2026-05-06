@@ -1,0 +1,650 @@
+{
+  "created_at": "2026-05-06T18:46:15Z",
+  "n_gates": 8,
+  "n_passed": 8,
+  "passed": true,
+  "registry": "/Users/xiaohao/Effective_Engine/MVP/lab/registry/research_gates.json",
+  "registry_summary": {
+    "checks": [
+      {
+        "detail": "count=8",
+        "name": "research_gates_nonempty",
+        "passed": true
+      },
+      {
+        "detail": "ok",
+        "name": "gate_ids_unique",
+        "passed": true
+      },
+      {
+        "detail": "statuses={'weak': 2, 'rejected': 1, 'narrow-support': 1, 'pass': 1, 'candidate': 3}",
+        "name": "has_passed_research",
+        "passed": true
+      },
+      {
+        "detail": "statuses={'weak': 2, 'rejected': 1, 'narrow-support': 1, 'pass': 1, 'candidate': 3}",
+        "name": "has_negative_controls",
+        "passed": true
+      },
+      {
+        "detail": "statuses={'weak': 2, 'rejected': 1, 'narrow-support': 1, 'pass': 1, 'candidate': 3}",
+        "name": "has_candidate_backlog",
+        "passed": true
+      },
+      {
+        "detail": "families={'smile-geometry': 1, 'temporal-forecast': 2, 'regime-dynamics': 2, 'candidate': 3}",
+        "name": "family_coverage",
+        "passed": true
+      }
+    ],
+    "family_counts": {
+      "candidate": 3,
+      "regime-dynamics": 2,
+      "smile-geometry": 1,
+      "temporal-forecast": 2
+    },
+    "n_gates": 8,
+    "passed": true,
+    "status_counts": {
+      "candidate": 3,
+      "narrow-support": 1,
+      "pass": 1,
+      "rejected": 1,
+      "weak": 2
+    }
+  },
+  "research_gates": [
+    {
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "gate1_skew_structure",
+          "name": "gate_id_format",
+          "passed": true
+        },
+        {
+          "detail": "weak",
+          "name": "status_allowed",
+          "passed": true
+        },
+        {
+          "detail": "Skew Structure",
+          "name": "title_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "smile-geometry",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Short-end SPY skew follows a stable power-law term structure across maturities.",
+          "name": "hypothesis_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Weak / partial support: cross-sectional power-law shape is present, but fitted slope is materially above the original rough-vol H prior.",
+          "name": "verdict_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Promote only if slope stability survives a longer panel and produces tradable forecast value, not just descriptive fit.",
+          "name": "decision_rule_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Re-estimate H-implied slope on a larger SPY panel and compare against fixed-H priors.",
+          "name": "next_action_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/skew_scaling/benchmark.py', 'demo/python/research/skew_scaling/gate1_sweep.py']",
+          "name": "implementation_paths_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "implementation_paths_exist",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/skew_scaling/output/gate0a_sweep_20260409_201238.csv', 'demo/python/research/skew_scaling/output/skew_scaling_20260409_111639.txt']",
+          "name": "latest_outputs_list",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "latest_outputs_exist",
+          "passed": true
+        }
+      ],
+      "family": "smile-geometry",
+      "gate_id": "gate1_skew_structure",
+      "passed": true,
+      "status": "weak",
+      "title": "Skew Structure"
+    },
+    {
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "gate2_temporal_forecast",
+          "name": "gate_id_format",
+          "passed": true
+        },
+        {
+          "detail": "rejected",
+          "name": "status_allowed",
+          "passed": true
+        },
+        {
+          "detail": "Raw Rough Temporal Forecast",
+          "name": "title_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "temporal-forecast",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Raw rough structural forecasts beat naive carry on one-step-ahead smile prediction.",
+          "name": "hypothesis_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Rejected: latest robustness sweep shows 0/30 evaluable cells passing; raw rough loses to carry at 1-5 minute horizons.",
+          "name": "verdict_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Keep rejected unless a materially different feature transform beats carry out of sample.",
+          "name": "decision_rule_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Do not wire raw rough forecast into alpha_runner; retain only as a negative control.",
+          "name": "next_action_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/roughtemporal_intraday/gate0_forecast_benchmark.py', 'demo/python/research/roughtemporal_intraday/gate2_sweep.py']",
+          "name": "implementation_paths_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "implementation_paths_exist",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/roughtemporal_intraday/output/gate0_sweep_20260409_174933.csv', 'demo/python/research/roughtemporal_intraday/output/gate0_sweep_20260409_174933.txt']",
+          "name": "latest_outputs_list",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "latest_outputs_exist",
+          "passed": true
+        }
+      ],
+      "family": "temporal-forecast",
+      "gate_id": "gate2_temporal_forecast",
+      "passed": true,
+      "status": "rejected",
+      "title": "Raw Rough Temporal Forecast"
+    },
+    {
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "gate3_regime_dynamics",
+          "name": "gate_id_format",
+          "passed": true
+        },
+        {
+          "detail": "narrow-support",
+          "name": "status_allowed",
+          "passed": true
+        },
+        {
+          "detail": "Regime Dynamics",
+          "name": "title_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "regime-dynamics",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Raw rough may add value after large spot or forward moves even if it loses unconditionally.",
+          "name": "hypothesis_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Narrow support: only a daily-ish skew signal survived in stressed regimes.",
+          "name": "verdict_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Promote only if active-regime lift persists after fair scoring and transaction-cost-aware replay.",
+          "name": "decision_rule_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Turn the surviving active-regime condition into a sizing overlay candidate.",
+          "name": "next_action_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/conditional_dynamics/benchmark.py', 'demo/python/research/conditional_dynamics/gate3_sweep.py']",
+          "name": "implementation_paths_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "implementation_paths_exist",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/conditional_dynamics/output/gate0b_sweep_20260410_082811.csv', 'demo/python/research/conditional_dynamics/output/gate0b_sweep_20260410_082811.txt']",
+          "name": "latest_outputs_list",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "latest_outputs_exist",
+          "passed": true
+        }
+      ],
+      "family": "regime-dynamics",
+      "gate_id": "gate3_regime_dynamics",
+      "passed": true,
+      "status": "narrow-support",
+      "title": "Regime Dynamics"
+    },
+    {
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "gate4_incremental_edge_over_carry",
+          "name": "gate_id_format",
+          "passed": true
+        },
+        {
+          "detail": "pass",
+          "name": "status_allowed",
+          "passed": true
+        },
+        {
+          "detail": "Incremental Edge Over Carry",
+          "name": "title_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "temporal-forecast",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Rough geometry improves carry rather than replacing it.",
+          "name": "hypothesis_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Pass: 24/30 cells pass, mainly on smile curvature; rough_cond_carry leads short horizons and rough_recent leads 60 minutes.",
+          "name": "verdict_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Promote curvature carry correction after it is replayed as a strategy component with cost-aware PnL attribution.",
+          "name": "decision_rule_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Implement a registry-backed candidate for bf25 rough-conditioned carry in alpha_runner or the experiment orchestrator.",
+          "name": "next_action_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/roughtemporal_intraday/gate4_sweep.py']",
+          "name": "implementation_paths_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "implementation_paths_exist",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/roughtemporal_intraday/output/gate1_sweep_20260410_090610.csv', 'demo/python/research/roughtemporal_intraday/output/gate1_sweep_20260410_090610.txt']",
+          "name": "latest_outputs_list",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "latest_outputs_exist",
+          "passed": true
+        }
+      ],
+      "family": "temporal-forecast",
+      "gate_id": "gate4_incremental_edge_over_carry",
+      "passed": true,
+      "status": "pass",
+      "title": "Incremental Edge Over Carry"
+    },
+    {
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "gate5_edge_concentration",
+          "name": "gate_id_format",
+          "passed": true
+        },
+        {
+          "detail": "weak",
+          "name": "status_allowed",
+          "passed": true
+        },
+        {
+          "detail": "Edge Concentration",
+          "name": "title_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "regime-dynamics",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Gate 4 improvement is stronger in ACTIVE than QUIET regimes.",
+          "name": "hypothesis_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Weak / narrow support: only 6/42 cells pass at move_pct=30%, all in 5-minute bf25 rough_cond_carry.",
+          "name": "verdict_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Do not claim stress-specific alpha unless active lift improves across more horizons and thresholds.",
+          "name": "decision_rule_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Keep as a conditional sizing hypothesis, not a standalone alpha.",
+          "name": "next_action_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/conditional_dynamics/gate5_sweep.py']",
+          "name": "implementation_paths_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "implementation_paths_exist",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/conditional_dynamics/output/gate1b_sweep_20260410_095254.csv', 'demo/python/research/conditional_dynamics/output/gate1b_sweep_20260410_095254.txt']",
+          "name": "latest_outputs_list",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "latest_outputs_exist",
+          "passed": true
+        }
+      ],
+      "family": "regime-dynamics",
+      "gate_id": "gate5_edge_concentration",
+      "passed": true,
+      "status": "weak",
+      "title": "Edge Concentration"
+    },
+    {
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "candidate_calendar_term_structure",
+          "name": "gate_id_format",
+          "passed": true
+        },
+        {
+          "detail": "candidate",
+          "name": "status_allowed",
+          "passed": true
+        },
+        {
+          "detail": "Calendar / Term-Structure Vol Carry",
+          "name": "title_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "candidate",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Front-versus-back SPY implied-vol term structure contains tradable roll-down and event-risk information.",
+          "name": "hypothesis_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Planned candidate: not yet implemented because the current local panel focuses on one ATM expiry plus 25-delta smile points.",
+          "name": "verdict_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Promote only after multi-expiry schema support and a carry-versus-realised term-structure benchmark.",
+          "name": "decision_rule_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Extend the data contract to retain multiple expiries per timestamp before strategy work.",
+          "name": "next_action_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "['demo/python/research/shared/smile_pipeline.py']",
+          "name": "implementation_paths_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "implementation_paths_exist",
+          "passed": true
+        },
+        {
+          "detail": "[]",
+          "name": "latest_outputs_list",
+          "passed": true
+        },
+        {
+          "detail": "candidate/planned gate",
+          "name": "latest_outputs_present_for_evidence",
+          "passed": true
+        }
+      ],
+      "family": "candidate",
+      "gate_id": "candidate_calendar_term_structure",
+      "passed": true,
+      "status": "candidate",
+      "title": "Calendar / Term-Structure Vol Carry"
+    },
+    {
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "candidate_vol_of_vol_regime",
+          "name": "gate_id_format",
+          "passed": true
+        },
+        {
+          "detail": "candidate",
+          "name": "status_allowed",
+          "passed": true
+        },
+        {
+          "detail": "Vol-of-Vol Regime Filter",
+          "name": "title_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "candidate",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Changes in smile width and curvature stability can gate when variance carry should be reduced.",
+          "name": "hypothesis_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Planned candidate using SSVI phi, bf25, and realised vol-of-vol proxies.",
+          "name": "verdict_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Promote only if it reduces drawdown or tail losses without eliminating most VRP carry.",
+          "name": "decision_rule_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Add a research sweep comparing composite strategy PnL with and without vol-of-vol regime sizing.",
+          "name": "next_action_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "['demo/cpp/signal/SkewCurvatureAlphaSignal.hpp', 'demo/python/research/shared/smile_pipeline.py']",
+          "name": "implementation_paths_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "implementation_paths_exist",
+          "passed": true
+        },
+        {
+          "detail": "[]",
+          "name": "latest_outputs_list",
+          "passed": true
+        },
+        {
+          "detail": "candidate/planned gate",
+          "name": "latest_outputs_present_for_evidence",
+          "passed": true
+        }
+      ],
+      "family": "candidate",
+      "gate_id": "candidate_vol_of_vol_regime",
+      "passed": true,
+      "status": "candidate",
+      "title": "Vol-of-Vol Regime Filter"
+    },
+    {
+      "checks": [
+        {
+          "detail": "ok",
+          "name": "required_fields",
+          "passed": true
+        },
+        {
+          "detail": "candidate_event_risk_filter",
+          "name": "gate_id_format",
+          "passed": true
+        },
+        {
+          "detail": "candidate",
+          "name": "status_allowed",
+          "passed": true
+        },
+        {
+          "detail": "Event-Risk Filter",
+          "name": "title_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "candidate",
+          "name": "family_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Scheduled macro/event windows explain part of extreme realised-vol spikes and should gate short-vol or carry exposure.",
+          "name": "hypothesis_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Planned candidate; requires external event calendar input and is not part of the SPY-only local panel yet.",
+          "name": "verdict_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Promote only after adding an event-calendar data contract and showing improved cost-aware replay metrics.",
+          "name": "decision_rule_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "Define an event-calendar dataset schema before implementing the signal.",
+          "name": "next_action_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "['lab/registry/datasets.json']",
+          "name": "implementation_paths_nonempty",
+          "passed": true
+        },
+        {
+          "detail": "ok",
+          "name": "implementation_paths_exist",
+          "passed": true
+        },
+        {
+          "detail": "[]",
+          "name": "latest_outputs_list",
+          "passed": true
+        },
+        {
+          "detail": "candidate/planned gate",
+          "name": "latest_outputs_present_for_evidence",
+          "passed": true
+        }
+      ],
+      "family": "candidate",
+      "gate_id": "candidate_event_risk_filter",
+      "passed": true,
+      "status": "candidate",
+      "title": "Event-Risk Filter"
+    }
+  ]
+}

@@ -200,6 +200,8 @@ def build_required_gates(version_id: str, artifacts_root: Path) -> list[dict[str
     data_contracts_md = artifacts_root / "data_contracts.md"
     strategy_registry_json = artifacts_root / "strategy_registry.json"
     strategy_registry_md = artifacts_root / "strategy_registry.md"
+    research_registry_json = artifacts_root / "research_registry.json"
+    research_registry_md = artifacts_root / "research_registry.md"
     return [
         command_gate(
             gate_id="data_contract_validation",
@@ -237,6 +239,25 @@ def build_required_gates(version_id: str, artifacts_root: Path) -> list[dict[str
             artifacts={
                 "result_json": str(strategy_registry_json),
                 "result_md": str(strategy_registry_md),
+            },
+        ),
+        command_gate(
+            gate_id="research_registry_validation",
+            name="Research gate registry validation",
+            command=[
+                "python3",
+                str(DEMO_ROOT / "python" / "lab" / "validate_research_registry.py"),
+                "--output-json",
+                str(research_registry_json),
+                "--output-md",
+                str(research_registry_md),
+            ],
+            cwd=REPO_ROOT,
+            required=True,
+            log_dir=log_dir,
+            artifacts={
+                "result_json": str(research_registry_json),
+                "result_md": str(research_registry_md),
             },
         ),
         command_gate(

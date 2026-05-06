@@ -164,10 +164,35 @@
     },
     {
       "branch": "codex/v0.5-research-expansion",
+      "comparison": [
+        {
+          "after": "Rough-vol research gates and candidate ideas are declared in a research registry with schema-backed validation.",
+          "area": "Research governance",
+          "before": "Research evidence lived in README prose and scattered output folders."
+        },
+        {
+          "after": "The lab gate runner and experiment orchestrator now validate research-gate evidence before replay.",
+          "area": "Gate integration",
+          "before": "Data and strategy registries were gated, but research claims were not."
+        },
+        {
+          "after": "New candidates for calendar term structure, vol-of-vol regime filtering, and event-risk filtering are recorded with decision rules.",
+          "area": "Candidate backlog",
+          "before": "Future research ideas were implicit and not tied to promotion/rejection criteria."
+        }
+      ],
       "goal": "Add new candidate volatility techniques under the same gates.",
+      "last_gate_json": "lab/reports/v0.5-research-expansion_model_gates.json",
+      "last_recommendation": "merge",
+      "last_report": "lab/reports/v0.5-research-expansion.md",
       "main_outcome": "Research gate report.",
       "merge_evidence": "New strategy hypotheses are falsified or promoted through registry-first gates.",
-      "status": "planned",
+      "risks": [
+        "v0.5 validates existing research evidence and candidate readiness; it does not rerun heavy historical sweeps.",
+        "Candidate ideas need expanded data contracts before they can become tradable strategies."
+      ],
+      "status": "reported",
+      "updated_at": "2026-05-06T18:46:45Z",
       "version_id": "v0.5-research-expansion"
     }
   ],

@@ -57,6 +57,14 @@ python3 demo/python/lab/run_lab_experiment.py \
     --output-dir lab/reports/artifacts/v0.4-smoke
 ```
 
+Validate rough-vol research gates and candidate backlog:
+
+```bash
+python3 demo/python/lab/validate_research_registry.py \
+    --output-json lab/reports/v0.5-research-expansion_registry.json \
+    --output-md lab/reports/v0.5-research-expansion_registry.md
+```
+
 Default policy: required core gates must pass for `merge`; core pass plus
 optional model failures becomes `hold`; core failures become `stop`. No branch
 is merged automatically.

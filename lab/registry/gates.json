@@ -6,6 +6,7 @@
       "required_gate_ids": [
         "data_contract_validation",
         "strategy_registry_validation",
+        "research_registry_validation",
         "configure_demo",
         "build_core_targets",
         "execution_layer_smoke",
@@ -20,6 +21,7 @@
       "required_gate_ids": [
         "data_contract_validation",
         "strategy_registry_validation",
+        "research_registry_validation",
         "configure_demo",
         "build_core_targets",
         "execution_layer_smoke",
@@ -50,6 +52,13 @@
       "description": "Validate registered volatility strategies and render the strategy catalog.",
       "command_template": "python3 demo/python/lab/validate_strategy_registry.py --output-json <artifacts>/strategy_registry.json --output-md <artifacts>/strategy_registry.md",
       "success_criteria": "Strategy ids are unique, required fields are present, family coverage is broad enough, and at least one tradable strategy and one component backlog item exist."
+    },
+    {
+      "gate_id": "research_registry_validation",
+      "required": true,
+      "description": "Validate rough-vol research gates and candidate research backlog.",
+      "command_template": "python3 demo/python/lab/validate_research_registry.py --output-json <artifacts>/research_registry.json --output-md <artifacts>/research_registry.md",
+      "success_criteria": "Research gates have unique ids, evidence outputs for non-candidates, at least one pass, one rejected negative control, and one candidate backlog item."
     },
     {
       "gate_id": "configure_demo",

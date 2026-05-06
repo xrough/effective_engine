@@ -408,6 +408,21 @@ def main() -> int:
             log_dir=logs_dir,
             artifacts={"result_json": str(out_dir / "strategy_registry.json"), "result_md": str(out_dir / "strategy_registry.md")},
         ),
+        run_command(
+            step_id="research_registry_validation",
+            name="Validate research gate registry",
+            command=[
+                "python3",
+                str(DEMO_ROOT / "python" / "lab" / "validate_research_registry.py"),
+                "--output-json",
+                str(out_dir / "research_registry.json"),
+                "--output-md",
+                str(out_dir / "research_registry.md"),
+            ],
+            cwd=REPO_ROOT,
+            log_dir=logs_dir,
+            artifacts={"result_json": str(out_dir / "research_registry.json"), "result_md": str(out_dir / "research_registry.md")},
+        ),
     ]
     steps.extend(build_targets(logs_dir, include_onnx, onnx_root if include_onnx else None))
     if args.profile == "model" and not onnx_ok:
