@@ -5,6 +5,7 @@
       "description": "Fast local confidence gates required before recommending merge.",
       "required_gate_ids": [
         "data_contract_validation",
+        "strategy_registry_validation",
         "configure_demo",
         "build_core_targets",
         "execution_layer_smoke",
@@ -17,6 +18,7 @@
       "description": "Core gates plus optional ONNX/model gates when local dependencies are available.",
       "required_gate_ids": [
         "data_contract_validation",
+        "strategy_registry_validation",
         "configure_demo",
         "build_core_targets",
         "execution_layer_smoke",
@@ -39,6 +41,13 @@
       "description": "Validate registered local dataset contracts before build/replay gates.",
       "command_template": "python3 demo/python/lab/validate_data_contracts.py --output-json <artifacts>/data_contracts.json --output-md <artifacts>/data_contracts.md",
       "success_criteria": "All selected registered datasets exist locally, match required columns, pass numeric/quote checks, and produce causal walk-forward windows."
+    },
+    {
+      "gate_id": "strategy_registry_validation",
+      "required": true,
+      "description": "Validate registered volatility strategies and render the strategy catalog.",
+      "command_template": "python3 demo/python/lab/validate_strategy_registry.py --output-json <artifacts>/strategy_registry.json --output-md <artifacts>/strategy_registry.md",
+      "success_criteria": "Strategy ids are unique, required fields are present, family coverage is broad enough, and at least one tradable strategy and one component backlog item exist."
     },
     {
       "gate_id": "configure_demo",

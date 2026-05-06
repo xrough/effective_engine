@@ -38,6 +38,14 @@ python3 demo/python/lab/validate_data_contracts.py \
     --output-md lab/reports/v0.2-data-contracts_data.md
 ```
 
+Validate and render the strategy library when adding volatility techniques:
+
+```bash
+python3 demo/python/lab/validate_strategy_registry.py \
+    --output-json lab/reports/v0.3-strategy-library_registry.json \
+    --output-md lab/reports/v0.3-strategy-library_registry.md
+```
+
 Default policy: required core gates must pass for `merge`; core pass plus
 optional model failures becomes `hold`; core failures become `stop`. No branch
 is merged automatically.

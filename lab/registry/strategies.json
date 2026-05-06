@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "schema_path": "lab/schemas/strategies/strategy.v1.json",
   "strategies": [
     {
       "strategy_id": "composite_vrp_har_skew_bs_delta",
@@ -70,6 +71,75 @@
       "known_risks": [
         "Gate 5 shows weak stress-regime concentration.",
         "Research output is not yet wired into alpha_runner as a tradable strategy."
+      ]
+    },
+    {
+      "strategy_id": "component_downside_vrp",
+      "family": "signal-component",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "Downside realised variance",
+        "ATM implied variance",
+        "Rolling downside VRP z-score"
+      ],
+      "hedger": "not-wired",
+      "expected_edge": "Separate downside jump/left-tail variance premium from symmetric variance carry.",
+      "current_status": "registered component",
+      "replay_command": "rg \"DownsideVRPSignal\" demo/cpp/signal",
+      "known_risks": [
+        "Component is implemented as a signal header but not yet part of the production composite blend.",
+        "Needs tail-event sample size before it can be promoted to strategy status."
+      ]
+    },
+    {
+      "strategy_id": "component_log_iv_rv_ratio",
+      "family": "signal-component",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "Log implied-vol to realised-vol ratio",
+        "Rolling ratio z-score"
+      ],
+      "hedger": "not-wired",
+      "expected_edge": "Normalise IV/RV richness into a more stable scale than raw variance spread.",
+      "current_status": "registered component",
+      "replay_command": "rg \"LogIVRVRatioSignal\" demo/cpp/signal",
+      "known_risks": [
+        "Can duplicate VRP information if blended naively.",
+        "Needs orthogonality checks against the current VRP signal."
+      ]
+    },
+    {
+      "strategy_id": "component_realized_skewness",
+      "family": "signal-component",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "Rolling spot return skewness",
+        "Smile skew features"
+      ],
+      "hedger": "not-wired",
+      "expected_edge": "Detect realised asymmetry regimes where put-skew carry or curvature signals should be resized.",
+      "current_status": "registered component",
+      "replay_command": "rg \"RealizedSkewnessSignal\" demo/cpp/signal",
+      "known_risks": [
+        "Short local panel may make realised skew estimates unstable.",
+        "Needs regime-gated replay before use in live composite weights."
+      ]
+    },
+    {
+      "strategy_id": "component_iv_autocorr",
+      "family": "signal-component",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "ATM IV changes",
+        "Rolling implied-vol autocorrelation"
+      ],
+      "hedger": "not-wired",
+      "expected_edge": "Identify sticky implied-vol regimes where carry and mean-reversion assumptions differ.",
+      "current_status": "registered component",
+      "replay_command": "rg \"IVAutocorrSignal\" demo/cpp/signal",
+      "known_risks": [
+        "Autocorrelation features can be sensitive to sampling interval.",
+        "Not yet scored against replay PnL."
       ]
     }
   ]
