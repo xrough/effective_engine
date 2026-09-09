@@ -76,3 +76,12 @@ presentation/*.toc
 
 # data
 demo/data/
+
+# Notebook series: keep the .ipynb (they are committed with outputs so they read
+# on GitHub), drop checkpoints and regenerated side-outputs.
+notebooks/.ipynb_checkpoints/
+notebooks/.virtual_documents/
+notebooks/_output/
+# The bound print PDF: 7.4MB and regenerable with
+# scripts/notebooks_to_pdf.py -- drop this line if you want it tracked.
+notebooks/volatility_series.pdf
