@@ -142,7 +142,7 @@ public:
         // ── 执行边界（OrderRouter）───────────────────────────
         auto order_router = std::make_shared<infrastructure::OrderRouter>(bus);
         order_router->register_handlers();
-        std::cout << "[SellerModule] OrderRouter registered (execution sim v1)\n";
+        std::cout << "[SellerModule] OrderRouter registered (execution sim v2)\n";
 
         // ── 概率成交模拟器 ───────────────────────────────────
         auto taker = std::make_shared<infrastructure::ProbabilisticTaker>(

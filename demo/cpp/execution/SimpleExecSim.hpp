@@ -27,7 +27,8 @@
 //
 // This is demo infrastructure only. DeltaHedger and AlphaPnLTracker
 // have no knowledge of this class — they only consume the FillEvents
-// it emits, which carry standard FillEvent semantics.
+// it emits, which carry standard FillEvent semantics. Monitoring tools can
+// additionally consume ExecutionReportEvent for order lifecycle state.
 //
 // Replacing this with a real OMS requires no changes to any engine
 // component.
@@ -96,9 +97,6 @@ private:
     };
 
     void on_order(events::OrderSubmittedEvent o) {//an order has already been submitted, what price should it fill at?
-        if (o.quantity <= 0) {
-            return;
-        }
         if (o.order_id.empty()) {
             o.order_id = "SIM-" + std::to_string(++order_seq_);
         }
@@ -108,6 +106,14 @@ private:
         if (o.timestamp == events::Timestamp{}) {
             o.timestamp = std::chrono::system_clock::now();
         }
+        if (o.quantity <= 0) {
+            publish_report(o, events::OrderStatus::Rejected, 0, 0, 0.0,
+                           "quantity_must_be_positive");
+            return;
+        }
+
+        order_status_[o.order_id] = events::OrderStatus::Accepted;
+        publish_report(o, events::OrderStatus::Accepted, 0, o.quantity);
 
         PendingOrder pending;
         pending.order = std::move(o);
@@ -133,7 +139,11 @@ private:
             return;
         }
 
-        std::vector<events::FillEvent> fills;
+        struct FillAndReport {
+            events::FillEvent fill;
+            events::ExecutionReportEvent report;
+        };
+        std::vector<FillAndReport> fill_reports;
         std::deque<PendingOrder> still_pending;
 
         while (!pending_.empty()) {
@@ -179,7 +189,16 @@ private:
             fill.remaining_qty = pending.remaining_qty;
             fill.is_partial = pending.remaining_qty > 0;
             fill.reference_price = pending.order.reference_price;
-            fills.push_back(fill);
+
+            auto status = pending.remaining_qty > 0
+                ? events::OrderStatus::PartiallyFilled
+                : events::OrderStatus::Filled;
+            order_status_[pending.order.order_id] = status;
+            auto report = make_report(
+                pending.order, status, fill_qty, pending.remaining_qty,
+                fill_price, ""
+            );
+            fill_reports.push_back({fill, report});
 
             if (pending.remaining_qty > 0) {
                 still_pending.push_back(std::move(pending));
@@ -189,7 +208,8 @@ private:
         pending_ = std::move(still_pending);
 
         publishing_fills_ = true;
-        for (const auto& fill : fills) {
+        for (const auto& fr : fill_reports) {
+            const auto& fill = fr.fill;
             if (config_.verbose) {
                 std::cout << "[SimpleExecSim] fill order=" << fill.order_id
                           << " instrument=" << fill.instrument_id
@@ -199,8 +219,48 @@ private:
                           << (fill.is_partial ? " partial" : "") << "\n";
             }
             bus_->publish(fill);
+            bus_->publish(fr.report);
         }
         publishing_fills_ = false;
+    }
+
+    events::ExecutionReportEvent make_report(
+        const events::OrderSubmittedEvent& o,
+        events::OrderStatus status,
+        int filled_qty,
+        int remaining_qty,
+        double fill_price = 0.0,
+        const std::string& reason = ""
+    ) const {
+        events::ExecutionReportEvent report{
+            o.instrument_id,
+            o.side,
+            o.order_type,
+            status
+        };
+        report.requested_qty = o.quantity;
+        report.filled_qty = filled_qty;
+        report.remaining_qty = remaining_qty;
+        report.fill_price = fill_price;
+        report.reference_price = o.reference_price;
+        report.producer = o.producer;
+        report.order_id = o.order_id;
+        report.reason = reason;
+        report.timestamp = std::chrono::system_clock::now();
+        return report;
+    }
+
+    void publish_report(
+        const events::OrderSubmittedEvent& o,
+        events::OrderStatus status,
+        int filled_qty,
+        int remaining_qty,
+        double fill_price = 0.0,
+        const std::string& reason = ""
+    ) const {
+        bus_->publish(make_report(
+            o, status, filled_qty, remaining_qty, fill_price, reason
+        ));
     }
 
     bool compute_fill_price(
@@ -248,6 +308,7 @@ private:
     double                                   last_price_;
     SimpleExecSimConfig                      config_;
     std::deque<PendingOrder>                 pending_;
+    std::unordered_map<std::string, events::OrderStatus> order_status_;
     std::unordered_map<std::string, double>  last_mid_;
     std::unordered_map<std::string, double>  last_bid_;
     std::unordered_map<std::string, double>  last_ask_;

@@ -4,6 +4,73 @@ C++ options trading engine. Event-driven, layered DDD architecture. Focus on a b
 
 ---
 
+## Volatility Lab Control Plane
+
+The MVP is now governed as a versioned volatility trading lab. Repo-local lab
+metadata lives under `lab/`:
+
+| Path | Purpose |
+|---|---|
+| `lab/versions.json` | Small-version roadmap, branch names, expected evidence, and latest report pointers |
+| `lab/registry/datasets.json` | Dataset contracts for local SPY panels and legacy fallback inputs |
+| `lab/registry/strategies.json` | Registered volatility techniques, expected edge, replay command, and risks |
+| `lab/registry/gates.json` | Required core gates and optional model gates |
+| `lab/reports/` | Version reports, smoke-gate JSON, and merge/hold/stop recommendations |
+
+Run the fast confidence loop before asking for a merge decision:
+
+```bash
+python3 demo/python/lab/run_smoke_gates.py \
+    --version-id v0.1-lab-foundation \
+    --profile core \
+    --keep-artifacts
+
+python3 demo/python/lab/write_version_report.py \
+    --version-id v0.1-lab-foundation \
+    --gate-json lab/reports/v0.1-lab-foundation_gates.json
+```
+
+Validate dataset contracts directly when changing data inputs:
+
+```bash
+python3 demo/python/lab/validate_data_contracts.py \
+    --output-json lab/reports/v0.2-data-contracts_data.json \
+    --output-md lab/reports/v0.2-data-contracts_data.md
+```
+
+Validate and render the strategy library when adding volatility techniques:
+
+```bash
+python3 demo/python/lab/validate_strategy_registry.py \
+    --output-json lab/reports/v0.3-strategy-library_registry.json \
+    --output-md lab/reports/v0.3-strategy-library_registry.md
+```
+
+Run a compact end-to-end lab experiment:
+
+```bash
+python3 demo/python/lab/run_lab_experiment.py \
+    --experiment-id v0.4-smoke \
+    --profile smoke \
+    --start-date 2025-08-12 \
+    --end-date 2025-08-13 \
+    --output-dir lab/reports/artifacts/v0.4-smoke
+```
+
+Validate rough-vol research gates and candidate backlog:
+
+```bash
+python3 demo/python/lab/validate_research_registry.py \
+    --output-json lab/reports/v0.5-research-expansion_registry.json \
+    --output-md lab/reports/v0.5-research-expansion_registry.md
+```
+
+Default policy: required core gates must pass for `merge`; core pass plus
+optional model failures becomes `hold`; core failures become `stop`. No branch
+is merged automatically.
+
+---
+
 ## Demo (Rough Volatility Models)
 
 ### Four-Strategy Hedger Comparison (`./build/alpha_pnl_test_runner`)
@@ -144,6 +211,19 @@ Box plots over 27 OOS days, with individual day scatter and μ/σ/Sharpe annotat
 
 Single-pass pipeline running the full composite signal stack against 5 days of SPY OPRA intraday data (Aug 7–13, 2025) with real-time ONNX inference for delta hedging.
 
+For walk-forward automation, `alpha_runner` also accepts non-breaking replay args:
+
+```bash
+cd demo
+./build/alpha_runner \
+    --csv data/spy_chain_panel.csv \
+    --start-date 2025-08-12 \
+    --end-date 2025-08-12 \
+    --artifacts runs/walk_forward/<run_id>/windows/2025-08-12/artifacts \
+    --hedger neural \
+    --results-csv runs/walk_forward/<run_id>/windows/2025-08-12/replay/neural_daily.csv
+```
+
 ### Signal Architecture
 
 Three alpha signals are blended into a composite z-score:
@@ -186,6 +266,40 @@ python3 calibrate_and_retrain.py \
     --epochs 100
 ```
 
+**First-class walk-forward pipeline v1:**
+
+`walk_forward_pipeline.py` promotes the manual retraining recipe into a versioned experiment pipeline: daily expanding schedule, per-window artifacts, C++ replay, balanced gates, summaries, and optional live artifact promotion.
+
+```bash
+cd demo/python/bsde
+
+# Fast local/CI smoke: uses the current short 5-date panel and never promotes.
+# Smoke keeps the same gates but uses a looser ONNX parity tolerance (1e-4)
+# so tiny BatchNorm export noise does not block plumbing checks.
+python3 walk_forward_pipeline.py \
+    --profile smoke \
+    --start-date 2025-08-12 \
+    --end-date 2025-08-13 \
+    --no-promote
+
+# Production-style run: full synthetic training budget and gated promotion.
+python3 walk_forward_pipeline.py \
+    --profile full \
+    --promote-if-pass
+```
+
+Run outputs are written to `demo/runs/walk_forward/<run_id>/`:
+
+| Output | Description |
+|---|---|
+| `manifest.json` | Full run config, window metadata, gates, artifact hashes, replay commands |
+| `summary.json` / `summary.md` | Compact run-level pass/fail and PnL comparison |
+| `windows/<deploy_date>/artifacts/` | Window-local `neural_bsde.onnx`, `normalization.json`, `Y0_init.json`, checkpoint |
+| `windows/<deploy_date>/replay/` | Neural and BS daily PnL CSVs from `alpha_runner` |
+| `windows/<deploy_date>/logs/` | Captured C++ replay logs |
+
+Promotion copies only the latest passing window's `neural_bsde.onnx`, `normalization.json`, and `Y0_init.json` into `demo/artifacts`, writing a live `manifest.json` and archiving prior live artifacts under `demo/artifacts/archive/<timestamp>/`.
+
 ### Alpha Runner Results (Aug 7–13, 2025 · 5 days)
 
 VRP regime: **−4.7%** (RV = 17.1% > IV = 12.4%). This is a negative-VRP window — realised moves exceeded implied vol — so long-gamma straddles collect positive carry via delta rebalancing (gamma scalping profits when RV > IV).
@@ -215,19 +329,21 @@ VRP regime: **−4.7%** (RV = 17.1% > IV = 12.4%). This is a negative-VRP window
 Before retraining: hedge P&L = −$274K, Sharpe < 0.  
 After walk-forward SPY calibration: hedge P&L = **+$3.416M**, Sharpe = **3.18**.
 
-### Execution Layer v1
+### Execution Layer v2
 
-Order execution is now centralized instead of letting hedge components self-fill. Strategy and hedge components publish `OrderSubmittedEvent`; execution infrastructure owns fill price, order provenance, partial-fill metadata, and `FillEvent` publication.
+Order execution is now centralized and lifecycle-aware. Strategy and hedge components publish `OrderSubmittedEvent`; execution infrastructure owns acceptance/rejection, fill price, order provenance, partial-fill metadata, risk gating, and `FillEvent` publication.
 
-| Area | Before | After v1 |
+| Area | Before | After v2 |
 |---|---|---|
 | Hedge fills | `DeltaHedger` / `NeuralBSDEHedger` directly created `FillEvent` and updated positions | Hedgers submit `OrderSubmittedEvent`; `SimpleExecSim` / `OrderRouter` publish fills |
 | Fill provenance | Alpha and hedge fills could be conflated unless manually tagged | Orders carry `producer` (`alpha_exec`, `hedge_order`, `broker`) and fills preserve it |
 | Execution price | Options used bid/ask in `SimpleExecSim`; hedge fills used raw spot | Options use bid/ask; underlying hedge orders apply configurable half-spread bps |
-| Order lifecycle | Immediate one-shot fill only | Accepted order → execution queue → fill; supports marketability checks, optional latency, and optional split fills |
+| Order lifecycle | Immediate one-shot fill only | `ExecutionReportEvent` publishes accepted, rejected, partially filled, filled, and canceled states |
 | Event metadata | `FillEvent` contained only instrument, side, price, qty, producer, timestamp | Fills also carry `order_id`, requested qty, remaining qty, partial flag, and reference price |
-| Seller path | `OrderRouter` was a logging skeleton | `OrderRouter` accepts orders, simulates fills, and publishes `FillEvent` |
+| Seller path | `OrderRouter` was a logging skeleton | `OrderRouter` accepts orders, simulates fills, publishes execution reports, and emits accounting fills |
 | Position accounting | Hedge position could be updated inside hedger before execution | Positions update only when execution publishes a fill |
+| Risk controls | `RiskControlEvent` was observed only as a log | Router applies `BlockOrders`, `CancelOrders`, and `ReduceOnly` gates before execution |
+| Regression check | No dedicated execution lifecycle test | `execution_layer_smoke_test` asserts accepted → partial → filled and rejected paths |
 
 ### Key Inference Notes (NeuralBSDEHedger)
 

@@ -26,7 +26,8 @@ from model import SharedWeightMLP
 
 
 def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
-                validate: bool = True, output_onnx: str | None = None):
+                validate: bool = True, output_onnx: str | None = None,
+                validation_atol: float = 1e-5):
     """
     从checkpoint加载模型并导出为ONNX。
 
@@ -35,6 +36,17 @@ def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
     """
     artifacts = Path(artifacts_dir)
     ckpt_path = Path(checkpoint_path)
+
+    result = {
+        "onnx_path": None,
+        "y0_path": None,
+        "validated": False,
+        "validation_passed": False,
+        "validation_skipped": False,
+        "max_err_Y": None,
+        "max_err_Z": None,
+        "validation_atol": float(validation_atol),
+    }
 
     print(f"[导出] 从 {ckpt_path} 加载checkpoint...")
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
@@ -56,6 +68,7 @@ def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
     # 输出:  Y (batch, 1)  |  Z (batch, state_dim)
     # --------------------------------------------------------
     onnx_path = Path(output_onnx) if output_onnx else artifacts / "neural_bsde.onnx"
+    result["onnx_path"] = str(onnx_path)
     dummy_input = torch.randn(1, state_dim)
 
     print(f"[导出] 导出ONNX到 {onnx_path}...")
@@ -79,6 +92,7 @@ def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
     # 保存Y0初始值（C++推理使用）
     # --------------------------------------------------------
     y0_path = artifacts / "Y0_init.json"
+    result["y0_path"] = str(y0_path)
     with open(y0_path, "w") as f:
         json.dump({"Y0": Y0_val, "state_dim": state_dim}, f, indent=2)
     print(f"  Y0已保存: {y0_path}")
@@ -93,7 +107,8 @@ def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
         except ImportError:
             print("  警告: onnxruntime未安装，跳过验证。")
             print("  安装: pip install onnxruntime")
-            return
+            result["validation_skipped"] = True
+            return result
 
         sess = ort.InferenceSession(str(onnx_path))
 
@@ -115,11 +130,15 @@ def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
         # 比较
         max_err_Y = np.abs(pt_Y - ort_Y).max()
         max_err_Z = np.abs(pt_Z - ort_Z).max()
+        result["validated"] = True
+        result["max_err_Y"] = float(max_err_Y)
+        result["max_err_Z"] = float(max_err_Z)
 
-        print(f"  Y最大绝对误差: {max_err_Y:.2e}  (阈值: 1e-5)")
-        print(f"  Z最大绝对误差: {max_err_Z:.2e}  (阈值: 1e-5)")
+        print(f"  Y最大绝对误差: {max_err_Y:.2e}  (阈值: {validation_atol:.1e})")
+        print(f"  Z最大绝对误差: {max_err_Z:.2e}  (阈值: {validation_atol:.1e})")
 
-        if max_err_Y < 1e-5 and max_err_Z < 1e-5:
+        if max_err_Y < validation_atol and max_err_Z < validation_atol:
+            result["validation_passed"] = True
             print(f"[Gate 2] ✓ PyTorch与ONNX输出匹配 — 通过")
         else:
             print(f"[Gate 2] ✗ 误差超过阈值 — C++集成前请勿继续")
@@ -132,6 +151,7 @@ def export_onnx(checkpoint_path: str | Path, artifacts_dir: str | Path,
     print(f"\n  下一步（Gate 2通过后）:")
     print(f"  cd build && cmake .. -DBUILD_ONNX_DEMO=ON -DONNXRUNTIME_ROOT=$HOME/onnxruntime && make")
     print(f"  ./demo_runner")
+    return result
 
 
 def main():
@@ -148,13 +168,16 @@ def main():
                         help="跳过Gate 2验证")
     parser.add_argument("--output-onnx", type=str, default=None,
                         help="Output ONNX file path (default: <artifacts>/neural_bsde.onnx)")
+    parser.add_argument("--validation-atol", type=float, default=1e-5,
+                        help="Max absolute PyTorch-vs-ONNX error threshold")
     args = parser.parse_args()
 
     if args.artifacts is None:
         args.artifacts = str(Path(__file__).parent.parent / "artifacts")
 
     export_onnx(args.checkpoint, args.artifacts, validate=args.validate,
-                output_onnx=args.output_onnx)
+                output_onnx=args.output_onnx,
+                validation_atol=args.validation_atol)
 
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@
 #include <vector>
 #include <chrono>
 #include <filesystem>
+#include <string>
 
 #include "core/events/EventBus.hpp"
 #include "core/domain/Instrument.hpp"
@@ -54,7 +55,88 @@
 #include "execution/OnnxInference.hpp"
 #endif
 
-int main() {
+namespace {
+
+struct AlphaRunnerConfig {
+    std::string csv;
+    std::string start_date;
+    std::string end_date;
+    std::string artifacts = "artifacts";
+    std::string results_csv;
+    std::string hedger = "auto";  // auto preserves historical no-arg behavior.
+    bool show_help = false;
+};
+
+void print_usage(const char* program) {
+    std::cout
+        << "Usage: " << program << " [options]\n\n"
+        << "Options:\n"
+        << "  --csv <path>          Historical SPY chain CSV. Default: demo data panel.\n"
+        << "  --start-date <date>   Inclusive replay start date (YYYY-MM-DD).\n"
+        << "  --end-date <date>     Inclusive replay end date (YYYY-MM-DD).\n"
+        << "  --artifacts <dir>     Model artifact directory. Default: artifacts.\n"
+        << "  --results-csv <path>  Write daily PnL CSV for pipeline gating.\n"
+        << "  --hedger <mode>       auto, neural, or bs. Default: auto.\n"
+        << "  --help                Show this help.\n";
+}
+
+bool parse_args(int argc, char** argv, AlphaRunnerConfig& cfg) {
+    auto need_value = [&](int i, const std::string& flag) -> bool {
+        if (i + 1 >= argc) {
+            std::cerr << "[alpha_runner] Missing value for " << flag << "\n";
+            return false;
+        }
+        return true;
+    };
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--help" || arg == "-h") {
+            cfg.show_help = true;
+            return true;
+        } else if (arg == "--csv") {
+            if (!need_value(i, arg)) return false;
+            cfg.csv = argv[++i];
+        } else if (arg == "--start-date") {
+            if (!need_value(i, arg)) return false;
+            cfg.start_date = argv[++i];
+        } else if (arg == "--end-date") {
+            if (!need_value(i, arg)) return false;
+            cfg.end_date = argv[++i];
+        } else if (arg == "--artifacts") {
+            if (!need_value(i, arg)) return false;
+            cfg.artifacts = argv[++i];
+        } else if (arg == "--results-csv") {
+            if (!need_value(i, arg)) return false;
+            cfg.results_csv = argv[++i];
+        } else if (arg == "--hedger") {
+            if (!need_value(i, arg)) return false;
+            cfg.hedger = argv[++i];
+            if (cfg.hedger != "auto" && cfg.hedger != "neural" && cfg.hedger != "bs") {
+                std::cerr << "[alpha_runner] --hedger must be auto, neural, or bs\n";
+                return false;
+            }
+        } else {
+            std::cerr << "[alpha_runner] Unknown option: " << arg << "\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+} // namespace
+
+int main(int argc, char** argv) {
+    AlphaRunnerConfig cfg;
+    if (!parse_args(argc, argv, cfg)) {
+        print_usage(argv[0]);
+        return 2;
+    }
+    if (cfg.show_help) {
+        print_usage(argv[0]);
+        return 0;
+    }
+
     std::cout <<  "Variance Alpha Pipeline Demo\n"
               <<  "============================\n\n";
 
@@ -64,12 +146,25 @@ int main() {
     // Paths relative to the demo/ working directory (where alpha_runner is invoked)
     const std::string panel_csv  = "data/spy_chain_panel.csv";
     const std::string legacy_csv = "data/spy_atm_chain.csv";
-    const std::string real_data_csv =
-        std::filesystem::exists(panel_csv) ? panel_csv : legacy_csv;
+    const bool explicit_csv = !cfg.csv.empty();
+    const std::string real_data_csv = explicit_csv
+        ? cfg.csv
+        : (std::filesystem::exists(panel_csv) ? panel_csv : legacy_csv);
+    if (explicit_csv && !std::filesystem::exists(real_data_csv)) {
+        std::cerr << "[alpha_runner] CSV not found: " << real_data_csv << "\n";
+        return 2;
+    }
     const bool use_real_data = std::filesystem::exists(real_data_csv);
     std::cout << "[数据模式] " << (use_real_data
         ? "真实 OPRA 数据 (" + real_data_csv + ")"
         : "合成数据 (market_data.csv)") << "\n\n";
+    if (!cfg.start_date.empty() || !cfg.end_date.empty()) {
+        std::cout << "[Replay Window] "
+                  << (cfg.start_date.empty() ? "<first>" : cfg.start_date)
+                  << " → "
+                  << (cfg.end_date.empty() ? "<last>" : cfg.end_date)
+                  << "\n\n";
+    }
 
     // ── 事件总线 ─────────────────────────────────────────────
     auto bus = std::make_shared<omm::events::EventBus>();
@@ -89,7 +184,8 @@ int main() {
     std::shared_ptr<omm::demo::HistoricalChainAdapter> chain_adapter;
 
     if (use_real_data) {
-        chain_adapter = std::make_shared<omm::demo::HistoricalChainAdapter>(bus, real_data_csv);
+        chain_adapter = std::make_shared<omm::demo::HistoricalChainAdapter>(
+            bus, real_data_csv, cfg.start_date, cfg.end_date);
     } else {
         feed = std::make_shared<omm::demo::SyntheticOptionFeed>(bus);
         feed->register_handlers();
@@ -170,13 +266,26 @@ int main() {
 
     // 将所有对冲组件声明在外层作用域，确保生命周期覆盖 adapter.run()
 #ifdef BUILD_ONNX_DEMO
-    const std::string onnx_path = "artifacts/neural_bsde.onnx";
-    const std::string norm_path = "artifacts/normalization.json";
-    const bool use_neural = std::filesystem::exists(onnx_path) &&
-                            std::filesystem::exists(norm_path);
+    const std::filesystem::path artifacts_dir = cfg.artifacts;
+    const std::string onnx_path = (artifacts_dir / "neural_bsde.onnx").string();
+    const std::string norm_path = (artifacts_dir / "normalization.json").string();
+    const bool neural_artifacts_available = std::filesystem::exists(onnx_path) &&
+                                            std::filesystem::exists(norm_path);
+    if (cfg.hedger == "neural" && !neural_artifacts_available) {
+        std::cerr << "[alpha_runner] Neural hedger requested but artifacts are missing:\n"
+                  << "  " << onnx_path << "\n"
+                  << "  " << norm_path << "\n";
+        return 2;
+    }
+    const bool use_neural = (cfg.hedger != "bs") && neural_artifacts_available;
     std::shared_ptr<::demo::OnnxInference>          onnx_model;
     std::shared_ptr<omm::demo::NeuralBSDEHedger>    neural_hedger;
 #else
+    if (cfg.hedger == "neural") {
+        std::cerr << "[alpha_runner] Neural hedger requested, but this binary was "
+                  << "built without BUILD_ONNX_DEMO.\n";
+        return 2;
+    }
     const bool use_neural = false;
 #endif
     std::shared_ptr<omm::application::DeltaHedger>  delta_hedger;
@@ -275,6 +384,8 @@ int main() {
     // ── 最终持仓 + PnL 归因 ───────────────────────────────────
     position_mgr->print_positions();
     pnl_tracker->print_summary();
+    if (!cfg.results_csv.empty())
+        pnl_tracker->write_daily_csv(cfg.results_csv);
 
     std::cout << "╔══════════════════════════════════════════════════════════╗\n"
               << "║  Complete.                                               ║\n"

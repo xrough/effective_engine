@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "datasets": [
+    {
+      "dataset_id": "spy_chain_panel_local_v1",
+      "asset": "SPY",
+      "path": "demo/data/spy_chain_panel.csv",
+      "schema_version": "spy_chain_panel.v1",
+      "schema_path": "lab/schemas/datasets/spy_chain_panel.v1.json",
+      "date_range": {
+        "start": "2025-08-07",
+        "end": "2025-08-13",
+        "trading_dates": 5
+      },
+      "row_count": 2029,
+      "required_columns": [
+        "timestamp_utc",
+        "underlying_price",
+        "atm_strike",
+        "expiry_date",
+        "time_to_expiry",
+        "call_mid",
+        "put_mid",
+        "call_bid",
+        "call_ask",
+        "put_bid",
+        "put_ask",
+        "atm_iv",
+        "call25d_strike",
+        "call25d_mid",
+        "call25d_bid",
+        "call25d_ask",
+        "put25d_strike",
+        "put25d_mid",
+        "put25d_bid",
+        "put25d_ask",
+        "rr25_iv",
+        "bf25_iv",
+        "vix_varswap",
+        "ssvi_rho",
+        "ssvi_phi",
+        "rv5_ann"
+      ],
+      "quality_checks": [
+        "timestamp_utc parses as UTC datetime",
+        "date range is strictly causal for walk-forward windows",
+        "bid <= mid <= ask for ATM and 25-delta quotes when present",
+        "time_to_expiry, underlying_price, atm_iv, and option mids are positive",
+        "no training window may include rows on or after its deploy date"
+      ],
+      "source_notes": "Local SPY OPRA-derived panel used by alpha_runner and walk_forward_pipeline. The data directory is intentionally gitignored, so this registry records the expected local contract rather than storing raw market data."
+    },
+    {
+      "dataset_id": "spy_atm_chain_local_v1",
+      "asset": "SPY",
+      "path": "demo/data/spy_atm_chain.csv",
+      "schema_version": "spy_atm_chain.v1",
+      "schema_path": "lab/schemas/datasets/spy_atm_chain.v1.json",
+      "date_range": {
+        "start": null,
+        "end": null,
+        "trading_dates": null
+      },
+      "row_count": null,
+      "required_columns": [
+        "timestamp_utc",
+        "underlying_price",
+        "atm_strike",
+        "expiry_date",
+        "time_to_expiry",
+        "call_mid",
+        "put_mid"
+      ],
+      "quality_checks": [
+        "legacy fallback only; prefer spy_chain_panel_local_v1 for lab experiments",
+        "ATM quote and spot columns must be finite and positive",
+        "atm_iv is intentionally absent and should be inferred downstream if this fallback is used"
+      ],
+      "source_notes": "Legacy ATM-only fallback used by alpha_runner when the richer panel is unavailable."
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "schema_path": "lab/schemas/strategies/strategy.v1.json",
+  "strategies": [
+    {
+      "strategy_id": "composite_vrp_har_skew_bs_delta",
+      "family": "variance-alpha",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "VRP z-score: model-free VIX variance swap or ATM IV squared minus short realised variance",
+        "HAR-RV z-score: ATM IV premium over heterogeneous realised-vol forecast",
+        "SkewCurvature z-score: market 25-delta butterfly versus SSVI-implied curvature"
+      ],
+      "hedger": "bs",
+      "expected_edge": "Collect variance-risk-premium and gamma/vega residuals while neutralising first-order spot exposure with analytic Black-Scholes delta.",
+      "current_status": "primary baseline replay strategy",
+      "replay_command": "cd demo && ./build/alpha_runner --hedger bs --start-date 2025-08-12 --end-date 2025-08-13 --results-csv <out>/bs_daily.csv",
+      "known_risks": [
+        "PnL level is highly sensitive to realised-versus-implied regime on the short local panel.",
+        "Current SPY data horizon is too short for production inference."
+      ]
+    },
+    {
+      "strategy_id": "composite_vrp_har_skew_neural_bsde_delta",
+      "family": "variance-alpha",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "Same composite signal stack as composite_vrp_har_skew_bs_delta",
+        "Walk-forward SPY-calibrated LRH delta-only BSDE artifacts"
+      ],
+      "hedger": "neural",
+      "expected_edge": "Approximate BS delta in Brownian-motion space after SPY walk-forward calibration while preserving gamma and vega alpha.",
+      "current_status": "model-gated candidate",
+      "replay_command": "cd demo && ./build/alpha_runner --hedger neural --artifacts <window-artifacts> --start-date <D> --end-date <D> --results-csv <out>/neural_daily.csv",
+      "known_risks": [
+        "Requires ONNX Runtime build and valid local neural_bsde artifacts.",
+        "Delta-only objective intentionally does not solve a clean terminal-payoff PDE.",
+        "U-factor inference remains zeroed until the training objective uses them robustly."
+      ]
+    },
+    {
+      "strategy_id": "four_hedger_oos_comparison",
+      "family": "hedger-benchmark",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "Shared variance alpha entry logic",
+        "BS delta, rough-vol delta, full-replication BSDE, and delta-only BSDE hedgers"
+      ],
+      "hedger": "multi",
+      "expected_edge": "Compare hedge-versus-carry tradeoff and confirm that full replication removes VRP while partial hedging preserves most alpha.",
+      "current_status": "documented benchmark",
+      "replay_command": "cd demo && ./build/alpha_pnl_test_runner",
+      "known_risks": [
+        "Depends on local ONNX artifacts for neural passes.",
+        "Interpretation must separate hedge residual variance from total PnL carry."
+      ]
+    },
+    {
+      "strategy_id": "rough_conditional_carry_bf25",
+      "family": "smile-forecast-research",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "25-delta butterfly",
+        "Rough geometry correction conditioned on carry",
+        "Optional active/quiet spot-move regime labels"
+      ],
+      "hedger": "research-only",
+      "expected_edge": "Rough geometry adds incremental information to carry, mainly for smile curvature rather than skew.",
+      "current_status": "research gate narrow pass",
+      "replay_command": "python3 demo/python/research/roughtemporal_intraday/gate4_sweep.py",
+      "known_risks": [
+        "Gate 5 shows weak stress-regime concentration.",
+        "Research output is not yet wired into alpha_runner as a tradable strategy."
+      ]
+    },
+    {
+      "strategy_id": "component_downside_vrp",
+      "family": "signal-component",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "Downside realised variance",
+        "ATM implied variance",
+        "Rolling downside VRP z-score"
+      ],
+      "hedger": "not-wired",
+      "expected_edge": "Separate downside jump/left-tail variance premium from symmetric variance carry.",
+      "current_status": "registered component",
+      "replay_command": "rg \"DownsideVRPSignal\" demo/cpp/signal",
+      "known_risks": [
+        "Component is implemented as a signal header but not yet part of the production composite blend.",
+        "Needs tail-event sample size before it can be promoted to strategy status."
+      ]
+    },
+    {
+      "strategy_id": "component_log_iv_rv_ratio",
+      "family": "signal-component",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "Log implied-vol to realised-vol ratio",
+        "Rolling ratio z-score"
+      ],
+      "hedger": "not-wired",
+      "expected_edge": "Normalise IV/RV richness into a more stable scale than raw variance spread.",
+      "current_status": "registered component",
+      "replay_command": "rg \"LogIVRVRatioSignal\" demo/cpp/signal",
+      "known_risks": [
+        "Can duplicate VRP information if blended naively.",
+        "Needs orthogonality checks against the current VRP signal."
+      ]
+    },
+    {
+      "strategy_id": "component_realized_skewness",
+      "family": "signal-component",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "Rolling spot return skewness",
+        "Smile skew features"
+      ],
+      "hedger": "not-wired",
+      "expected_edge": "Detect realised asymmetry regimes where put-skew carry or curvature signals should be resized.",
+      "current_status": "registered component",
+      "replay_command": "rg \"RealizedSkewnessSignal\" demo/cpp/signal",
+      "known_risks": [
+        "Short local panel may make realised skew estimates unstable.",
+        "Needs regime-gated replay before use in live composite weights."
+      ]
+    },
+    {
+      "strategy_id": "component_iv_autocorr",
+      "family": "signal-component",
+      "asset_scope": ["SPY"],
+      "signal_inputs": [
+        "ATM IV changes",
+        "Rolling implied-vol autocorrelation"
+      ],
+      "hedger": "not-wired",
+      "expected_edge": "Identify sticky implied-vol regimes where carry and mean-reversion assumptions differ.",
+      "current_status": "registered component",
+      "replay_command": "rg \"IVAutocorrSignal\" demo/cpp/signal",
+      "known_risks": [
+        "Autocorrelation features can be sensitive to sampling interval.",
+        "Not yet scored against replay PnL."
+      ]
+    }
+  ]
+}

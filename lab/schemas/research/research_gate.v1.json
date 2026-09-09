@@ -1,0 +1,35 @@
+{
+  "schema_id": "research_gate.v1",
+  "required_fields": [
+    "gate_id",
+    "title",
+    "family",
+    "hypothesis",
+    "status",
+    "verdict",
+    "implementation_paths",
+    "latest_outputs",
+    "decision_rule",
+    "next_action"
+  ],
+  "field_rules": {
+    "gate_id": "unique lowercase identifier",
+    "title": "human-readable gate title",
+    "family": "research family such as smile-geometry, temporal-forecast, regime-dynamics, or candidate",
+    "hypothesis": "falsifiable statement being tested",
+    "status": "pass, rejected, weak, narrow-support, planned, or candidate",
+    "verdict": "plain-language interpretation of current evidence",
+    "implementation_paths": "non-empty list of local scripts/modules",
+    "latest_outputs": "list of local output artifacts when evidence exists",
+    "decision_rule": "what would promote/reject the research line",
+    "next_action": "concrete next experiment or implementation action"
+  },
+  "recommended_statuses": [
+    "pass",
+    "rejected",
+    "weak",
+    "narrow-support",
+    "planned",
+    "candidate"
+  ]
+}

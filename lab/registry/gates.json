@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "core": {
+      "description": "Fast local confidence gates required before recommending merge.",
+      "required_gate_ids": [
+        "data_contract_validation",
+        "strategy_registry_validation",
+        "research_registry_validation",
+        "configure_demo",
+        "build_core_targets",
+        "execution_layer_smoke",
+        "python_walk_forward_unit",
+        "bs_replay_smoke",
+        "experiment_orchestrator_smoke"
+      ],
+      "optional_gate_ids": []
+    },
+    "model": {
+      "description": "Core gates plus optional ONNX/model gates when local dependencies are available.",
+      "required_gate_ids": [
+        "data_contract_validation",
+        "strategy_registry_validation",
+        "research_registry_validation",
+        "configure_demo",
+        "build_core_targets",
+        "execution_layer_smoke",
+        "python_walk_forward_unit",
+        "bs_replay_smoke",
+        "experiment_orchestrator_smoke"
+      ],
+      "optional_gate_ids": [
+        "onnx_dependency_probe",
+        "configure_onnx_demo",
+        "build_onnx_alpha_runner",
+        "neural_replay_smoke",
+        "walk_forward_model_smoke"
+      ]
+    }
+  },
+  "gates": [
+    {
+      "gate_id": "data_contract_validation",
+      "required": true,
+      "description": "Validate registered local dataset contracts before build/replay gates.",
+      "command_template": "python3 demo/python/lab/validate_data_contracts.py --output-json <artifacts>/data_contracts.json --output-md <artifacts>/data_contracts.md",
+      "success_criteria": "All selected registered datasets exist locally, match required columns, pass numeric/quote checks, and produce causal walk-forward windows."
+    },
+    {
+      "gate_id": "strategy_registry_validation",
+      "required": true,
+      "description": "Validate registered volatility strategies and render the strategy catalog.",
+      "command_template": "python3 demo/python/lab/validate_strategy_registry.py --output-json <artifacts>/strategy_registry.json --output-md <artifacts>/strategy_registry.md",
+      "success_criteria": "Strategy ids are unique, required fields are present, family coverage is broad enough, and at least one tradable strategy and one component backlog item exist."
+    },
+    {
+      "gate_id": "research_registry_validation",
+      "required": true,
+      "description": "Validate rough-vol research gates and candidate research backlog.",
+      "command_template": "python3 demo/python/lab/validate_research_registry.py --output-json <artifacts>/research_registry.json --output-md <artifacts>/research_registry.md",
+      "success_criteria": "Research gates have unique ids, evidence outputs for non-candidates, at least one pass, one rejected negative control, and one candidate backlog item."
+    },
+    {
+      "gate_id": "configure_demo",
+      "required": true,
+      "description": "Configure the demo CMake build directory.",
+      "command_template": "cmake -S demo -B demo/build -DBUILD_ONNX_DEMO=OFF",
+      "success_criteria": "CMake exits 0, build files are generated, and core gates do not depend on ONNX Runtime."
+    },
+    {
+      "gate_id": "build_core_targets",
+      "required": true,
+      "description": "Build alpha_runner and execution_layer_smoke_test.",
+      "command_template": "cmake --build demo/build --target alpha_runner execution_layer_smoke_test -j2",
+      "success_criteria": "Both required targets build successfully."
+    },
+    {
+      "gate_id": "execution_layer_smoke",
+      "required": true,
+      "description": "Exercise accepted, partial, filled, and rejected execution lifecycle paths.",
+      "command_template": "demo/build/execution_layer_smoke_test",
+      "success_criteria": "Smoke executable exits 0."
+    },
+    {
+      "gate_id": "python_walk_forward_unit",
+      "required": true,
+      "description": "Run unit tests for schedule generation, gates, promotion/archive, and manifest writing.",
+      "command_template": "python3 demo/python/bsde/test_walk_forward_pipeline.py",
+      "success_criteria": "Python unittest exits 0."
+    },
+    {
+      "gate_id": "bs_replay_smoke",
+      "required": true,
+      "description": "Replay the current two-day local SPY window with BS delta and write daily CSV.",
+      "command_template": "cd demo && ./build/alpha_runner --hedger bs --start-date 2025-08-12 --end-date 2025-08-13 --results-csv <artifacts>/bs_daily.csv",
+      "success_criteria": "Replay exits 0 and writes a non-empty daily PnL CSV."
+    },
+    {
+      "gate_id": "experiment_orchestrator_smoke",
+      "required": true,
+      "description": "Run the unified lab experiment orchestrator in smoke mode.",
+      "command_template": "python3 demo/python/lab/run_lab_experiment.py --experiment-id <version>_orchestrator_smoke --profile smoke --start-date 2025-08-12 --end-date 2025-08-13 --output-dir <artifacts>/experiment_orchestrator",
+      "success_criteria": "Experiment writes manifest.json, summary.json, summary.md, validates registries, builds alpha_runner, and replays BS daily PnL."
+    },
+    {
+      "gate_id": "onnx_dependency_probe",
+      "required": false,
+      "description": "Detect whether local ONNX Runtime headers/libs and neural artifacts are available.",
+      "command_template": "filesystem probe",
+      "success_criteria": "Optional model gates may run only when dependencies and artifacts are present."
+    },
+    {
+      "gate_id": "neural_replay_smoke",
+      "required": false,
+      "description": "Replay the same two-day local SPY window with neural BSDE hedger.",
+      "command_template": "cd demo && ./build/alpha_runner --hedger neural --artifacts demo/artifacts --start-date 2025-08-12 --end-date 2025-08-13 --results-csv <artifacts>/neural_daily.csv",
+      "success_criteria": "Replay exits 0 and writes a finite non-empty daily PnL CSV."
+    },
+    {
+      "gate_id": "configure_onnx_demo",
+      "required": false,
+      "description": "Reconfigure the demo build with BUILD_ONNX_DEMO=ON when local ONNX Runtime is available.",
+      "command_template": "cmake -S demo -B demo/build -DBUILD_ONNX_DEMO=ON -DONNXRUNTIME_ROOT=<onnxruntime-root>",
+      "success_criteria": "CMake exits 0 and finds ONNX Runtime."
+    },
+    {
+      "gate_id": "build_onnx_alpha_runner",
+      "required": false,
+      "description": "Build alpha_runner with ONNX Runtime linked.",
+      "command_template": "cmake --build demo/build --target alpha_runner -j2",
+      "success_criteria": "alpha_runner builds with BUILD_ONNX_DEMO."
+    },
+    {
+      "gate_id": "walk_forward_model_smoke",
+      "required": false,
+      "description": "Run the walk-forward retraining pipeline in smoke/no-promote mode.",
+      "command_template": "python3 demo/python/bsde/walk_forward_pipeline.py --profile smoke --start-date 2025-08-12 --end-date 2025-08-13 --no-promote",
+      "success_criteria": "Pipeline exits 0 and writes manifest, summary.json, and summary.md."
+    }
+  ]
+}

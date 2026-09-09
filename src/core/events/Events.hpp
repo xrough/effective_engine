@@ -80,6 +80,16 @@ enum class OrderType {
     Limit   // Limit order: only executed at the specified price or better
 };
 
+enum class OrderStatus {
+    New,
+    Accepted,
+    Rejected,
+    PartiallyFilled,
+    Filled,
+    Canceled,
+    Expired
+};
+
 // OrderSubmittedEvent: intention to submit an order, the excution will be decided by OrderRouter -> FillEvent is the actual deal execution result (can also used by logging / monitoring)
 struct OrderSubmittedEvent {
     std::string instrument_id; // Order target contract (usually the underlying asset, e.g., "AAPL")
@@ -91,6 +101,25 @@ struct OrderSubmittedEvent {
     std::string producer        = "alpha_exec";
     std::string order_id        = "";
     Timestamp   timestamp       = std::chrono::system_clock::now();
+};
+
+// ExecutionReportEvent: order lifecycle update from execution infrastructure.
+// FillEvent remains the accounting fact consumed by positions/PnL; this event
+// makes order state observable without overloading FillEvent.
+struct ExecutionReportEvent {
+    std::string instrument_id;
+    Side        side;
+    OrderType   order_type;
+    OrderStatus status;
+    int         requested_qty = 0;
+    int         filled_qty = 0;
+    int         remaining_qty = 0;
+    double      fill_price = 0.0;
+    double      reference_price = 0.0;
+    std::string producer = "";
+    std::string order_id = "";
+    std::string reason = "";
+    Timestamp   timestamp = std::chrono::system_clock::now();
 };
 
 // ============================================================
