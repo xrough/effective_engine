@@ -4,6 +4,17 @@ C++ options trading engine. Event-driven, layered DDD architecture. Focus on a b
 
 ---
 
+## Analysis notebooks
+
+The [`notebooks/`](notebooks/) series is an executable volatility study and a reusable
+structured-data competition template. It covers data contracts, leakage-safe validation for
+IID/grouped/time/panel geometries, regression/classification/ranking objectives, diagnostics,
+OOF model comparison, final refit, submission checks, and reproducible evidence export. Start
+with the [notebook guide](notebooks/README.md) or open the
+[competition workbench](notebooks/competition_workbench.ipynb) directly.
+
+---
+
 ## Volatility Lab Control Plane
 
 The MVP is now governed as a versioned volatility trading lab. Repo-local lab
